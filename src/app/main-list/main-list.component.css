@@ -8,12 +8,13 @@
 	bottom: 0;
 	
 	z-index: 1;
-  box-shadow: 4px 0 0 rgba(0, 0, 0, .125);
+  box-shadow: 3px 0px 9px rgba(0, 0, 0, .125);
 }
 
 :host sub-list {
     width: 100%;
     margin: 0;
+    padding: 1rem 0;
     background: transparent;
     box-shadow: none;
     vertical-align: inherit;
