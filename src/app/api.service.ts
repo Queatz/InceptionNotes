@@ -27,10 +27,14 @@ export class ApiService {
       this.intro();
     }
     
-    let view = null;//JSON.parse(localStorage.getItem('view'));
+    let view: any = localStorage.getItem('view');
+    
+    // Search for view and rebuild parents
+    view = this.search(view);
     
     if (view) {
-      this.view = view; // XXX This introduces a bug, because views are persisted as duplicated objects
+      this.view.eye = this.view.show = view.view;
+      this.view.parents = view.parents;
     } else {
       this.view.eye = this.view.show = this.root;
     }
@@ -93,7 +97,7 @@ export class ApiService {
   }
   
   private saveView() {
-    localStorage.setItem('view', JSON.stringify(this.view));
+    localStorage.setItem('view', this.view.eye.id);
   }
   
   public newBlankList() {
@@ -106,71 +110,96 @@ export class ApiService {
     }
   }
   
-  private newId() {
+  public newId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
   
   private intro() {
     this.root = {
-    id: '1',
-    name: 'My Notes',
-    color: '#E6E3D7',
-    items: [
-      {
-        id: '2',
-        name: 'Welcome to Inception Notes!',
-        color: '#E6E3D7',
-        items: [
-          {
-            id: '3',
-            name: '<B>Right-click</B> on the background to get help',
-            color: '#E6E3D7',
-            items: []
-          }, {
-            id: '4',
-            name: 'Have fun!',
-            color: '#E6E3D7',
-            items: []
-          }
-        ]
-      },
-      {
-        id: '5',
-        name: 'Main Projects',
-        color: '#E6E3D7',
-        items: [
-          {
-            id: '6',
-            name: 'My First Project',
-            color: '#E6E3D7',
-            items: []
-          },
-          {
-            id: '7',
-            name: 'My Other Project',
-            color: '#E6E3D7',
-            items: []
-          }
-        ]
-      }, {
-        id: '8',
-        name: 'My Reminders',
-        color: '#D7E6D9',
-        items: [
-          {
-            id: '9',
-            name: 'Clean room',
-            color: '#D7E6D9',
-            items: []
-          }, {
-            id: '10',
-            name: 'Go for a run',
-            color: '#D7E6D9',
-            items: []
-          }
-        ]
-      }
-    ]
+      id: '1',
+      name: 'My Notes',
+      color: '#E6E3D7',
+      items: [
+        {
+          id: '2',
+          name: 'Welcome to Inception Notes!',
+          color: '#E6E3D7',
+          items: [
+            {
+              id: '3',
+              name: '<B>Right-click</B> on the background to get help',
+              color: '#E6E3D7',
+              items: []
+            }, {
+              id: '4',
+              name: 'Have fun!',
+              color: '#E6E3D7',
+              items: []
+            }
+          ]
+        },
+        {
+          id: '5',
+          name: 'Main Projects',
+          color: '#E6E3D7',
+          items: [
+            {
+              id: '6',
+              name: 'My First Project',
+              color: '#E6E3D7',
+              items: []
+            },
+            {
+              id: '7',
+              name: 'My Other Project',
+              color: '#E6E3D7',
+              items: []
+            }
+          ]
+        }, {
+          id: '8',
+          name: 'My Reminders',
+          color: '#D7E6D9',
+          items: [
+            {
+              id: '9',
+              name: 'Clean room',
+              color: '#D7E6D9',
+              items: []
+            }, {
+              id: '10',
+              name: 'Go for a run',
+              color: '#D7E6D9',
+              items: []
+            }
+          ]
+        }
+      ]
+    }
   }
+  
+  private search(id: string) {
+    return this.traverse(id, this.root, []);
+  }
+  
+  private traverse(id: string, cursor: any, parents: Array<any>) {
+    parents = Array.from(parents);
+  
+    if (cursor.id === id) {
+      return {
+        view: cursor,
+        parents: parents
+      };
+    }
+    
+    parents.push(cursor);
+  
+    for (let item of cursor.items) {
+      let query = this.traverse(id, item, parents);
+      
+      if (query) {
+        return query;
+      }
+    }
   }
 }

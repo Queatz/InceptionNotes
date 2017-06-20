@@ -156,7 +156,11 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   private initNext() {
-    console.log(this.list);
+    // Heal notes without ids
+    if (!this.list.id) {
+      this.list.id = this.api.newId();
+    }
+  
     if (this.useAsNavigation) {
       return;
     }
