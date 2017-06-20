@@ -56,11 +56,6 @@ export class MainDeskComponent implements OnInit {
       return;
     }
     
-    this.getLists().push({
-      name: '',
-      color: '#ffffff',
-      items: [],
-      transient: true
-    });
+    this.getLists().push(this.api.newBlankList());
   }
 }

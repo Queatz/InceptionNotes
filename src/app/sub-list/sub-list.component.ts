@@ -156,6 +156,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   private initNext() {
+    console.log(this.list);
     if (this.useAsNavigation) {
       return;
     }
@@ -164,11 +165,6 @@ export class SubListComponent implements OnInit, OnChanges {
       return;
     }
   
-    this.list.items.push({
-      name: '',
-      color: '#ffffff',
-      items: [],
-      transient: true
-    });
+    this.list.items.push(this.api.newBlankList());
   }
 }
