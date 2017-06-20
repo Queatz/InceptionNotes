@@ -47,7 +47,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
   
   isSelectedNav(item: any) {
-    return item === this.api.getShow();
+    return item === this.api.getShow() || this.api.traverse(item.id, this.api.getShow(), []);
   }
   
   openList(dblclickEvent: Event) {

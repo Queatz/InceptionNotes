@@ -182,7 +182,7 @@ export class ApiService {
     return this.traverse(id, this.root, []);
   }
   
-  private traverse(id: string, cursor: any, parents: Array<any>) {
+  public traverse(id: string, cursor: any, parents: Array<any>) {
     parents = Array.from(parents);
   
     if (cursor.id === id) {

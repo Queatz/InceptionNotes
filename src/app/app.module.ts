@@ -10,6 +10,7 @@ import { UiService } from './ui.service';
 import { SubListComponent } from './sub-list/sub-list.component';
 import { ContenteditableModelDirective } from './contenteditable-model.directive';
 import { DialogComponent } from './dialog/dialog.component';
+import { SubSubListItemComponent } from './sub-sub-list-item/sub-sub-list-item.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { DialogComponent } from './dialog/dialog.component';
     MainDeskComponent,
     SubListComponent,
     ContenteditableModelDirective,
-    DialogComponent
+    DialogComponent,
+    SubSubListItemComponent
   ],
   entryComponents: [DialogComponent],
   imports: [

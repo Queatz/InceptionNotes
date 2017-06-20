@@ -8,7 +8,8 @@
       (keydown.backspace)="onNameBackspacePressed()"
       (keydown.enter)="onNameEnterPressed(element)"
       class="sub-list-title"></div>
-  <div [contentEditable]="!useAsNavigation"
+  <div *ngIf="!useAsNavigation">
+    <div [contentEditable]="!useAsNavigation"
       *ngFor="let item of list.items"
       [hidden]="useAsNavigation && item.transient"
       #element
@@ -22,4 +23,14 @@
       (keydown.control.arrowdown)="moveItem($event, item, 1)"
       [ngClass]="{'is-selected': isSelectedNav(item)}"
       class="sub-list-item"></div>
+  </div>
+  <div *ngIf="useAsNavigation">
+    <sub-sub-list-item
+      *ngFor="let item of list.items"
+      [hidden]="item.transient"
+      (click)="showItem($event, item)"
+      (dblclick)="openItem($event, item)"
+      [item]="item"
+      class="sub-list-item"></sub-sub-list-item>
+  </div>
 </div>

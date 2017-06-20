@@ -1,0 +1,20 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+.sub-item {
+  padding: 1rem;
+  display: block;
+  margin: 0;
+}
+
+.sub-item:hover,
+.sub-item.is-selected {
+  background: rgba(0, 0, 0, .125);
+  cursor: pointer;
+}
+
+.sub-sub {
+  background: rgba(0, 0, 0, .075);
+}
