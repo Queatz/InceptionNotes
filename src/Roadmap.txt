@@ -1,0 +1,21 @@
+ [   ] Add Options dialog to configure
+   [   ] persistent backends: backend(s)
+     [   ] Health check to make sure the API is working correctly (try to store + retrieve)
+   [   ] double-click to open or  
+   [   ] bottom drawer on/off
+   [   ] Note: Press F11 or make this window fullscreen to make this your desktop
+   [   ] Dark theme
+
+
+Maybe:
+ [   ] Bottom drawer with interior (preview) of clicked on item
+ [   ] View list history of edits
+ [   ] Change background
+ 
+ 
+   [ X ] If no parent, "Create new list with "My Todo List" as first item? [ No     Yes ]" dialog
+   [ X ] doubleclk on desk to hide/show nav (or press esc to show)
+ [ X ] Esc goes UP
+  [ X ] Make eye favicon icon
+ [ X ] Color
+ [ X ] Persist to Local Strage

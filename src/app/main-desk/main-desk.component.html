@@ -1,0 +1,4 @@
+<sub-list *ngFor="let list of getLists()"
+    (modified)="onItemModified(list)"
+    (removed)="onItemRemoved(list)"
+    [list]="list"></sub-list>

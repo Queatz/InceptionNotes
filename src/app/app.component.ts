@@ -1,10 +1,30 @@
-import { Component } from '@angular/core';
+import { Component, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
+import { ApiService } from './api.service';
+import { UiService } from './ui.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  host: { '(window:keydown.esc)': 'escapePressed($event)' }
 })
 export class AppComponent {
-  title = 'app';
+  constructor(
+      private api: ApiService,
+      private ui: UiService,
+      public view: ViewContainerRef,
+      public resolver: ComponentFactoryResolver
+  ) {
+    this.ui.registerAppComponent(this);
+  }
+  
+  escapePressed(event: any) {
+    if (!this.ui.back()) {
+      this.api.up();
+    }
+  }
+  
+  getEnv() {
+    return this.ui.getEnv();
+  }
 }

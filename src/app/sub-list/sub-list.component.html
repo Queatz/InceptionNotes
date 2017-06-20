@@ -1,0 +1,25 @@
+<div [ngClass]="{'is-navigation': useAsNavigation}">
+	<div [contentEditable]="true"
+	    #element
+      [(contenteditableModel)]="list.name"
+      (contenteditableModelChange)="onNameChange()"
+      (dblclick)="!useAsNavigation ? openList($event) : undefined"
+      (click)="useAsNavigation ? openList($event) : undefined"
+      (keydown.backspace)="onNameBackspacePressed()"
+      (keydown.enter)="onNameEnterPressed(element)"
+      class="sub-list-title"></div>
+  <div [contentEditable]="!useAsNavigation"
+      *ngFor="let item of list.items"
+      [hidden]="useAsNavigation && item.transient"
+      #element
+      [(contenteditableModel)]="item.name"
+      (contenteditableModelChange)="onItemChange(item)"
+      (click)="useAsNavigation ? showItem($event, item) : undefined"
+      (dblclick)="openItem($event, item)"
+      (keydown.enter)="onItemEnterPressed(element, item)"
+      (keydown.backspace)="onItemBackspacePressed(element, item)"
+      (keydown.control.arrowup)="moveItem($event, item, -1)"
+      (keydown.control.arrowdown)="moveItem($event, item, 1)"
+      [ngClass]="{'is-selected': isSelectedNav(item)}"
+      class="sub-list-item"></div>
+</div>

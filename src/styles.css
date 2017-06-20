@@ -1,1 +1,13 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css?family=Overpass');
+
+body {
+	height: 100%;
+	margin: 0;
+	font-family: 'Overpass', sans-serif;
+}
+
+[hidden] { display: none !important;}
+
+textarea, input {
+  font: inherit;
+}
