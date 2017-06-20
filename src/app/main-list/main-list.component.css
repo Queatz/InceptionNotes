@@ -18,4 +18,6 @@
     box-shadow: none;
     vertical-align: inherit;
     display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }

@@ -39,8 +39,19 @@
     color: lightblue;
 }
 
+.is-navigation .sub-list-item {
+  padding: .5rem 1rem;
+  margin: 0.25rem 0;
+}
+
+.is-navigation .sub-list-item:before {
+  display: none;
+}
+
 .is-navigation .sub-list-item:hover,
 .sub-list-item.is-selected {
-  color: steelblue;
+  background: rgba(0, 0, 0, .125);
+  display: flex;
+  border-radius: 4px;
   cursor: pointer;
 }
