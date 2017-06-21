@@ -109,6 +109,7 @@ export class ApiService {
     return {
       id: this.newId(),
       name: '',
+      description: '',
       color: '#ffffff',
       items: [],
       transient: true

@@ -9,7 +9,8 @@ import { OpComponent } from '../op/op.component';
   styleUrls: ['./main-desk.component.css'],
   host: {
     '(dblclick)': 'toggleSidepane()',
-    '(contextmenu)': 'menu($event)'
+    '(contextmenu)': 'menu($event)',
+    '[style.background-color]': 'getEnv().useDarkTheme ? \'#404040\' : undefined'
   }
 })
 export class MainDeskComponent implements OnInit, OnChanges {

@@ -50,7 +50,8 @@ export class UiService {
       sidepane: true,
       dblClickToOpen: true,
       lastBackup: '',
-      showDescriptions: true
+      showDescriptions: true,
+      useDarkTheme: false
     };
   }
   

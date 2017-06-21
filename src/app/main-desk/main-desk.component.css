@@ -21,3 +21,8 @@ main-list+:host {
 .items {
   padding: 1rem;
 }
+
+
+:host.dark-theme {
+  background: #404040;
+}
