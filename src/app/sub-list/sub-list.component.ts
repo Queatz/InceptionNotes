@@ -91,8 +91,12 @@ export class SubListComponent implements OnInit, OnChanges {
     }
   }
   
+  private isEmptyName(name: string) {
+    return !name.replace(/<(?:.|\n)*?>/gm, '').trim();
+  }
+  
   onNameBackspacePressed() {
-    if (!this.list.name && this.list.items.length === 1 && !this.list.items[0].name) {
+    if (this.isEmptyName(this.list.name) && this.list.items.length === 1 && !this.list.items[0].name) {
       this.removed.emit();
     }
   }
@@ -116,7 +120,13 @@ export class SubListComponent implements OnInit, OnChanges {
   }
   
   moveItem(event: Event, item: any, move: number) {
+    event.stopPropagation();
+    
     let location = this.list.items.indexOf(item);
+
+    if (location === -1) {
+      return;
+    }
     
     if (move < 0 && location === 0) {
       return;
@@ -135,7 +145,14 @@ export class SubListComponent implements OnInit, OnChanges {
   
   onItemEnterPressed(element: any, item: any) {
     if (element.nextSibling && element.nextSibling.focus) {
-      element.nextSibling.focus();
+      let i = this.list.items.indexOf(item);
+      
+      if (i !== -1) {
+        this.list.items.splice(i + 1, 0, this.api.newBlankList());
+        setTimeout(() => element.nextSibling.focus());
+      } else {
+        element.nextSibling.focus();
+      }
     } else if (item.name) {
       item.transient = false;
       this.initNext();
@@ -146,12 +163,39 @@ export class SubListComponent implements OnInit, OnChanges {
   }
   
   onItemBackspacePressed(element: any, item: any) {
-    if (!item.name && this.list.items.length > 1) {
-      this.list.items.splice(this.list.items.indexOf(item), 1);
-      
-       if (element.previousSibling && element.previousSibling.focus) {
-        element.previousSibling.focus();
+    if (this.isEmptyName(item.name) && this.list.items.length > 1) {
+      let c = this.api.getSubItemNames(item);
+    
+      if (c.length) {
+        this.ui.dialog({
+          message: 'Also delete ' + c.length + ' sub-item' + (c.length === 1 ? '' : 's') + '?\n\n' + c.join('\n'),
+          ok: () => {
+            this.deleteItem(element, item);
+          }
+        });
+      } else {
+        this.deleteItem(element, item);
       }
+    }
+  }
+  
+  countSubItems(item: any) {
+    return this.api.getSubItemNames(item).length;
+  }
+  
+  getEnv() {
+    return this.ui.getEnv();
+  }
+  
+  dontPropagate(event: Event) {
+    event.stopPropagation();
+  }
+  
+  private deleteItem(element: any, item: any) {
+    this.list.items.splice(this.list.items.indexOf(item), 1);
+
+     if (element.previousSibling && element.previousSibling.focus) {
+      element.previousSibling.focus();
     }
   }
 

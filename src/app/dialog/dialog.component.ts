@@ -1,10 +1,13 @@
-import { Component, OnInit, AfterViewInit, Input, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, ElementRef, ViewChild, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
 
 @Component({
   selector: 'app-dialog',
   templateUrl: './dialog.component.html',
   styleUrls: ['./dialog.component.css'],
-  host: { '(click)': 'back()'}
+  host: {
+    '(click)': 'back()',
+    '(keyup.enter)': 'clickOk()'
+  }
 })
 export class DialogComponent implements OnInit, AfterViewInit {
 
@@ -16,15 +19,24 @@ export class DialogComponent implements OnInit, AfterViewInit {
   @Input() config: any;
   @Input() clickout: any;
   
+  @ViewChild('custom', { read: ViewContainerRef })
+  private custom: ViewContainerRef; 
+  
   private model = {
     choice: null,
     input: ''
   };
 
-  constructor(private element: ElementRef) { }
+  constructor(private element: ElementRef,
+    private resolver: ComponentFactoryResolver,
+    private view: ViewContainerRef) { }
 
   ngOnInit() {
     this.model.input = this.config.prefill || '';
+    
+    if (this.config.view) {
+      this.custom.createComponent(this.resolver.resolveComponentFactory(this.config.view));
+    }
   }
   
   ngAfterViewInit() {

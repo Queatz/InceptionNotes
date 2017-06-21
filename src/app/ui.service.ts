@@ -13,11 +13,10 @@ export class UiService {
 
   public registerAppComponent(app: AppComponent) {
     this.appComponent = app;
+    this.load();
   }
 
-  private env = {
-    sidepane: true
-  };
+  private env: any;
   
   public back() {
     if (!this.dialogs.length) {
@@ -33,9 +32,24 @@ export class UiService {
   public getEnv() {
     return this.env;
   }
+
+  public save() {
+    localStorage.setItem('env', JSON.stringify(this.env));
+  }
+
+  public load() {
+    this.env = JSON.parse(localStorage.getItem('env'));
+    
+    if (!this.env) {
+      this.intro();
+    }
+  }
   
-  public setEnv() {
-    return this.env;
+  intro() {
+    this.env = {
+      sidepane: true,
+      dblClickToOpen: true
+    };
   }
   
   public dialog(config: any) {

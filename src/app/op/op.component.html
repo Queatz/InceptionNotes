@@ -1,0 +1,4 @@
+<form>
+  <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.dblClickToOpen" (ngModelChange)="update()" /> Enable double-click inside notes to jump</label>
+</form>
+<button (click)="backup()">Backup Notes to File</button> <span class="last-backup-date">{{ env.lastBackup ? 'Last backup ' + env.lastBackup : '' }}</span>

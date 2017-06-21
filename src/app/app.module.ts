@@ -11,6 +11,7 @@ import { SubListComponent } from './sub-list/sub-list.component';
 import { ContenteditableModelDirective } from './contenteditable-model.directive';
 import { DialogComponent } from './dialog/dialog.component';
 import { SubSubListItemComponent } from './sub-sub-list-item/sub-sub-list-item.component';
+import { OpComponent } from './op/op.component';
 
 @NgModule({
   declarations: [
@@ -20,9 +21,10 @@ import { SubSubListItemComponent } from './sub-sub-list-item/sub-sub-list-item.c
     SubListComponent,
     ContenteditableModelDirective,
     DialogComponent,
-    SubSubListItemComponent
+    SubSubListItemComponent,
+    OpComponent
   ],
-  entryComponents: [DialogComponent],
+  entryComponents: [DialogComponent, OpComponent],
   imports: [
     BrowserModule,
     FormsModule

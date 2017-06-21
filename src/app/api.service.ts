@@ -69,6 +69,10 @@ export class ApiService {
     this.save();
   }
 
+  public getRoot() {
+    return this.root;
+  }
+  
   public getLists() {
     return this.root.items;
   }
@@ -180,6 +184,21 @@ export class ApiService {
   
   private search(id: string) {
     return this.traverse(id, this.root, []);
+  }
+  
+  public getSubItemNames(item: any): Array<string> {
+    let result: Array<string> = [];
+    
+    for (let subItem of item.items) {
+      if (subItem.transient) {
+        continue;
+      }
+      
+      result.push(subItem.name);
+      result = result.concat(this.getSubItemNames(subItem));
+    }
+    
+    return result;
   }
   
   public traverse(id: string, cursor: any, parents: Array<any>) {

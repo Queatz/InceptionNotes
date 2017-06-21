@@ -1,8 +1,9 @@
 <div class="dialogbox" (click)="onClickInsideDialog($event)">
-  <div *ngIf="config.message">{{ config.message }}</div>
+  <div *ngIf="config.message" [innerHTML]="config.message"></div>
   <div *ngIf="config.input" class="dialogbox-form">
     <input type="text" [(ngModel)]="model.input" />
   </div>
+  <div #custom></div>
   <footer class="dialogbox-actions">
     <button (click)="clickOk()">Ok</button>
   </footer>
