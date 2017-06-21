@@ -59,6 +59,7 @@ export class ApiService {
     this.root = {
       id: this.newId(),
       name: 'New Master List',
+      description: '',
       color: '#ffffff',
       items: [ this.root ]
     };
@@ -119,67 +120,7 @@ export class ApiService {
   }
   
   private intro() {
-    this.root = {
-      id: '1',
-      name: 'My Notes',
-      color: '#E6E3D7',
-      items: [
-        {
-          id: '2',
-          name: 'Welcome to Inception Notes!',
-          color: '#E6E3D7',
-          items: [
-            {
-              id: '3',
-              name: '<B>Right-click</B> on the background to get help',
-              color: '#E6E3D7',
-              items: []
-            }, {
-              id: '4',
-              name: 'Have fun!',
-              color: '#E6E3D7',
-              items: []
-            }
-          ]
-        },
-        {
-          id: '5',
-          name: 'Main Projects',
-          color: '#E6E3D7',
-          items: [
-            {
-              id: '6',
-              name: 'My First Project',
-              color: '#E6E3D7',
-              items: []
-            },
-            {
-              id: '7',
-              name: 'My Other Project',
-              color: '#E6E3D7',
-              items: []
-            }
-          ]
-        }, {
-          id: '8',
-          name: 'My Reminders',
-          color: '#D7E6D9',
-          items: [
-            {
-              id: '9',
-              name: 'Clean room',
-              color: '#D7E6D9',
-              items: []
-            }, {
-              id: '10',
-              name: 'Go for a run',
-              color: '#D7E6D9',
-              items: []
-            }
-          ]
-        }
-      ]
-    }
+    this.root = {"id":"1","name":"My Notes","color":"#80d8ff","items":[{"id":"2","name":"Welcome to Inception Notes!","color":"#ff80ab","items":[{"id":"3","name":"<b>Right-click</b> on the background to get help","color":"#ff8a80","items":[{"id":"6iym6z64jvpzdjifkbbd4","name":"","color":"#ffffff","items":[{"id":"2kot8paszqvmf2l60854b","name":"","color":"#ffffff","items":[],"transient":true}],"transient":true}],"description":""},{"id":"4","name":"Have fun!","color":"#ea80fc","items":[{"id":"n2rr0yavuvfue8yzih7ph","name":"","color":"#ffffff","items":[{"id":"x30os7s5a8a6ddn7fbbey","name":"","color":"#ffffff","items":[],"transient":true}],"transient":true}],"description":""},{"id":"8fqkfvmbpeprdr5qkmtfy","name":"","color":"#ffffff","items":[{"id":"rvkdp73eo8j8s1siswo1kn","name":"","color":"#ffffff","items":[],"transient":true}],"transient":true}],"description":""},{"id":"5","name":"Main Projects","color":"#ffd180","items":[{"id":"6","name":"My First Project","color":"#E6E3D7","items":[{"id":"svzl75kjaxzke3388hq5","name":"","color":"#ffffff","items":[{"id":"5bu2d6cayltgglsa3rj96t","name":"","color":"#ffffff","items":[],"transient":true}],"transient":true}],"description":""},{"id":"7","name":"My Other Project","color":"#E6E3D7","items":[{"id":"y6myizipp4fl1r1wbumk8","name":"","color":"#ffffff","items":[{"id":"j65h0qx65cqhxhs328odud","name":"","color":"#ffffff","items":[],"transient":true}],"transient":true}],"description":""},{"id":"5fdesq1ani24a8lcagji83","name":"","color":"#ffffff","items":[{"id":"unzoyjab1lny7r03w0svq","name":"","color":"#ffffff","items":[],"transient":true}],"transient":true}],"description":""},{"id":"8","name":"My Reminders","color":"#b9f6ca ","items":[{"id":"9","name":"Clean room","color":"#D7E6D9","items":[{"id":"kt6pmsjhrb8mqe7q01m88m","name":"","color":"#ffffff","items":[{"id":"1q7w32y3mxmn7khvt7soai","name":"","color":"#ffffff","items":[],"transient":true}],"transient":true}],"description":""},{"id":"10","name":"Go for a run","color":"#D7E6D9","items":[{"id":"zs94wk79vs8c6wciisd36i","name":"","color":"#ffffff","items":[{"id":"9765317ropjc0whxj0b6xj","name":"","color":"#ffffff","items":[],"transient":true}],"transient":true}],"description":""},{"id":"oujsqrwqbam4483m9mx7oa","name":"","color":"#ffffff","items":[{"id":"hqnw7g6vf3ce13urghd8fk","name":"","color":"#ffffff","items":[],"transient":true}],"transient":true}],"description":""},{"id":"kq2y0nqf522rjhqrw3syt","name":"","color":"#ffffff","items":[{"id":"a9pk5dgufrn18p428pymkh","name":"","color":"#ffffff","items":[],"transient":true}],"transient":true}],"description":"Take notes here..."};
   }
   
   private search(id: string) {

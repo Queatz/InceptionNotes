@@ -1,6 +1,14 @@
-<sub-list *ngFor="let list of getLists()"
+<div *ngIf="getEnv().showDescriptions"
+    contenteditable
+    [(contenteditableModel)]="getShow().description"
+    (contenteditableModelChange)="saveDescription()"
+    (dblclick)="dontPropagate($event)"
+    class="description"></div>
+<div class="items">
+  <sub-list *ngFor="let list of getLists()"
     (modified)="onItemModified(list)"
     (removed)="onItemRemoved(list)"
       (keydown.control.arrowup)="moveItem($event, list, -1)"
       (keydown.control.arrowdown)="moveItem($event, list, 1)"
     [list]="list"></sub-list>
+</div>

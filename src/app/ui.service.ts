@@ -48,7 +48,9 @@ export class UiService {
   intro() {
     this.env = {
       sidepane: true,
-      dblClickToOpen: true
+      dblClickToOpen: true,
+      lastBackup: '',
+      showDescriptions: true
     };
   }
   

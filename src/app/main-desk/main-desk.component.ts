@@ -35,7 +35,16 @@ export class MainDeskComponent implements OnInit, OnChanges {
   onItemRemoved(item: any) {
     if (this.getLists().length > 1) {
       this.getLists().splice(this.getLists().indexOf(item), 1);
+      this.api.save();
     }
+  }
+  
+  saveDescription() {
+    this.api.save();
+  }
+
+  dontPropagate(event: Event) {
+    event.stopPropagation();
   }
   
   moveItem(event: Event, item: any, move: number) {
@@ -61,8 +70,16 @@ export class MainDeskComponent implements OnInit, OnChanges {
     setTimeout(() => this.elementRef.nativeElement.querySelectorAll('sub-list')[(location + move)].querySelector('.sub-list-title').focus());
   }
   
+  getShow() {
+    return this.api.getShow();
+  }
+  
   getLists() {
     return this.api.getShow().items;
+  }
+  
+  getEnv() {
+    return this.ui.getEnv();
   }
   
   menu(event: Event) {

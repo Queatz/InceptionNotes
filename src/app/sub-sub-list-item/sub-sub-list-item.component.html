@@ -1,12 +1,13 @@
 <div [innerHTML]="item.name"
   class="sub-item"
   [ngClass]="{'is-selected': isSelectedNav(item)}"></div>
-<div *ngIf="isSelectedNav(item)" [style.background-color]="item.color">
+<div *ngIf="isSelectedNav(item)">
   <div class="sub-item sub-sub"
     *ngFor="let subItem of item.items"
     [hidden]="subItem.transient"
     (click)="showItem($event, subItem)"
     (dblclick)="openItem($event, subItem)"
     [ngClass]="{'is-selected': isExactSelectedNav(subItem)}"
+    [style.border-right]="'4px solid ' + subItem.color"
     [innerHTML]="subItem.name"></div>
 </div>
