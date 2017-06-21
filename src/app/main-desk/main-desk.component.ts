@@ -104,6 +104,8 @@ export class MainDeskComponent implements OnInit, OnChanges {
       return;
     }
     
-    this.getLists().push(this.api.newBlankList());
+    let l = this.api.newBlankList();
+    l.color = this.getShow().color;
+    this.getLists().push(l);
   }
 }

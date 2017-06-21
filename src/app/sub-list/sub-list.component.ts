@@ -219,6 +219,8 @@ export class SubListComponent implements OnInit, OnChanges {
       return;
     }
   
-    this.list.items.push(this.api.newBlankList());
+    let l = this.api.newBlankList();
+    l.color = this.list.color;
+    this.list.items.push(l);
   }
 }
