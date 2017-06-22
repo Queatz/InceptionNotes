@@ -1,0 +1,21 @@
+:host {
+  background: white;
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-shadow: 3px 3px 9px rgba(0, 0, 0, .125);
+  padding: .5rem 0;
+}
+
+.menu-option {
+  display: flex;
+  flex-grow: 1;
+  padding: 1rem;
+  cursor: default;
+}
+
+.menu-option:hover {
+  background-color: rgba(0, 0, 0, .1);
+}

@@ -2,6 +2,7 @@ import { Injectable, ComponentFactoryResolver, ViewContainerRef, ComponentFactor
 
 import { AppComponent } from './app.component';
 import { DialogComponent } from './dialog/dialog.component';
+import { MenuComponent } from './menu/menu.component';
 
 @Injectable()
 export class UiService {
@@ -63,5 +64,16 @@ export class UiService {
     
     (dialog.instance as DialogComponent).config = config;
     (dialog.instance as DialogComponent).clickout = () => this.back();
+  }
+  
+  public menu(options: Array<string>, position: any, onChooseCallback: any) {
+    let menu = this.appComponent.view
+        .createComponent(this.resolver.resolveComponentFactory(MenuComponent));
+    
+    (menu.instance as MenuComponent).options = options;
+    (menu.instance as MenuComponent).position = position;
+    (menu.instance as MenuComponent).environment = this.env;
+    (menu.instance as MenuComponent).choose = onChooseCallback;
+    (menu.instance as MenuComponent).clickout = () => menu.hostView.destroy();
   }
 }

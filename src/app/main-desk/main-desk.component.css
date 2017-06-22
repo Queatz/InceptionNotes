@@ -1,5 +1,7 @@
 :host {
-	background: #f0f0f0;
+  background: #f0f0f0;
+  background-size: cover;
+  background-position: center;
 	position: absolute;
 	top: 0;
 	left: 0;

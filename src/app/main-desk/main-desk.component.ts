@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, ElementRef, Input, HostListener } from '@angular/core';
 import { ApiService } from '../api.service';
 import { UiService } from '../ui.service';
 import { OpComponent } from '../op/op.component';
@@ -8,9 +8,8 @@ import { OpComponent } from '../op/op.component';
   templateUrl: './main-desk.component.html',
   styleUrls: ['./main-desk.component.css'],
   host: {
-    '(dblclick)': 'toggleSidepane()',
-    '(contextmenu)': 'menu($event)',
-    '[style.background-color]': 'getEnv().useDarkTheme ? \'#404040\' : undefined'
+    '[style.background-color]': 'getEnv().useDarkTheme ? \'#404040\' : undefined',
+    '[style.background-image]': 'list.backgroundUrl ? (\'url(\' + list.backgroundUrl + \')\') : undefined'
   }
 })
 export class MainDeskComponent implements OnInit, OnChanges {
@@ -65,6 +64,20 @@ export class MainDeskComponent implements OnInit, OnChanges {
     event.stopPropagation();
   }
   
+  changeBackground() {
+    this.ui.dialog({
+      message: 'Change background image url',
+      input: true,
+      prefill: this.list.backgroundUrl || '',
+      ok: result => {
+        if (result.input) {
+          this.list.backgroundUrl = result.input;
+          this.api.save();
+        }
+      }
+    });
+  }
+  
   moveItem(event: Event, item: any, move: number) {
     let lists = this.getLists();
     let location = lists.indexOf(item);
@@ -100,15 +113,32 @@ export class MainDeskComponent implements OnInit, OnChanges {
     return this.ui.getEnv();
   }
   
-  menu(event: Event) {
+  @HostListener('contextmenu', ['$event'])
+  menu(event: MouseEvent) {
     event.preventDefault();
   
-    this.ui.dialog({
-      message: 'How to use Inception Notes\n\n1. Press F11 to make this act as your desktop\n2. Right-click on a note to change it\'s color\n3. Double-click on a note to focus\n4. Press escape to go to the previous note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to easily move items',
-      view: OpComponent
+    this.ui.menu([
+      'Change background...',
+      'Options...'
+    ], { x: event.clientX, y: event.clientY },
+    choose => {
+      switch (choose) {
+        case 0:
+          this.changeBackground();
+          break;
+        case 1:
+          this.ui.dialog({
+            message: 'How to use Inception Notes\n\n1. Press F11 to make this act as your desktop\n2. Right-click on a note to change it\'s color\n3. Double-click on a note to focus\n4. Press escape to go to the previous note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to easily move items',
+            view: OpComponent
+          });
+          
+          break;
+      }
     });
   }
   
+  
+  @HostListener('dblclick')
   toggleSidepane() {
     this.ui.getEnv().sidepane = !this.ui.getEnv().sidepane;
     this.ui.save();

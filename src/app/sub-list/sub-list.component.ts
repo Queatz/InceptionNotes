@@ -8,7 +8,6 @@ import { UiService } from '../ui.service';
   templateUrl: './sub-list.component.html',
   styleUrls: ['./sub-list.component.css'],
   host: {
-    '(contextmenu)': 'showOptions($event)',
     '[style.background-color]': 'useAsNavigation ? transparent : list.color',
     '[style.outline]': 'isDroppingList ? \'3px solid orange\' : undefined',
     '[style.opacity]': 'isDraggingList ? \'0.5\' : undefined',
@@ -36,6 +35,7 @@ export class SubListComponent implements OnInit, OnChanges {
     this.initNext();
   }
   
+  @HostListener('contextmenu', ['$event'])
   showOptions(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -283,6 +283,8 @@ export class SubListComponent implements OnInit, OnChanges {
     return this.ui.getEnv();
   }
   
+  @HostListener('click', ['$event'])
+  @HostListener('dblclick', ['$event'])
   dontPropagate(event: Event) {
     event.stopPropagation();
   }
