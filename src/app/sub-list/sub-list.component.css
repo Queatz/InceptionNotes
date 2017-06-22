@@ -6,6 +6,7 @@
     background: #fff;
     box-shadow: 3px 3px 9px rgba(0, 0, 0, .125);
     vertical-align: top;
+    cursor: grab;
 }
 
 .sub-list-title {
@@ -16,6 +17,7 @@
     font-weight: bold;
     margin-bottom: 1rem;
     display: block;
+    cursor: text;
 }
 
 .sub-list-item {
@@ -23,6 +25,7 @@
     padding: 0;
     outline: none;
     display: block;
+    cursor: text;
 }
 
 .sub-list-item:not(:last-child) {

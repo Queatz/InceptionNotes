@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChanges, HostListener, HostBinding } from '@angular/core';
 
 import { ApiService } from '../api.service';
 import { UiService } from '../ui.service';
@@ -9,7 +9,9 @@ import { UiService } from '../ui.service';
   styleUrls: ['./sub-list.component.css'],
   host: {
     '(contextmenu)': 'showOptions($event)',
-    '[style.background-color]': 'useAsNavigation ? transparent : list.color'
+    '[style.background-color]': 'useAsNavigation ? transparent : list.color',
+    '[style.outline]': 'isDroppingList ? \'3px solid orange\' : undefined',
+    '[style.opacity]': 'isDraggingList ? \'0.5\' : undefined'
   }
 })
 export class SubListComponent implements OnInit, OnChanges {
@@ -18,6 +20,10 @@ export class SubListComponent implements OnInit, OnChanges {
 	@Input() useAsNavigation: any;
 	@Output('modified') modified = new EventEmitter();
 	@Output('removed') removed = new EventEmitter();
+
+  private isDraggingList: boolean;
+  private isDroppingList: boolean;
+  private dragCounter: number = 0;
 
   constructor(private ui: UiService, private api: ApiService, private elementRef: ElementRef) { }
 
@@ -44,6 +50,68 @@ export class SubListComponent implements OnInit, OnChanges {
         }
       }
     });
+  }
+  
+  @HostBinding('draggable')
+  get draggable() {
+    return true;
+  }
+  
+  @HostListener('dragstart', ['$event'])
+  startDrag(event: DragEvent) {
+    event.stopPropagation();
+    
+    this.isDraggingList = true;
+    event.dataTransfer.setData('application/json', this.list.id);
+  }
+  
+  @HostListener('dragend', ['$event'])
+  stopDrag(event: DragEvent) {
+    event.stopPropagation();
+    
+    this.isDraggingList = false;
+  }
+  
+  @HostListener('dragenter', ['$event'])
+  dragOn(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    this.dragCounter++;
+    
+    if (!this.isDraggingList) {
+      this.isDroppingList = true;
+    }
+  }
+  
+  @HostListener('dragleave', ['$event'])
+  dragOff(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    this.dragCounter--;
+    
+    // This is here to prevent flickering
+    if (this.dragCounter < 1) {
+      this.isDroppingList = false;
+    }
+  }
+  
+  @HostListener('dragover', ['$event'])
+  nothing() {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+  
+  @HostListener('drop', ['$event'])
+  drop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    this.isDroppingList = false;
+    this.dragCounter = 0;
+    let id = event.dataTransfer.getData('application/json');
+    this.api.moveList(id, this.list.id);
   }
   
   isSelectedNav(item: any) {
@@ -102,7 +170,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
   
   onNameBackspacePressed() {
-    if (this.isEmptyName(this.list.name) && this.list.items.length === 1 && !this.list.items[0].name) {
+    if (this.isEmptyName(this.list.name)) {
       this.removed.emit();
     }
   }
@@ -139,6 +207,7 @@ export class SubListComponent implements OnInit, OnChanges {
     }
     
     if (move > 0 && location === this.list.items.length - 1) {
+      this.api.moveListUp(item);
       return;
     }
     

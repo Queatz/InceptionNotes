@@ -105,6 +105,43 @@ export class ApiService {
     localStorage.setItem('view', this.view.eye.id);
   }
   
+  public moveListUp(list: any) {
+    let config = this.search(list.id);
+    let parent = config.parents.length > 2 ? config.parents[config.parents.length - 2] : null;
+  
+    if (!parent) {
+      return;
+    }
+  
+    this.moveList(list.id, parent.id);
+  }
+  
+  public moveList(listId: string, toListId: string) {
+    if (listId === toListId) {
+      return;
+    }
+    
+    let listConfig = this.search(listId);
+    let toListConfig = this.search(toListId);
+    
+    if (!listConfig || !toListConfig) {
+      return;
+    }
+    
+    let listParent = listConfig.parents.length ? listConfig.parents[listConfig.parents.length - 1] : null;
+    
+    let list = listConfig.view;
+    let toList = toListConfig.view;
+    
+    toList.items.push(list);
+    
+    if (listParent) {
+      listParent.items.splice(listParent.items.indexOf(list), 1);
+    }
+    
+    this.save();
+  }
+  
   public newBlankList() {
     return {
       id: this.newId(),

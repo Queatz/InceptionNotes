@@ -17,4 +17,6 @@
 
 .sub-sub {
   background: rgba(0, 0, 0, .075);
+  padding: .75rem;
+  font-size: 85%;
 }

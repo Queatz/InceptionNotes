@@ -1,4 +1,4 @@
-<div [ngClass]="{'is-navigation': useAsNavigation}">
+<div [ngClass]="{'is-navigation': useAsNavigation}" (dblclick)="dontPropagate($event)">
 	<div [contentEditable]="true"
 	    #element
       [(contenteditableModel)]="list.name"

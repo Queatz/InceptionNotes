@@ -35,9 +35,24 @@ export class MainDeskComponent implements OnInit, OnChanges {
   
   onItemRemoved(item: any) {
     if (this.getLists().length > 1) {
-      this.getLists().splice(this.getLists().indexOf(item), 1);
-      this.api.save();
+      let c = this.api.getSubItemNames(item);
+      
+      if (!c.length) {
+        this.removeItem(item);
+      } else {
+        this.ui.dialog({
+          message: 'Also delete ' + c.length + ' sub-item' + (c.length === 1 ? '' : 's') + '?\n\n' + c.join('\n'),
+          ok: () => {
+            this.removeItem(item);
+          }
+        });
+      }
     }
+  }
+  
+  private removeItem(item: any) {
+    this.getLists().splice(this.getLists().indexOf(item), 1);
+    this.api.save();
   }
   
   saveDescription() {

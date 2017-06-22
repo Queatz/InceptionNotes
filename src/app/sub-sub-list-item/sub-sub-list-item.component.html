@@ -8,6 +8,6 @@
     (click)="showItem($event, subItem)"
     (dblclick)="openItem($event, subItem)"
     [ngClass]="{'is-selected': isExactSelectedNav(subItem)}"
-    [style.border-right]="'4px solid ' + subItem.color"
+    [style.border-left]="'5px solid ' + subItem.color"
     [innerHTML]="subItem.name"></div>
 </div>
