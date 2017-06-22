@@ -11,7 +11,8 @@ import { UiService } from '../ui.service';
     '(contextmenu)': 'showOptions($event)',
     '[style.background-color]': 'useAsNavigation ? transparent : list.color',
     '[style.outline]': 'isDroppingList ? \'3px solid orange\' : undefined',
-    '[style.opacity]': 'isDraggingList ? \'0.5\' : undefined'
+    '[style.opacity]': 'isDraggingList ? \'0.5\' : undefined',
+    '[style.cursor]': 'useAsNavigation ? \'default\' : undefined'
   }
 })
 export class SubListComponent implements OnInit, OnChanges {
@@ -54,19 +55,27 @@ export class SubListComponent implements OnInit, OnChanges {
   
   @HostBinding('draggable')
   get draggable() {
-    return true;
+    return !this.useAsNavigation;
   }
   
   @HostListener('dragstart', ['$event'])
   startDrag(event: DragEvent) {
+    if (this.useAsNavigation) {
+      return;
+    }
+    
     event.stopPropagation();
     
     this.isDraggingList = true;
-    event.dataTransfer.setData('application/json', this.list.id);
+    event.dataTransfer.setData('application/x-id', this.list.id);
   }
   
   @HostListener('dragend', ['$event'])
   stopDrag(event: DragEvent) {
+    if (this.useAsNavigation) {
+      return;
+    }
+    
     event.stopPropagation();
     
     this.isDraggingList = false;
@@ -110,8 +119,20 @@ export class SubListComponent implements OnInit, OnChanges {
     
     this.isDroppingList = false;
     this.dragCounter = 0;
-    let id = event.dataTransfer.getData('application/json');
-    this.api.moveList(id, this.list.id);
+    let id = event.dataTransfer.getData('application/x-id');
+    
+    if (id) {
+      this.api.moveList(id, this.list.id);
+    } else {
+      let text = event.dataTransfer.getData('text/plain');
+      
+      if (text) {
+        let l = this.api.newBlankList();
+        l.color = this.list.color;
+        l.name = text;
+        this.list.items.push(l);
+      }
+    }
   }
   
   isSelectedNav(item: any) {

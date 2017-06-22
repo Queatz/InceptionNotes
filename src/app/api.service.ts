@@ -130,6 +130,12 @@ export class ApiService {
     
     let listParent = listConfig.parents.length ? listConfig.parents[listConfig.parents.length - 1] : null;
     
+    for (let parent of toListConfig.parents) {
+      if (parent.id === listId) {
+        return;
+      }
+    }
+    
     let list = listConfig.view;
     let toList = toListConfig.view;
     

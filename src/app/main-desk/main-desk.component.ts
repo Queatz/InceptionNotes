@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, ElementRef } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, ElementRef, Input } from '@angular/core';
 import { ApiService } from '../api.service';
 import { UiService } from '../ui.service';
 import { OpComponent } from '../op/op.component';
@@ -14,6 +14,8 @@ import { OpComponent } from '../op/op.component';
   }
 })
 export class MainDeskComponent implements OnInit, OnChanges {
+
+  @Input() list: any;
 
   constructor(public api: ApiService, public ui: UiService, private elementRef: ElementRef) {
   }
@@ -87,11 +89,11 @@ export class MainDeskComponent implements OnInit, OnChanges {
   }
   
   getShow() {
-    return this.api.getShow();
+    return this.list;
   }
   
   getLists() {
-    return this.api.getShow().items;
+    return this.list.items;
   }
   
   getEnv() {
