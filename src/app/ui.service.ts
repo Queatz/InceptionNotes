@@ -63,6 +63,7 @@ export class UiService {
     this.dialogs.push(dialog);
     
     (dialog.instance as DialogComponent).config = config;
+    (dialog.instance as DialogComponent).environment = this.env;
     (dialog.instance as DialogComponent).clickout = () => this.back();
   }
   

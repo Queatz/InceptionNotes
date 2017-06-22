@@ -24,6 +24,11 @@
   white-space: pre-wrap;
 }
 
+.dialogbox.dark-theme {
+  background-color: #606060;
+  color: #e0e0e0;
+}
+
 .dialogbox-actions {
   display: flex;
   align-items: center;

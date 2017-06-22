@@ -6,7 +6,8 @@ import { Component, OnInit, AfterViewInit, Input, ElementRef, ViewChild, Compone
   styleUrls: ['./dialog.component.css'],
   host: {
     '(click)': 'back()',
-    '(keyup.enter)': 'clickOk()'
+    '(keyup.enter)': 'clickOk()',
+    '[style.background-color]': 'environment.useDarkTheme ? \'rgba(0, 0, 0, .25)\' : undefined'
   }
 })
 export class DialogComponent implements OnInit, AfterViewInit {
@@ -18,6 +19,7 @@ export class DialogComponent implements OnInit, AfterViewInit {
    */
   @Input() config: any;
   @Input() clickout: any;
+  @Input() environment: any;
   
   @ViewChild('custom', { read: ViewContainerRef })
   private custom: ViewContainerRef; 
