@@ -10,8 +10,8 @@ import { UiService } from './ui.service';
 })
 export class AppComponent {
   constructor(
-      private api: ApiService,
-      private ui: UiService,
+      public api: ApiService,
+      public ui: UiService,
       public view: ViewContainerRef,
       public resolver: ComponentFactoryResolver
   ) {
