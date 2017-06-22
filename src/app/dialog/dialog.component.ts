@@ -43,6 +43,11 @@ export class DialogComponent implements OnInit, AfterViewInit {
   
   ngAfterViewInit() {
     let first = this.element.nativeElement.querySelector('input');
+    
+    if (!first) {
+      first = this.element.nativeElement.querySelector('button');
+    }
+    
     if (first) {
       first.focus();
     }

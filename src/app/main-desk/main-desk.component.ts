@@ -118,15 +118,16 @@ export class MainDeskComponent implements OnInit, OnChanges {
     event.preventDefault();
   
     this.ui.menu([
+      'Add people...',
       'Change background...',
       'Options...'
     ], { x: event.clientX, y: event.clientY },
     choose => {
       switch (choose) {
-        case 0:
+        case 1:
           this.changeBackground();
           break;
-        case 1:
+        case 2:
           this.ui.dialog({
             message: 'How to use Inception Notes\n\n1. Press F11 to make this act as your desktop\n2. Right-click on a note to change it\'s color\n3. Double-click on a note to focus\n4. Press escape to go to the previous note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to easily move items',
             view: OpComponent

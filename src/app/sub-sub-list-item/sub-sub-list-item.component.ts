@@ -58,7 +58,7 @@ export class SubSubListItemComponent implements OnInit {
     
     this.isDroppingList = false;
     this.dragCounter = 0;
-    let id = event.dataTransfer.getData('application/json');
+    let id = event.dataTransfer.getData('application/x-id');
     this.api.moveList(id, this.item.id);
   }
   
