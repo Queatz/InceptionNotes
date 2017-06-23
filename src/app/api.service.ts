@@ -34,24 +34,35 @@ export class ApiService {
     
     if (view) {
       this.view.eye = this.view.show = view.view;
-      this.view.parents = view.parents;
     } else {
       this.view.eye = this.view.show = this.root;
     }
   }
 
   public up() {
-    if (!this.view.parents.length) {
-      this.ui.dialog({
-        message: 'Create new list containing this one?',
-        ok: () => this.breakCeiling()
-      });
-      return;
+    if (this.view.eye === this.view.show) {
+      let eye = this.search(this.view.show.id);
+      
+      if (!eye || !eye.parents.length) {
+        this.ui.dialog({
+          message: 'Create new list containing this one?',
+          ok: () => this.breakCeiling()
+        });
+        return;
+      }
+      
+      let show = eye.parents[eye.parents.length - 1];
+      this.view.eye = show;
+      this.view.show = show;
+    } else {
+      let show = this.search(this.view.show.id);
+      if (!show || !show.parents.length) {
+        return;
+      }
+      
+      this.view.show = show.parents[show.parents.length - 1];
     }
-  
-    let eye = this.view.parents.pop();
-    this.view.eye = eye;
-    this.view.show = eye;
+    
     this.saveView();
   }
   
@@ -64,7 +75,6 @@ export class ApiService {
       items: [ this.root ]
     };
     
-    this.view.parents = [];
     this.view.eye = this.view.show = this.root;
     this.saveView();
     this.save();
@@ -83,10 +93,6 @@ export class ApiService {
   }
 
   public setEye(eye: any) {
-    if (eye !== this.view.eye) {
-      this.view.parents.push(this.view.eye);
-    }
-  
     this.view.eye = eye;
     this.view.show = this.view.eye;
     this.saveView();

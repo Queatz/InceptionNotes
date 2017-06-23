@@ -127,8 +127,7 @@ export class SubListComponent implements OnInit, OnChanges {
       let text = event.dataTransfer.getData('text/plain');
       
       if (text) {
-        let l = this.api.newBlankList();
-        l.color = this.list.color;
+        let l = this.newBlankList();
         l.name = text;
         this.list.items.push(l);
       }
@@ -244,7 +243,7 @@ export class SubListComponent implements OnInit, OnChanges {
       let i = this.list.items.indexOf(item);
       
       if (i !== -1) {
-        this.list.items.splice(i + 1, 0, this.api.newBlankList());
+        this.list.items.splice(i + 1, 0, this.newBlankList());
         setTimeout(() => element.nextSibling.focus());
       } else {
         element.nextSibling.focus();
@@ -310,9 +309,13 @@ export class SubListComponent implements OnInit, OnChanges {
     if (this.list.items.length && this.list.items[this.list.items.length - 1].transient) {
       return;
     }
+    
+    this.list.items.push(this.newBlankList());
+  }
   
+  private newBlankList() {
     let l = this.api.newBlankList();
     l.color = this.list.color;
-    this.list.items.push(l);
+    return l;
   }
 }
