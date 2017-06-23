@@ -202,9 +202,14 @@ export class SubListComponent implements OnInit, OnChanges {
   }
   
   onNameEnterPressed(element: any) {
-    if (element.nextElementSibling && element.nextElementSibling.focus) {
-      element.nextElementSibling.focus();
-    }
+    this.list.items.splice(0, 0, this.newBlankList());
+    
+    setTimeout(() => {
+      let n = element.nextElementSibling.children[0];
+      if (n && n.focus) {
+        n.focus();
+      }
+    });
     
     return false;
   }
@@ -297,8 +302,10 @@ export class SubListComponent implements OnInit, OnChanges {
   private deleteItem(element: any, item: any) {
     this.list.items.splice(this.list.items.indexOf(item), 1);
 
-     if (element.previousSibling && element.previousSibling.focus) {
-      element.previousSibling.focus();
+    let e = element.previousElementSibling || element.parentNode.previousElementSibling;
+
+    if (e && e.focus) {
+      e.focus();
     }
   }
 
