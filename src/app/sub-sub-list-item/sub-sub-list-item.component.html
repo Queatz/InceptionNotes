@@ -1,5 +1,6 @@
 <div [innerHTML]="item.name"
   class="sub-item"
+  [attr.data-after]="getAfterText(item)"
   [ngClass]="{'is-selected': isSelectedNav(item)}"></div>
 <div *ngIf="isSelectedNav(item)">
   <div class="sub-item sub-sub"
@@ -9,5 +10,6 @@
     (dblclick)="openItem($event, subItem)"
     [ngClass]="{'is-selected': isExactSelectedNav(subItem)}"
     [style.border-left]="'5px solid ' + subItem.color"
+    [attr.data-after]="getAfterText(subItem)"
     [innerHTML]="subItem.name"></div>
 </div>

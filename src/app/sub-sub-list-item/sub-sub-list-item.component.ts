@@ -69,7 +69,17 @@ export class SubSubListItemComponent implements OnInit {
   isExactSelectedNav(item: any) {
     return item === this.api.getShow();
   }
+
+  getAfterText(item: any) {
+    let c = this.countSubItems(item);
+    
+    return c ? ' (' + c + ')' : null;
+  }
   
+  countSubItems(item: any) {
+    return this.api.getSubItemNames(item).length;
+  }
+
   openItem(dblclickEvent: Event, subItem: any) {
     dblclickEvent.stopPropagation();
     if (this.item.transient) {
