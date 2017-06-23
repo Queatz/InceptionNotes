@@ -23,6 +23,7 @@
       (keydown.control.arrowdown)="moveItem($event, item, 1)"
       [ngClass]="{'is-selected': isSelectedNav(item)}"
       [title]="getSubitemText(item)"
+      [attr.data-after]="getAfterText(item)"
       class="sub-list-item"></div>
   </div>
   <div *ngIf="useAsNavigation">

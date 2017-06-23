@@ -189,6 +189,12 @@ export class SubListComponent implements OnInit, OnChanges {
     return c ? c + ' sub-item' + (c === 1 ? '' : 's') : 'No sub-items';
   }
   
+  getAfterText(item: any) {
+    let c = this.countSubItems(item);
+    
+    return c ? ' (' + c + ')' : null;
+  }
+  
   onNameBackspacePressed() {
     if (this.isEmptyName(this.list.name)) {
       this.removed.emit();
