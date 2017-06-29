@@ -52,7 +52,8 @@ export class UiService {
       dblClickToOpen: true,
       lastBackup: '',
       showDescriptions: true,
-      useDarkTheme: false
+      useDarkTheme: false,
+      showAsPriorityList: false
     };
   }
   

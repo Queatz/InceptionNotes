@@ -27,6 +27,12 @@ main-list+:host {
   padding: 1rem;
 }
 
+.items.priority-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 
 :host.dark-theme {
   background: #404040;

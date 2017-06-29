@@ -11,7 +11,9 @@ import { UiService } from '../ui.service';
     '[style.background-color]': 'useAsNavigation ? transparent : list.color',
     '[style.outline]': 'isDroppingList ? \'3px solid orange\' : undefined',
     '[style.opacity]': 'isDraggingList ? \'0.5\' : undefined',
-    '[style.cursor]': 'useAsNavigation ? \'default\' : undefined'
+    '[style.cursor]': 'useAsNavigation ? \'default\' : undefined',
+    '[style.max-width]': 'getEnv().showAsPriorityList ? \'32rem\' : undefined',
+    '[style.width]': 'getEnv().showAsPriorityList ? \'100%\' : undefined'
   }
 })
 export class SubListComponent implements OnInit, OnChanges {
@@ -40,6 +42,21 @@ export class SubListComponent implements OnInit, OnChanges {
     event.preventDefault();
     event.stopPropagation();
     
+    this.ui.menu([
+      'Add to...',
+      'Change color...',
+      'View edits...'
+    ], { x: event.clientX, y: event.clientY },
+    choose => {
+      switch (choose) {
+        case 1:
+          this.changeColor();
+          break;
+      }
+    });
+  }
+  
+  private changeColor() {
     this.ui.dialog({
       message: 'Change color',
       input: true,

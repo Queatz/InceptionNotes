@@ -4,7 +4,7 @@
     (contenteditableModelChange)="saveDescription()"
     (dblclick)="dontPropagate($event)"
     class="description"></div>
-<div class="items">
+<div class="items" [ngClass]="{'priority-list': getEnv().showAsPriorityList}">
   <sub-list *ngFor="let list of getLists()"
     (modified)="onItemModified(list)"
     (removed)="onItemRemoved(list)"
