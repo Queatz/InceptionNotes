@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, HostListener, ViewContainerRef, AfterViewInit, HostBinding } from '@angular/core';
+import { Component, OnInit, Input, HostListener, ElementRef, ViewContainerRef, AfterViewInit, HostBinding } from '@angular/core';
 
 @Component({
   selector: 'app-menu',
@@ -19,7 +19,7 @@ export class MenuComponent implements OnInit, AfterViewInit {
   
   private showing: boolean = false;
 
-  constructor(private view: ViewContainerRef) { }
+  constructor(private view: ViewContainerRef, private elementRef: ElementRef) { }
 
   ngOnInit() {
   }
@@ -31,12 +31,28 @@ export class MenuComponent implements OnInit, AfterViewInit {
   
   @HostBinding('style.top')
   get styleTop() {
-    return this.position.y + 'px';
+    let invert = 0;
+    
+    if (document.documentElement) {
+      if (this.position.y + this.elementRef.nativeElement.clientHeight > document.documentElement.clientHeight) {
+        invert = this.elementRef.nativeElement.clientHeight;
+      }
+    }
+  
+    return (this.position.y - invert) + 'px';
   }
   
   @HostBinding('style.left')
   get styleLeft() {
-    return this.position.x + 'px';
+    let invert = 0;
+    
+    if (document.documentElement) {
+      if (this.position.x + this.elementRef.nativeElement.clientWidth > document.documentElement.clientWidth) {
+        invert = this.elementRef.nativeElement.clientWidth;
+      }
+    }
+    
+    return (this.position.x - invert) + 'px';
   }
 
   @HostListener('window:keydown.esc', ['$event'])

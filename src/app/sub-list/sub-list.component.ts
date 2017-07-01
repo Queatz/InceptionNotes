@@ -44,12 +44,15 @@ export class SubListComponent implements OnInit, OnChanges {
     
     this.ui.menu([
       'Add to...',
+      'Paste as Plain Text...',
       'Change color...',
       'View edits...'
     ], { x: event.clientX, y: event.clientY },
     choose => {
       switch (choose) {
         case 1:
+          break;
+        case 2:
           this.changeColor();
           break;
       }
