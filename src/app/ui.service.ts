@@ -9,6 +9,7 @@ export class UiService {
 
   private appComponent: AppComponent;
   private dialogs = [];
+  private lastMenu: MenuComponent;
 
   constructor(private resolver: ComponentFactoryResolver) { }
 
@@ -72,10 +73,16 @@ export class UiService {
     let menu = this.appComponent.view
         .createComponent(this.resolver.resolveComponentFactory(MenuComponent));
     
-    (menu.instance as MenuComponent).options = options;
-    (menu.instance as MenuComponent).position = position;
-    (menu.instance as MenuComponent).environment = this.env;
-    (menu.instance as MenuComponent).choose = onChooseCallback;
-    (menu.instance as MenuComponent).clickout = () => menu.hostView.destroy();
+    if (this.lastMenu) {
+      this.lastMenu.clickout();
+    }
+    
+    this.lastMenu = (menu.instance as MenuComponent);
+    
+    this.lastMenu.options = options;
+    this.lastMenu.position = position;
+    this.lastMenu.environment = this.env;
+    this.lastMenu.choose = onChooseCallback;
+    this.lastMenu.clickout = () => menu.hostView.destroy();
   }
 }
