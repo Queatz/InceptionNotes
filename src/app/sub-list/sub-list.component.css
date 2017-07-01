@@ -28,7 +28,7 @@
     cursor: text;
 }
 
-.sub-list-item:not(:last-child) {
+.sub-list-item-container:not(:last-child) {
     margin-bottom: .5rem;
 }
 
@@ -60,5 +60,15 @@
 .is-navigation .sub-list-item:before,
 .is-navigation .sub-list-item:after {
   display: none;
+}
+
+.sneak-peek {
+  margin-left: 1rem;
+  opacity: .5;
+  font-size: 75%;
+}
+
+.sneak-peek-item {
+
 }
 

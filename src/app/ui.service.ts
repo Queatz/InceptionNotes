@@ -54,7 +54,8 @@ export class UiService {
       lastBackup: '',
       showDescriptions: true,
       useDarkTheme: false,
-      showAsPriorityList: false
+      showAsPriorityList: false,
+      showSublistPreviews: false
     };
   }
   

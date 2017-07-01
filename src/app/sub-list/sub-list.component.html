@@ -9,22 +9,26 @@
       (keydown.enter)="onNameEnterPressed(element)"
       class="sub-list-title"></div>
   <div *ngIf="!useAsNavigation">
-    <div [contentEditable]="!useAsNavigation"
-      *ngFor="let item of list.items"
-      [hidden]="useAsNavigation && item.transient"
-      #element
-      [(contenteditableModel)]="item.name"
-      (contenteditableModelChange)="onItemChange(item)"
-      (click)="useAsNavigation ? showItem($event, item) : undefined"
-      (dblclick)="getEnv().dblClickToOpen ? openItem($event, item) : dontPropagate($event)"
-      (keydown.enter)="onItemEnterPressed(element, item)"
-      (keydown.backspace)="onItemBackspacePressed(element, item)"
-      (keydown.control.arrowup)="moveItem($event, item, -1)"
-      (keydown.control.arrowdown)="moveItem($event, item, 1)"
-      [ngClass]="{'is-selected': isSelectedNav(item)}"
-      [title]="getSubitemText(item)"
-      [attr.data-after]="getAfterText(item)"
-      class="sub-list-item"></div>
+    <div *ngFor="let item of list.items" class="sub-list-item-container">
+      <div [contentEditable]="!useAsNavigation"
+        [hidden]="useAsNavigation && item.transient"
+        #element
+        [(contenteditableModel)]="item.name"
+        (contenteditableModelChange)="onItemChange(item)"
+        (click)="useAsNavigation ? showItem($event, item) : undefined"
+        (dblclick)="getEnv().dblClickToOpen ? openItem($event, item) : dontPropagate($event)"
+        (keydown.enter)="onItemEnterPressed(element, item)"
+        (keydown.backspace)="onItemBackspacePressed(element, item)"
+        (keydown.control.arrowup)="moveItem($event, item, -1)"
+        (keydown.control.arrowdown)="moveItem($event, item, 1)"
+        [ngClass]="{'is-selected': isSelectedNav(item)}"
+        [title]="getSubitemText(item)"
+        [attr.data-after]="getAfterText(item)"
+        class="sub-list-item"></div>
+      <div class="sneak-peek" *ngIf="getEnv().showSublistPreviews">
+        <div class="sneak-peek-item" *ngFor="let i of item.items" [innerHTML]="i.name"></div>
+      </div>
+    </div>
   </div>
   <div *ngIf="useAsNavigation">
     <sub-sub-list-item

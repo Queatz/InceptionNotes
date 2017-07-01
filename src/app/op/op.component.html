@@ -6,5 +6,7 @@
   <label><input type="checkbox" name="useDarkTheme" [(ngModel)]="env.useDarkTheme" (ngModelChange)="update()" /> Use dark theme</label>
   
   <label><input type="checkbox" name="showAsPriorityList" [(ngModel)]="env.showAsPriorityList" (ngModelChange)="update()" /> Show as priority list</label>
+  
+  <label><input type="checkbox" name="showSublistPreviews" [(ngModel)]="env.showSublistPreviews" (ngModelChange)="update()" /> Show sublist previews</label>
 </form>
 <button (click)="backup()">Backup Notes to File</button> <span class="last-backup-date">{{ env.lastBackup ? 'Last backup ' + env.lastBackup : '' }}</span>
