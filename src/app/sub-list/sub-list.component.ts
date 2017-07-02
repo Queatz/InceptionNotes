@@ -225,7 +225,7 @@ export class SubListComponent implements OnInit, OnChanges {
     this.list.items.splice(0, 0, this.newBlankList());
     
     setTimeout(() => {
-      let n = element.nextElementSibling.children[0];
+      let n = element.nextElementSibling.children[0].children[0];
       if (n && n.focus) {
         n.focus();
       }
@@ -270,19 +270,25 @@ export class SubListComponent implements OnInit, OnChanges {
   }
   
   onItemEnterPressed(element: any, item: any) {
-    if (element.nextSibling && element.nextSibling.focus) {
+    let n = element.parentNode.nextSibling;
+    
+    if (n && n.children && n.children.length) {
+      n = n.children[0];
+    }
+    
+    if (n && n.focus) {
       let i = this.list.items.indexOf(item);
       
       if (i !== -1) {
         this.list.items.splice(i + 1, 0, this.newBlankList());
-        setTimeout(() => element.nextSibling.focus());
+        setTimeout(() => element.parentNode.nextSibling && element.parentNode.nextSibling.children[0] && element.parentNode.nextSibling.children[0].focus());
       } else {
-        element.nextSibling.focus();
+        n.children[0].focus();
       }
     } else if (item.name) {
       item.transient = false;
       this.initNext();
-      setTimeout(() => element.nextSibling.focus());
+      setTimeout(() => element.parentNode.nextSibling && element.parentNode.nextSibling.children[0] && element.parentNode.nextSibling.children[0].focus());
     }
     
     return false;
