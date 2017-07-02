@@ -26,7 +26,9 @@
         [attr.data-after]="getAfterText(item)"
         class="sub-list-item"></div>
       <div class="sneak-peek" *ngIf="getEnv().showSublistPreviews">
-        <div class="sneak-peek-item" *ngFor="let i of item.items" [innerHTML]="i.name"></div>
+        <div class="sneak-peek-item" *ngFor="let i of item.items"
+          [innerHTML]="i.name"
+          [attr.data-after]="getAfterText(i)"></div>
       </div>
     </div>
   </div>
