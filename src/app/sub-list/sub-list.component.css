@@ -27,6 +27,7 @@
     padding: 0;
     outline: none;
     display: block;
+    word-break: break-all;
     cursor: text;
 }
 
@@ -68,6 +69,7 @@
   margin-left: 1rem;
   opacity: .5;
   font-size: 75%;
+  word-break: break-all;
 }
 
 .sneak-peek-item {

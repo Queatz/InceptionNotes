@@ -1,12 +1,18 @@
+<br />
 <form>
   <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.dblClickToOpen" (ngModelChange)="update()" /> Enable double-click to jump inside notes</label>
-  
+  <br /><br />
   <label><input type="checkbox" name="showDescriptions" [(ngModel)]="env.showDescriptions" (ngModelChange)="update()" /> Show pages</label>
-  
+  <br /><br />
   <label><input type="checkbox" name="useDarkTheme" [(ngModel)]="env.useDarkTheme" (ngModelChange)="update()" /> Use dark theme</label>
-  
+  <br /><br />
   <label><input type="checkbox" name="showAsPriorityList" [(ngModel)]="env.showAsPriorityList" (ngModelChange)="update()" /> Show as priority list</label>
-  
+  <br /><br />
   <label><input type="checkbox" name="showSublistPreviews" [(ngModel)]="env.showSublistPreviews" (ngModelChange)="update()" /> Show sublist previews</label>
 </form>
+<br />
 <button (click)="backup()">Backup Notes to File</button> <span class="last-backup-date">{{ env.lastBackup ? 'Last backup ' + env.lastBackup : '' }}</span>
+<br /><br />
+<span *ngIf="isVillageConnected()">
+  <button (click)="disconnectVillage()">Disconnect from Village</button> <span class="last-backup-date">Connected as {{ villageName() }}</span>
+</span>

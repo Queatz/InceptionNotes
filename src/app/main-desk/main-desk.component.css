@@ -37,3 +37,13 @@ main-list+:host {
 :host.dark-theme {
   background: #404040;
 }
+
+.go-up {
+  padding-bottom: 1rem;
+  color: white;
+  font-weight: bold;
+  font-size: 3rem;
+  text-align: center;
+  cursor: pointer;
+  opacity: .5;
+}

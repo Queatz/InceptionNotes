@@ -19,18 +19,18 @@ export class UiService {
   }
 
   private env: any;
-  
+
   public back() {
     if (!this.dialogs.length) {
       return false;
     }
-    
+
     let top = this.dialogs.pop();
     top.hostView.destroy();
-    
+
     return true;
   }
-  
+
   public getEnv() {
     return this.env;
   }
@@ -41,12 +41,12 @@ export class UiService {
 
   public load() {
     this.env = JSON.parse(localStorage.getItem('env'));
-    
+
     if (!this.env) {
       this.intro();
     }
   }
-  
+
   intro() {
     this.env = {
       sidepane: true,
@@ -58,28 +58,28 @@ export class UiService {
       showSublistPreviews: false
     };
   }
-  
+
   public dialog(config: any) {
     let dialog = this.appComponent.view
         .createComponent(this.resolver.resolveComponentFactory(DialogComponent));
-        
+
     this.dialogs.push(dialog);
-    
+
     (dialog.instance as DialogComponent).config = config;
     (dialog.instance as DialogComponent).environment = this.env;
     (dialog.instance as DialogComponent).clickout = () => this.back();
   }
-  
+
   public menu(options: Array<string>, position: any, onChooseCallback: any) {
     let menu = this.appComponent.view
         .createComponent(this.resolver.resolveComponentFactory(MenuComponent));
-    
+
     if (this.lastMenu) {
       this.lastMenu.clickout();
     }
-    
+
     this.lastMenu = (menu.instance as MenuComponent);
-    
+
     this.lastMenu.options = options;
     this.lastMenu.position = position;
     this.lastMenu.environment = this.env;

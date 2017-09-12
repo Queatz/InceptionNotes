@@ -1,5 +1,5 @@
 <div class="dialogbox" [ngClass]="{'dark-theme': environment.useDarkTheme}" (click)="onClickInsideDialog($event)">
-  <div *ngIf="config.message" [innerHTML]="config.message"></div>
+  <div *ngIf="config.message" class="dialog-message" [innerHTML]="config.message"></div>
   <div *ngIf="config.input" class="dialogbox-form">
     <input type="text" [(ngModel)]="model.input" />
   </div>
