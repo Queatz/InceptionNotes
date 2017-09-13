@@ -37,14 +37,6 @@ export class OpComponent implements OnInit {
   }
 
   backup() {
-    let dateStr = new Date().toLocaleDateString();
-    let dataStr = new Blob([this.api.backup()], { type: 'application/json' });
-    let dlAnchorElem = (document.createElement('A') as HTMLAnchorElement);
-    dlAnchorElem.href = window.URL.createObjectURL(dataStr);
-    dlAnchorElem.setAttribute('download', 'Inception Notes (' + dateStr + ').json');
-    dlAnchorElem.click();
-
-    this.env.lastBackup = dateStr;
-    this.ui.save();
+    this.api.backup();
   }
 }

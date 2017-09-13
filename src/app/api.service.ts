@@ -26,7 +26,13 @@ export class ApiService {
     let root = JSON.parse(localStorage.getItem('root'));
 
     if (root) {
+      this.backupToFile(localStorage.getItem('root'));
       this.migrateRoot(root);
+      setTimeout(() => {
+        this.ui.dialog({
+          message: 'Inception Notes has received an update.\n\nA backup copy of notes have been safely downloaded.'
+        });
+      }, 1000);
     } else {
       this.notes = this.unfreeze(localStorage.getItem('notes'));
     }
@@ -114,7 +120,19 @@ export class ApiService {
   }
 
   public backup() {
-    return this.freeze(this.notes);
+    this.backupToFile(this.freeze(this.notes));
+
+    this.ui.getEnv().lastBackup = new Date().toLocaleDateString();
+    this.ui.save();
+  }
+
+  public backupToFile(str: string) {
+    let dateStr = new Date().toLocaleDateString();
+    let dataStr = new Blob([str], { type: 'application/json' });
+    let dlAnchorElem = (document.createElement('A') as HTMLAnchorElement);
+    dlAnchorElem.href = window.URL.createObjectURL(dataStr);
+    dlAnchorElem.setAttribute('download', 'Inception Notes (' + dateStr + ').json');
+    dlAnchorElem.click();
   }
 
   private migrateRoot(root: any) {
