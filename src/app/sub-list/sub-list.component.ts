@@ -156,14 +156,15 @@ export class SubListComponent implements OnInit, OnChanges {
 
       if (text) {
         let l = this.newBlankList();
+        l.transient = false;
         l.name = text;
-        this.list.items.push(l);
+        this.api.save();
       }
     }
   }
 
   isSelectedNav(item: any) {
-    return item === this.api.getShow() || this.api.traverse(item.id, this.api.getShow(), []);
+    return this.api.contains(item.id, this.api.getShow());
   }
 
   openList(dblclickEvent: Event) {
@@ -230,7 +231,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   onNameEnterPressed(element: any) {
-    this.list.items.splice(0, 0, this.newBlankList());
+    this.newBlankList(0);
 
     setTimeout(() => {
       let n = element.nextElementSibling.children[0].children[0];
@@ -288,7 +289,7 @@ export class SubListComponent implements OnInit, OnChanges {
       let i = this.list.items.indexOf(item);
 
       if (i !== -1) {
-        this.list.items.splice(i + 1, 0, this.newBlankList());
+        this.newBlankList(i + 1);
         setTimeout(() => element.parentNode.nextSibling && element.parentNode.nextSibling.children[0] && element.parentNode.nextSibling.children[0].focus());
       } else {
         n.children[0].focus();
@@ -335,6 +336,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
   private deleteItem(element: any, item: any) {
     this.list.items.splice(this.list.items.indexOf(item), 1);
+    this.api.save();
 
     let e = element.previousElementSibling || element.parentNode.previousElementSibling;
 
@@ -357,11 +359,11 @@ export class SubListComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.list.items.push(this.newBlankList());
+    this.newBlankList();
   }
 
-  private newBlankList() {
-    let l = this.api.newBlankList();
+  private newBlankList(position: number = null) {
+    let l = this.api.newBlankList(this.list, position);
     l.color = this.list.color;
     return l;
   }

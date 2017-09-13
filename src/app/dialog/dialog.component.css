@@ -25,6 +25,7 @@
 
 .dialog-message {
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .dialogbox.dark-theme {
