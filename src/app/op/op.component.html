@@ -11,8 +11,8 @@
   <label><input type="checkbox" name="showSublistPreviews" [(ngModel)]="env.showSublistPreviews" (ngModelChange)="update()" /> Show sublist previews</label>
 </form>
 <br />
-<button (click)="backup()">Backup Notes to File</button> <span class="last-backup-date">{{ env.lastBackup ? 'Last backup ' + env.lastBackup : '' }}</span>
-<br /><br />
 <span *ngIf="isVillageConnected()">
   <button (click)="disconnectVillage()">Disconnect from Village</button> <span class="last-backup-date">Connected as {{ villageName() }}</span>
 </span>
+<br /><br />
+<button (click)="backup()">Backup Notes to File</button> <span class="last-backup-date">{{ env.lastBackup ? 'Last backup ' + env.lastBackup : '' }}</span>

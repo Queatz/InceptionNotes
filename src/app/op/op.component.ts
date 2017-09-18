@@ -25,7 +25,7 @@ export class OpComponent implements OnInit {
   }
 
   isVillageConnected() {
-    return this.village.isConnected();
+    return !!this.village.me();
   }
 
   disconnectVillage() {

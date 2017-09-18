@@ -329,7 +329,7 @@ export class ApiService {
       return list;
     }
 
-    while (note.parent) {
+    while (note.parent && !list.includes(note.parent)) {
       list.unshift(note.parent);
       note = note.parent;
     }
