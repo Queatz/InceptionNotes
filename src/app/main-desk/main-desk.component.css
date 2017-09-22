@@ -53,3 +53,9 @@ main-list+:host {
   cursor: pointer;
   opacity: .5;
 }
+
+@media screen and (max-width: 600px) {
+  main-list+:host {
+    left: 0;
+  }
+}

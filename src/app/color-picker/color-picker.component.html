@@ -1,0 +1,3 @@
+<div class="color-picker">
+  <div *ngFor="let color of colors" (click)="onColorSelected.emit(color)" [style.background-color]="color"></div>
+</div>

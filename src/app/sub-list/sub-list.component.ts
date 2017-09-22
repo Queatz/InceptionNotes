@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, OnChanges, Input, Output, EventEmitter, 
 
 import { ApiService } from '../api.service';
 import { UiService } from '../ui.service';
+import { ColorPickerComponent } from '../color-picker/color-picker.component';
 
 @Component({
   selector: 'sub-list',
@@ -67,9 +68,15 @@ export class SubListComponent implements OnInit, OnChanges {
       message: 'Change color',
       input: true,
       prefill: this.list.color,
+      view: ColorPickerComponent,
+      init: dialog => {
+        console.log(dialog);
+        dialog.component.instance.onColorSelected.subscribe(color => dialog.model.input = color);
+      },
       ok: result => {
         if (result.input) {
           this.list.color = result.input;
+          this.ui.addRecentColor(result.input);
           this.api.save();
         }
       }

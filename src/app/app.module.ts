@@ -15,6 +15,7 @@ import { DialogComponent } from './dialog/dialog.component';
 import { SubSubListItemComponent } from './sub-sub-list-item/sub-sub-list-item.component';
 import { OpComponent } from './op/op.component';
 import { MenuComponent } from './menu/menu.component';
+import { ColorPickerComponent } from './color-picker/color-picker.component';
 
 @NgModule({
   declarations: [
@@ -26,9 +27,15 @@ import { MenuComponent } from './menu/menu.component';
     DialogComponent,
     SubSubListItemComponent,
     OpComponent,
-    MenuComponent
+    MenuComponent,
+    ColorPickerComponent
   ],
-  entryComponents: [DialogComponent, OpComponent, MenuComponent],
+  entryComponents: [
+    DialogComponent,
+    OpComponent,
+    MenuComponent,
+    ColorPickerComponent
+  ],
   imports: [
     BrowserModule,
     FormsModule,

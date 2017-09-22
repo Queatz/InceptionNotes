@@ -45,6 +45,10 @@ export class UiService {
     if (!this.env) {
       this.intro();
     }
+
+    if (!this.env.recentColors) {
+      this.env.recentColors = [];
+    }
   }
 
   intro() {
@@ -55,7 +59,8 @@ export class UiService {
       showDescriptions: true,
       useDarkTheme: false,
       showAsPriorityList: false,
-      showSublistPreviews: false
+      showSublistPreviews: false,
+      recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff']
     };
   }
 
@@ -85,5 +90,20 @@ export class UiService {
     this.lastMenu.environment = this.env;
     this.lastMenu.choose = onChooseCallback;
     this.lastMenu.clickout = () => menu.hostView.destroy();
+  }
+  public addRecentColor(color: string) {
+    let exists = this.env.recentColors.indexOf(color);
+
+    if (exists !== -1) {
+      this.env.recentColors.splice(exists, 1);
+    }
+
+    this.env.recentColors.unshift(color);
+
+    if (this.env.recentColors.length > 6) {
+      this.env.recentColors.pop();
+    }
+
+    this.save();
   }
 }

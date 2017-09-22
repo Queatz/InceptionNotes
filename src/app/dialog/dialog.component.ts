@@ -20,10 +20,11 @@ export class DialogComponent implements OnInit, AfterViewInit {
   @Input() config: any;
   @Input() clickout: any;
   @Input() environment: any;
-  
+
   @ViewChild('custom', { read: ViewContainerRef })
-  private custom: ViewContainerRef; 
-  
+  private custom: ViewContainerRef;
+  private component: any;
+
   private model = {
     choice: null,
     input: ''
@@ -35,41 +36,45 @@ export class DialogComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.model.input = this.config.prefill || '';
-    
+
     if (this.config.view) {
-      this.custom.createComponent(this.resolver.resolveComponentFactory(this.config.view));
+      this.component = this.custom.createComponent(this.resolver.resolveComponentFactory(this.config.view));
     }
   }
-  
+
   ngAfterViewInit() {
     let first = this.element.nativeElement.querySelector('input');
-    
+
     if (!first) {
       first = this.element.nativeElement.querySelector('button');
     }
-    
+
     if (first) {
       first.focus();
     }
+
+    if (this.config.init) {
+      this.config.init(this);
+    }
   }
-  
+
   onClickInsideDialog(event: Event) {
     event.stopPropagation();
   }
-  
+
   back() {
     if (this.clickout) {
       this.clickout();
     }
   }
-  
+
   clickOk() {
     this.model.choice = 'ok';
-    
+
     if (this.config.ok) {
       this.config.ok(this.model);
     }
-    
+
     this.back();
   }
 }

@@ -279,6 +279,8 @@ export class ApiService {
       listParent.items.splice(listParent.items.indexOf(list), 1);
     }
 
+    list.parent = toList;
+
     this.save();
   }
 
@@ -298,7 +300,7 @@ export class ApiService {
     this.notes[id] = note;
 
     if (list) {
-      note.parent = note;
+      note.parent = list;
 
       if (position === null) {
         list.items.push(note);
