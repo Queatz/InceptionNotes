@@ -10,7 +10,6 @@ import { ColorPickerComponent } from '../color-picker/color-picker.component';
   styleUrls: ['./sub-list.component.css'],
   host: {
     '[style.background-color]': 'useAsNavigation ? transparent : list.color',
-    '[style.outline]': 'isDroppingList ? \'3px solid orange\' : undefined',
     '[style.opacity]': 'isDraggingList ? \'0.5\' : undefined',
     '[style.cursor]': 'useAsNavigation ? \'default\' : undefined',
     '[style.max-width]': 'getEnv().showAsPriorityList ? \'32rem\' : undefined',
@@ -26,6 +25,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
   private isDraggingList: boolean;
   private isDroppingList: boolean;
+  private dropAt: string;
   private isTouch: boolean;
   private dragCounter: number = 0;
 
@@ -88,6 +88,11 @@ export class SubListComponent implements OnInit, OnChanges {
     this.isTouch = true;
   }
 
+  @HostBinding('style.outline')
+  get styleOutline() {
+    return !this.dropAt && this.isDroppingList ? '3px solid orange' : undefined;
+  }
+
   @HostBinding('draggable')
   get draggable() {
     return !this.useAsNavigation && !this.isTouch;
@@ -138,13 +143,35 @@ export class SubListComponent implements OnInit, OnChanges {
     // This is here to prevent flickering
     if (this.dragCounter < 1) {
       this.isDroppingList = false;
+      this.dropAt = null;
     }
   }
 
   @HostListener('dragover', ['$event'])
-  nothing() {
+  nothing(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
+
+    if (this.isDraggingList) {
+      return;
+    }
+
+    let element = this.elementRef.nativeElement;
+
+    if (!element.getBoundingClientRect) {
+      return;
+    }
+
+    let rect = element.getBoundingClientRect();
+    let percent = Math.max(0, Math.min(element.clientWidth, event.clientX - rect.left) / element.clientWidth);
+
+    if (percent < .25) {
+      this.dropAt = 'left';
+    } else if (percent < .75) {
+      this.dropAt = null;
+    } else {
+      this.dropAt = 'right';
+    }
   };
 
   @HostListener('drop', ['$event'])
@@ -152,12 +179,20 @@ export class SubListComponent implements OnInit, OnChanges {
     event.preventDefault();
     event.stopPropagation();
 
-    this.isDroppingList = false;
-    this.dragCounter = 0;
     let id = event.dataTransfer.getData('application/x-id');
 
     if (id) {
-      this.api.moveList(id, this.list.id);
+      if (!this.dropAt) {
+        this.api.moveList(id, this.list.id);
+      } else if (this.dropAt === 'left') {
+        if (this.list.parent) {
+          this.api.moveListToPosition(id, this.list.parent.id, this.list.parent.items.indexOf(this.list));
+        }
+      } else if (this.dropAt === 'right') {
+        if (this.list.parent) {
+          this.api.moveListToPosition(id, this.list.parent.id, this.list.parent.items.indexOf(this.list) + 1);
+        }
+      }
     } else {
       let text = event.dataTransfer.getData('text/plain');
 
@@ -168,6 +203,10 @@ export class SubListComponent implements OnInit, OnChanges {
         this.api.save();
       }
     }
+
+    this.isDroppingList = false;
+    this.dropAt = null;
+    this.dragCounter = 0;
   }
 
   isSelectedNav(item: any) {
@@ -262,7 +301,6 @@ export class SubListComponent implements OnInit, OnChanges {
 
   moveItem(event: Event, item: any, move: number) {
     event.stopPropagation();
-
     let location = this.list.items.indexOf(item);
 
     if (location === -1) {

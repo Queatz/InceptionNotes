@@ -13,6 +13,6 @@
 <br />
 <span *ngIf="isVillageConnected()">
   <button (click)="disconnectVillage()">Disconnect from Village</button> <span class="last-backup-date">Connected as {{ villageName() }}</span>
+  <br /><br />
 </span>
-<br /><br />
 <button (click)="backup()">Backup Notes to File</button> <span class="last-backup-date">{{ env.lastBackup ? 'Last backup ' + env.lastBackup : '' }}</span>

@@ -149,7 +149,8 @@ export class ApiService {
     this.notes[note.id] = note;
 
     for (let subItem of note.items) {
-        this.migrateRootAdd(subItem);
+      subItem.parent = note;
+      this.migrateRootAdd(subItem);
     }
   }
 
@@ -240,8 +241,8 @@ export class ApiService {
   }
 
   public moveListUp(list: any) {
-    let parents = this.parents(this.search(list.id));
-    let parent = parents.length > 2 ? parents[parents.length - 2] : null;
+    let parents = this.parents(list);
+    let parent = parents.length >= 2 ? parents[parents.length - 2] : null;
 
     if (!parent) {
       return;
@@ -251,6 +252,10 @@ export class ApiService {
   }
 
   public moveList(listId: string, toListId: string) {
+    this.moveListToPosition(listId, toListId, -1);
+  }
+
+  public moveListToPosition(listId: string, toListId: string, position: number) {
     if (listId === toListId) {
       return;
     }
@@ -267,16 +272,32 @@ export class ApiService {
 
     let listParent = listParents.length ? listParents[listParents.length - 1] : null;
 
-    for (let parent of toListParents) {
-      if (parent.id === listId) {
-        return;
+    if (listParent !== toList) {
+      for (let parent of toListParents) {
+        if (parent.id === listId) {
+          return;
+        }
       }
     }
 
-    toList.items.push(list);
+    let oldPos = null;
 
     if (listParent) {
-      listParent.items.splice(listParent.items.indexOf(list), 1);
+      oldPos = listParent.items.indexOf(list);
+
+      if (position !== -1) {
+        if (oldPos < position) {
+          position -= 1;
+        }
+      }
+
+      listParent.items.splice(oldPos, 1);
+    }
+
+    if (position >= 0 && position < toList.items.length) {
+      toList.items.splice(position, 0, list);
+    } else {
+      toList.items.push(list);
     }
 
     list.parent = toList;

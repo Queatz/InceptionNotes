@@ -12,8 +12,13 @@
   height: 2rem;
   background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent);
   cursor: pointer;
+  box-shadow: 1.5px 1.5px 4.5px rgba(0, 0, 0, .05125);
 }
 
 .color-picker > div:hover {
+  box-shadow: 3px 3px 9px rgba(0, 0, 0, .125), 0 0 0 2px #404040 inset;
+}
+
+.color-picker.is-dark > div:hover {
   box-shadow: 3px 3px 9px rgba(0, 0, 0, .125), 0 0 0 2px white inset;
 }

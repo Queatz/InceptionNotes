@@ -17,4 +17,8 @@ export class ColorPickerComponent implements OnInit {
   ngOnInit() {
     this.colors = this.ui.getEnv().recentColors;
   }
+
+  isDark() {
+    return this.ui.getEnv().useDarkTheme;
+  }
 }
