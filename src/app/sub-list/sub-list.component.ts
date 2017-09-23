@@ -131,6 +131,8 @@ export class SubListComponent implements OnInit, OnChanges {
     if (!this.isDraggingList) {
       this.isDroppingList = true;
     }
+
+    this.setDropAt(event);
   }
 
   @HostListener('dragleave', ['$event'])
@@ -152,26 +154,7 @@ export class SubListComponent implements OnInit, OnChanges {
     event.preventDefault();
     event.stopPropagation();
 
-    if (this.isDraggingList) {
-      return;
-    }
-
-    let element = this.elementRef.nativeElement;
-
-    if (!element.getBoundingClientRect) {
-      return;
-    }
-
-    let rect = element.getBoundingClientRect();
-    let percent = Math.max(0, Math.min(element.clientWidth, event.clientX - rect.left) / element.clientWidth);
-
-    if (percent < .25) {
-      this.dropAt = 'left';
-    } else if (percent < .75) {
-      this.dropAt = null;
-    } else {
-      this.dropAt = 'right';
-    }
+    this.setDropAt(event);
   };
 
   @HostListener('drop', ['$event'])
@@ -207,6 +190,29 @@ export class SubListComponent implements OnInit, OnChanges {
     this.isDroppingList = false;
     this.dropAt = null;
     this.dragCounter = 0;
+  }
+
+  setDropAt(event: DragEvent) {
+    if (this.isDraggingList) {
+      return;
+    }
+
+    let element = this.elementRef.nativeElement;
+
+    if (!element.getBoundingClientRect) {
+      return;
+    }
+
+    let rect = element.getBoundingClientRect();
+    let percent = Math.max(0, Math.min(element.clientWidth, event.clientX - rect.left) / element.clientWidth);
+
+    if (percent < .25) {
+      this.dropAt = 'left';
+    } else if (percent < .75) {
+      this.dropAt = null;
+    } else {
+      this.dropAt = 'right';
+    }
   }
 
   isSelectedNav(item: any) {
