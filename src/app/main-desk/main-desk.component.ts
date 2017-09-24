@@ -118,11 +118,25 @@ export class MainDeskComponent implements OnInit, OnChanges {
   menu(event: MouseEvent) {
     event.preventDefault();
 
-    this.ui.menu([
-      'Change background...',
-      this.village.me() ? 'Sync with Village...' : 'Connect with Village...',
-      'Options...'
-    ], { x: event.clientX, y: event.clientY },
+    let opts;
+    let v = !!this.village.me();
+
+    if (!v) {
+      opts = [
+        'Change background...',
+        'Connect with Village...',
+        'Options...'
+      ];
+    } else {
+      opts = [
+        'Change background...',
+        'Save all notes...',
+        'Load all notes...',
+        'Options...'
+      ];
+    }
+
+    this.ui.menu(opts, { x: event.clientX, y: event.clientY },
     choose => {
       switch (choose) {
         case 0:
@@ -130,8 +144,8 @@ export class MainDeskComponent implements OnInit, OnChanges {
           break;
         case 1:
           if (this.village.isConnected()) {
-            if (this.village.me()) {
-
+            if (v) {
+              this.village.save();
             } else {
               this.ui.dialog({
                 message: 'Not connected to Village'
@@ -142,11 +156,20 @@ export class MainDeskComponent implements OnInit, OnChanges {
           }
           break;
         case 2:
+          if (v) {
+            this.village.load();
+          } else {
+            this.ui.dialog({
+              message: 'How to use Inception Notes\n\n1. Press F11 to make this act as your desktop\n2. Right-click on a note to change it\'s color\n3. Double-click on a note to focus\n4. Press escape to go to the previous note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to easily move items\n7. Use Ctrl+Down to "snip" off the last item of a list',
+              view: OpComponent
+            });
+          }
+          break;
+        case 3:
           this.ui.dialog({
             message: 'How to use Inception Notes\n\n1. Press F11 to make this act as your desktop\n2. Right-click on a note to change it\'s color\n3. Double-click on a note to focus\n4. Press escape to go to the previous note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to easily move items\n7. Use Ctrl+Down to "snip" off the last item of a list',
             view: OpComponent
           });
-
           break;
       }
     });

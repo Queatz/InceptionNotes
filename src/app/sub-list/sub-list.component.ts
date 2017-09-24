@@ -70,7 +70,6 @@ export class SubListComponent implements OnInit, OnChanges {
       prefill: this.list.color,
       view: ColorPickerComponent,
       init: dialog => {
-        console.log(dialog);
         dialog.component.instance.onColorSelected.subscribe(color => dialog.model.input = color);
       },
       ok: result => {

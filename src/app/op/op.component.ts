@@ -39,4 +39,8 @@ export class OpComponent implements OnInit {
   backup() {
     this.api.backup();
   }
+
+  unbackup() {
+    this.api.unbackup();
+  }
 }

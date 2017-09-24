@@ -1,7 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, enableProdMode } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
 import { MainListComponent } from './main-list/main-list.component';
@@ -16,6 +17,8 @@ import { SubSubListItemComponent } from './sub-sub-list-item/sub-sub-list-item.c
 import { OpComponent } from './op/op.component';
 import { MenuComponent } from './menu/menu.component';
 import { ColorPickerComponent } from './color-picker/color-picker.component';
+
+enableProdMode();
 
 @NgModule({
   declarations: [
@@ -39,7 +42,8 @@ import { ColorPickerComponent } from './color-picker/color-picker.component';
   imports: [
     BrowserModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    HttpModule,
   ],
   providers: [
     ApiService,
