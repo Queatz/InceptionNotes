@@ -306,6 +306,13 @@ export class ApiService {
   }
 
   public unbackup() {
+    this.ui.dialog({
+      message: 'Notes will be loaded to their previous state.\n\nYou may lose notes.\n\nProceed?',
+      ok: () => this.performUnbackup()
+    });
+  }
+
+  private performUnbackup() {
     let dlAnchorElem = (document.createElement('INPUT') as HTMLInputElement);
     dlAnchorElem.type = 'file';
     dlAnchorElem.onchange = () => {
