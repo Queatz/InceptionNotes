@@ -5,6 +5,7 @@ import 'rxjs/add/operator/map'
 
 import { ApiService } from './api.service';
 import { UiService } from './ui.service';
+import { CollaborateService } from './collaborate.service';
 
 @Injectable()
 export class VillageService {
@@ -19,7 +20,7 @@ export class VillageService {
   private connected: boolean;
   private data: any = null;
 
-  constructor(private http: Http, private api: ApiService, private ui: UiService) {
+  constructor(private http: Http, private api: ApiService, private ui: UiService, private collaborate: CollaborateService) {
     var local = JSON.parse(localStorage.getItem('village'));
 
     if (local) {
@@ -29,47 +30,13 @@ export class VillageService {
     }
   }
 
+  /* Sync - see SYNC.md */
 
-  public save() {
-    this.put('notes', { eye: this.api.getEye().id, notes: this.api.getFrozenNotes() }).subscribe(result => {
-      if (result.success) {
-        this.ui.dialog({
-          message: 'All notes successfully saved in Village'
-        });
-      } else {
-        this.ui.dialog({
-          message: 'Save didn\'t work'
-        });
-      }
-    });
-  }
-
-  public load() {
-    this.get('notes').subscribe(obj => {
-      this.api.loadFrozenNotes(obj.notes);
-      this.api.setEye(this.api.search(obj.eye));
-      this.ui.dialog({
-        message: 'All notes successfully loaded from Village'
-      });
-    }, err => {
-      if (err.status === 404) {
-        this.ui.dialog({
-          message: 'There are no notes saved in Village'
-        });
-      } else {
-        this.ui.dialog({
-          message: 'Village sync didn\'t work because of a server error.\n\nYou might want to try again after disconnecting Village from the options.'
-        });
-      }
-    });
-  }
-
-  // XXX todo
-  private sync() {
+  public sync() {
     // Pull, then push
     this.get('notes').subscribe(obj => this.syncCheck(obj), err => {
       if (err.status === 404) {
-        this.syncOk();
+        this.pushNow();
       } else {
         this.ui.dialog({
           message: 'Village sync didn\'t work because of a server error.\n\nYou might want to try again after disconnecting Village from the options.'
@@ -78,21 +45,25 @@ export class VillageService {
     });
   }
 
-  syncCheck(obj: any) {
-    if (this.compare(this.api.getAllNotes(), obj)) {
-      this.api.upsertNotes(JSON.stringify(obj));
-      this.syncOk();
-    } else {
-      this.ui.dialog({
-        message: 'Village is out of sync. Overwrite from Village?',
-        ok: () => {
-          this.api.loadFrozenNotes(JSON.stringify(obj));
-        }
+  private syncCheck(obj: any) {
+    obj = this.api.unfreeze(obj);
+
+    this.collaborate.syncAll(this.api.getAllNotes(), obj)
+      .then(() => this.pushNow())
+      .catch((err) => {
+        this.ui.dialog({
+          message: 'Sync failed due to merge conflicts.\n\n' + err
+        });
+
+        console.error(err);
       });
-    }
   }
 
-  syncOk() {
+  private pushNow() {
+    let notes = this.api.getAllNotes();
+    Object.keys(notes).forEach(note => Object.keys(notes[note]).forEach(k => k !== '_sync' ? this.collaborate.setSynchronized(notes[note], k) : null ));
+    this.api.save();
+
     this.put('notes', this.api.getFrozenNotes()).subscribe(result => {
       if (result.success) {
         this.ui.dialog({
@@ -106,40 +77,22 @@ export class VillageService {
     });
   }
 
-  compare(current: any, foreign: any) {
-    for(let n in current) {
-      if (current[n].id in foreign) {
-        if (current[n].name && current[n].name.indexOf(foreign[n].name) === -1) {
-          return false;
-        }
-      }
-    }
-
-    return true;
+  public nuke() {
+    this.ui.dialog({
+      message: 'Remove all notes from Village?',
+      ok: () => this.put('notes', {}).subscribe(() => this.ui.dialog({
+        message: 'Notes successfully removed from Village.\n\nTo access these notes on another device, use the file backup and load feature, or reconnect Village and sync.'
+      }))
+    });
   }
 
-  put(k: string, v: any) {
-    return this.http.post(this.storeUrl + (k ? '?q=' + k : ''), v, this.options())
-        .map((res: Response) => res.json());
-  }
+  /* Connect */
 
-  get(k: string) {
-    return this.http.get(this.storeUrl + (k ? '?q=' + k : ''), this.options())
-        .map((res: Response) => res.json());
-  }
-
-  private options() {
-    return new RequestOptions({ headers: new Headers({
-      'Authorization': this.data.token,
-      'Content-Type': 'application/json'
-    }) });
-  }
-
-  isConnected() {
+  public isConnected() {
     return this.connected;
   }
 
-  disconnect() {
+  public disconnect() {
     this.data = null;
     this.connected = false;
 
@@ -161,11 +114,11 @@ export class VillageService {
     localStorage.removeItem('village');
   }
 
-  me() {
+  public me() {
     return this.data;
   }
 
-  connect() {
+  public connect() {
     this.found = undefined;
 
     if (this.connected) {
@@ -222,4 +175,22 @@ export class VillageService {
     }
   }
 
+  /* Network */
+
+  private put(k: string, v: any) {
+    return this.http.post(this.storeUrl + (k ? '?q=' + k : ''), v, this.options())
+        .map((res: Response) => res.json());
+  }
+
+  private get(k: string) {
+    return this.http.get(this.storeUrl + (k ? '?q=' + k : ''), this.options())
+        .map((res: Response) => res.json());
+  }
+
+  private options() {
+    return new RequestOptions({ headers: new Headers({
+      'Authorization': this.data.token,
+      'Content-Type': 'application/json'
+    }) });
+  }
 }

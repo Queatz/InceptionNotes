@@ -32,6 +32,10 @@ export class OpComponent implements OnInit {
     this.village.disconnect();
   }
 
+  nukeVillage() {
+    this.village.nuke();
+  }
+
   villageName() {
     return this.village.me() && this.village.me().firstName;
   }

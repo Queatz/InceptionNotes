@@ -76,6 +76,7 @@ export class SubListComponent implements OnInit, OnChanges {
         if (result.input) {
           this.list.color = result.input;
           this.ui.addRecentColor(result.input);
+          this.api.modified(this.list, 'color');
           this.api.save();
         }
       }
@@ -252,6 +253,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   onNameChange() {
+    this.api.modified(this.list, 'name');
     this.api.save();
 
     if (this.list.name) {
@@ -295,6 +297,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   onItemChange(item: any) {
+    this.api.modified(item, 'name');
     this.api.save();
 
     if (item.transient && item.name) {
@@ -323,6 +326,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
     this.list.items.splice(location, 1);
     this.list.items.splice(location + move, 0, item);
+    this.api.modified(this.list, 'items');
     this.api.save();
 
     setTimeout(() => this.elementRef.nativeElement.querySelectorAll('.sub-list-item')[(location + move)].focus());
@@ -386,6 +390,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
   private deleteItem(element: any, item: any) {
     this.list.items.splice(this.list.items.indexOf(item), 1);
+    this.api.modified(this.list, 'items');
     this.api.save();
 
     let e = element.previousElementSibling || element.parentNode.previousElementSibling;

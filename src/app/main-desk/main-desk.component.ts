@@ -53,11 +53,13 @@ export class MainDeskComponent implements OnInit, OnChanges {
   }
 
   private removeItem(item: any) {
-    this.getLists().splice(this.getLists().indexOf(item), 1);
+    this.list.items.splice(this.list.items.indexOf(item), 1);
+    this.api.modified(this.list, 'items');
     this.api.save();
   }
 
   saveDescription() {
+    this.api.modified(this.list, 'description');
     this.api.save();
   }
 
@@ -73,6 +75,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
       ok: result => {
         if (result.input) {
           this.list.backgroundUrl = result.input;
+          this.api.modified(this.list, 'backgroundUrl');
           this.api.save();
         }
       }
@@ -80,8 +83,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
   }
 
   moveItem(event: Event, item: any, move: number) {
-    let lists = this.getLists();
-    let location = lists.indexOf(item);
+    let location = this.list.items.indexOf(item);
 
     if (location === -1) {
       return;
@@ -91,12 +93,13 @@ export class MainDeskComponent implements OnInit, OnChanges {
       return;
     }
 
-    if (move > 0 && location === lists.length - 1) {
+    if (move > 0 && location === this.list.items.length - 1) {
       return;
     }
 
-    lists.splice(location, 1);
-    lists.splice(location + move, 0, item);
+    this.list.items.splice(location, 1);
+    this.list.items.splice(location + move, 0, item);
+    this.api.modified(this.list, 'description');
     this.api.save();
 
     setTimeout(() => this.elementRef.nativeElement.querySelectorAll('sub-list')[(location + move)].querySelector('.sub-list-title').focus());
@@ -130,8 +133,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
     } else {
       opts = [
         'Change background...',
-        'Save all notes...',
-        'Load all notes...',
+        'Sync...',
         'Options...'
       ];
     }
@@ -145,10 +147,11 @@ export class MainDeskComponent implements OnInit, OnChanges {
         case 1:
           if (this.village.isConnected()) {
             if (v) {
-              this.village.save();
+              this.village.sync();
             } else {
               this.ui.dialog({
-                message: 'Not connected to Village'
+                message: 'Not connected to Village.  Retry?',
+                ok: () => this.village.connect()
               });
             }
           } else {
@@ -156,16 +159,6 @@ export class MainDeskComponent implements OnInit, OnChanges {
           }
           break;
         case 2:
-          if (v) {
-            this.village.load();
-          } else {
-            this.ui.dialog({
-              message: 'How to use Inception Notes\n\n1. Press F11 to make this act as your desktop\n2. Right-click on a note to change it\'s color\n3. Double-click on a note to focus\n4. Press escape to go to the previous note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to easily move items\n7. Use Ctrl+Down to "snip" off the last item of a list',
-              view: OpComponent
-            });
-          }
-          break;
-        case 3:
           this.ui.dialog({
             message: 'How to use Inception Notes\n\n1. Press F11 to make this act as your desktop\n2. Right-click on a note to change it\'s color\n3. Double-click on a note to focus\n4. Press escape to go to the previous note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to easily move items\n7. Use Ctrl+Down to "snip" off the last item of a list',
             view: OpComponent

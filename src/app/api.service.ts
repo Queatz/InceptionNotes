@@ -32,7 +32,7 @@ export class ApiService {
       this.migrateRoot(root);
       setTimeout(() => {
         this.ui.dialog({
-          message: 'Inception Notes has received an update.\n\nA backup copy of notes have been safely downloaded.'
+          message: 'Inception Notes has received an update.\n\nA backup copy of notes have been downloaded. If all else fails, check Right Click -> Inspect -> Application (tab) -> Local Storage -> \'root\''
         });
       }, 1000);
     } else {
@@ -68,15 +68,17 @@ export class ApiService {
         items: items,
         transient: a.transient,
         backgroundUrl: a.backgroundUrl,
-        synchronized: a.synchronized
+        _sync: a._sync
       };
     }
 
     return JSON.stringify(fossil);
   }
 
-  private unfreeze(fossil: any) {
-    fossil = JSON.parse(fossil);
+  public unfreeze(fossil: any) {
+    if (typeof(fossil) === 'string') {
+      fossil = JSON.parse(fossil);
+    }
 
     if (!fossil) {
         return null;
@@ -252,34 +254,6 @@ export class ApiService {
 
   /* Synchronization */
 
-  public upsertNotes(fossil: string) {
-    let notes = this.unfreeze(fossil);
-
-    for(let note in notes) {
-      notes[note].synchronized = true;
-
-      if (!(note in this.notes)) {
-        this.notes[note] = notes[note];
-
-        if (this.getShow()) {
-          this.getShow().items.push(notes[note]);
-        }
-      } else {
-        let n = this.notes[note];
-        if (!n.synchronized) {
-          continue;
-        }
-
-        for(let i in notes[note].items) {
-          n.items.push(notes[note].items[i]);
-        }
-      }
-    }
-
-    this.save();
-    this.resetView();
-  }
-
   public loadFrozenNotes(notes: string) {
     let n = this.unfreeze(notes);
 
@@ -287,7 +261,7 @@ export class ApiService {
       let nn = n[note];
       this.notes[note] = nn;
 
-      if (nn.name.replace(/<(?:.|\n)*?>/gm, '') && !nn.parent) {
+      if (nn.name.replace(/<(?:.|\n)*?>/gm, '').trim().length && !nn.parent) {
         this.getEye().items.push(nn);
       }
     }
@@ -336,8 +310,14 @@ export class ApiService {
 
   /* Edit */
 
-  public modified(note: any) {
-    delete note['synchronized'];
+  public modified(note: any, prop: string = null) {
+    if (prop === null) {
+      delete note['_sync'];
+    } else if ('_sync' in note) {
+      if (prop in note['_sync']) {
+        note['_sync'][prop].synchronized = false;
+      }
+    }
   }
 
   private breakCeiling() {
@@ -418,7 +398,7 @@ export class ApiService {
       }
 
       listParent.items.splice(oldPos, 1);
-      this.modified(listParent);
+      this.modified(listParent, 'items');
     }
 
     if (position >= 0 && position < toList.items.length) {
@@ -427,7 +407,7 @@ export class ApiService {
       toList.items.push(list);
     }
 
-    this.modified(toList);
+    this.modified(toList, 'items');
 
     list.parent = toList;
 
@@ -435,8 +415,7 @@ export class ApiService {
   }
 
   public newBlankList(list: any = null, position: number = null) {
-    let id;
-    do { id = this.newId() } while(id in this.notes);
+    let id = this.newId();
 
     let note: any = {
       id: id,
@@ -445,7 +424,7 @@ export class ApiService {
       color: '#ffffff',
       items: [],
       transient: true
-    }
+    };
 
     this.notes[id] = note;
 
@@ -457,6 +436,8 @@ export class ApiService {
       } else {
         list.items.splice(position, 0, note);
       }
+
+      this.modified(list, 'items');
     }
 
     return note;
@@ -465,6 +446,12 @@ export class ApiService {
   /* Util */
 
   public newId() {
+    let id;
+    do { id = this.rawNewId() } while(this.notes && (id in this.notes));
+    return id;
+  }
+
+  public rawNewId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 
@@ -479,7 +466,7 @@ export class ApiService {
     this.migrateRootAdd(root);
 
     this.save();
-    localStorage.removeItem('root');
+    // XXX TODO: localStorage.removeItem('root'); <-- add after some time
   }
 
   private migrateRootAdd(note: any) {

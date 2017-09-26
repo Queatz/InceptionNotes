@@ -2,3 +2,11 @@
   color: gray;
   font-size: 80%;
 }
+
+.green {
+  color: forestgreen;
+}
+
+.green.dark {
+  color: greenyellow;
+}

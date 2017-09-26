@@ -12,9 +12,12 @@
 </form>
 <br />
 <span *ngIf="isVillageConnected()">
-  <button (click)="disconnectVillage()">Disconnect Village</button> <span class="last-backup-date">Connected as {{ villageName() }}</span>
+  <span [ngClass]="{ 'dark': env.useDarkTheme }" class="green">Connected as {{ villageName() }} (Village)</span><br />
+  <button (click)="disconnectVillage()">Disconnect</button>
+  <button (click)="nukeVillage()">Delete notes</button>
   <br /><br />
 </span>
-<button (click)="backup()">Backup Notes to File</button> <span class="last-backup-date">{{ env.lastBackup ? 'Last backup ' + env.lastBackup : '' }}</span>
-<br /><br />
-<button (click)="unbackup()">Load Notes from File</button>
+<button (click)="backup()">Download notes</button>
+<button (click)="unbackup()">Upload notes</button>
+<br />
+<span class="last-backup-date">{{ env.lastBackup ? 'Last downloaded on ' + env.lastBackup : '' }}</span>

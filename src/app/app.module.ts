@@ -10,6 +10,7 @@ import { MainDeskComponent } from './main-desk/main-desk.component';
 import { ApiService } from './api.service';
 import { UiService } from './ui.service';
 import { VillageService } from './village.service';
+import { CollaborateService } from './collaborate.service';
 import { SubListComponent } from './sub-list/sub-list.component';
 import { ContenteditableModelDirective } from './contenteditable-model.directive';
 import { DialogComponent } from './dialog/dialog.component';
@@ -17,6 +18,7 @@ import { SubSubListItemComponent } from './sub-sub-list-item/sub-sub-list-item.c
 import { OpComponent } from './op/op.component';
 import { MenuComponent } from './menu/menu.component';
 import { ColorPickerComponent } from './color-picker/color-picker.component';
+import { DiffComponent } from './diff/diff.component';
 
 enableProdMode();
 
@@ -31,7 +33,8 @@ enableProdMode();
     SubSubListItemComponent,
     OpComponent,
     MenuComponent,
-    ColorPickerComponent
+    ColorPickerComponent,
+    DiffComponent
   ],
   entryComponents: [
     DialogComponent,
@@ -48,7 +51,8 @@ enableProdMode();
   providers: [
     ApiService,
     UiService,
-    VillageService
+    VillageService,
+    CollaborateService
   ],
   bootstrap: [AppComponent]
 })

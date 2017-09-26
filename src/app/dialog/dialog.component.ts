@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, Input, ElementRef, ViewChild, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, Input, ElementRef, ViewChild, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
 
 @Component({
   selector: 'app-dialog',
@@ -10,7 +10,7 @@ import { Component, OnInit, AfterViewInit, Input, ElementRef, ViewChild, Compone
     '[style.background-color]': 'environment.useDarkTheme ? \'rgba(0, 0, 0, .25)\' : undefined'
   }
 })
-export class DialogComponent implements OnInit, AfterViewInit {
+export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * message: string
@@ -39,6 +39,12 @@ export class DialogComponent implements OnInit, AfterViewInit {
 
     if (this.config.view) {
       this.component = this.custom.createComponent(this.resolver.resolveComponentFactory(this.config.view));
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.model.choice === null && this.config.cancel) {
+      this.config.cancel();
     }
   }
 
