@@ -4,15 +4,55 @@ import { ApiService } from './api.service';
 
 import {
   CollaborativeJson,
-  CollaborativeJsonString,
   CollaborativeJsonAtom,
-  CollaborativeJsonArray,
+  CollaborativeJsonNode,
   ConflictResolution,
   ConflictResolver,
   Conflict
 } from './collaborative-json';
 
 const _sync: string = '_sync';
+
+class CollaborativeJsonString extends CollaborativeJsonAtom {}
+
+class CollaborativeJsonArray implements CollaborativeJsonNode {
+
+  constructor(private api: ApiService) {}
+
+  sync(key: string, node: Object, foreign: Object): boolean {
+    if (node[key].length === foreign[key].length) {
+      let equal = true;
+      for (let i in node[key]) {
+        if (node[key][i].id !== foreign[key][i].id) {
+          equal = false;
+          break;
+        }
+      }
+
+      if (equal) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  set(key: string, node: Object, foreign: Object) {
+    let all = this.api.getAllNotes();
+
+    for (let i in foreign[key]) {
+      let id = foreign[key][i].id;
+
+      if (id in all) {
+        node[key][i] = all[id];
+      } else {
+        node[key][i] = foreign[key][i];
+      }
+    }
+
+    node[key].length = foreign[key].length;
+  }
+}
 
 @Injectable()
 export class CollaborateService {
@@ -26,13 +66,15 @@ export class CollaborateService {
     this.collaborativeJson.addRule('description', new CollaborativeJsonString());
     this.collaborativeJson.addRule('color', new CollaborativeJsonAtom());
     this.collaborativeJson.addRule('backgroundUrl', new CollaborativeJsonAtom());
-    this.collaborativeJson.addRule('items', new CollaborativeJsonArray());
+    this.collaborativeJson.addRule('items', new CollaborativeJsonArray(api));
+
+    let diffStr = this.diffStr;
 
     this.conflictResolver = ({
       resolve(conflict: Conflict): Promise<ConflictResolution> {
         return new Promise<ConflictResolution>((resolve, reject) => {
           ui.dialog({
-            message: 'Resolve conflict on ' + conflict.property + ':\n\n' + conflict.local[conflict.property] + '\nvs.\n' + conflict.foreign[conflict.property],
+            message: 'Resolve conflict on ' + conflict.property + ':\n\nLocal copy:\n\n' + diffStr(conflict.local[conflict.property]) + '\n\nvs.\n\nRemote copy:\n\n' + diffStr(conflict.foreign[conflict.property]),
             ok: () => resolve(new ConflictResolution(true, conflict)),
             cancel: () => resolve(new ConflictResolution(false, conflict))
           });
@@ -66,5 +108,15 @@ export class CollaborateService {
     }
 
     return promise;
+  }
+
+  public diffStr(obj: any) {
+    if (typeof(obj) === 'string') {
+      return obj;
+    } else if (Array.isArray(obj)) {
+      return obj.reduce((val, item) => val + '\n' + item.name, '');
+    } else {
+      return obj;
+    }
   }
 }

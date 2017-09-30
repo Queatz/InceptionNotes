@@ -25,7 +25,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
   private isDraggingList: boolean;
   private isDroppingList: boolean;
-  private dropAt: string;
+  public dropAt: string;
   private isTouch: boolean;
   private dragCounter: number = 0;
 

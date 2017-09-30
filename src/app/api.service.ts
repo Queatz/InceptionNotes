@@ -25,7 +25,11 @@ export class ApiService {
   }
 
   public load() {
-    let root = JSON.parse(localStorage.getItem('root'));
+    let root = null;
+
+    if (localStorage.getItem('version') !== '1') {
+      root = JSON.parse(localStorage.getItem('root'));
+    }
 
     if (root) {
       this.backupToFile(localStorage.getItem('root'));
@@ -466,6 +470,7 @@ export class ApiService {
     this.migrateRootAdd(root);
 
     this.save();
+    localStorage.setItem('version', '1');
     // XXX TODO: localStorage.removeItem('root'); <-- add after some time
   }
 

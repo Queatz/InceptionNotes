@@ -1,5 +1,6 @@
-interface CollaborativeJsonNode {
+export interface CollaborativeJsonNode {
   sync(prop: string, node: Object, foreign: Object): Object;
+  set(prop: string, node: Object, foreign: Object);
 }
 
 export class Conflict {
@@ -115,17 +116,16 @@ export class CollaborativeJson {
         continue;
       }
 
-      // Precondition: Local time exists
-      if (!foreignPropTime) {
-        this.reportError('local node property has no sync time: ' + key);
-        conflicts.push(new Conflict(key, node, foreign));
-        continue;
-      }
-
       // Precondition: Ok to overwrite foreign
-      if (nodePropTime === foreignPropTime && node[this.syncProperty][key].synchronized) {
-        this.reportError('local node is synchronized and equals foreign node time: ' + key);
-        continue;
+      if (node[this.syncProperty][key].synchronized) {
+        if (nodePropTime === foreignPropTime) {
+          this.reportError('local node is synchronized and equals foreign node time: ' + key);
+          continue;
+        } else if (foreignPropTime > nodePropTime) {
+          this.reportError('local node is synchronized and foreign time is greater: ' + key);
+          this.propertyRules[key].set(key, node, foreign);
+          continue;
+        }
       }
 
       // Precondition: Time compare
@@ -137,6 +137,7 @@ export class CollaborativeJson {
         this.reportError('local node auto-merge failed: ' + key);
         conflicts.push(new Conflict(key, node, foreign));
       } else {
+        this.propertyRules[key].set(key, node, foreign);
         this.resolve(node, key);
       }
     }
@@ -180,40 +181,16 @@ export class CollaborativeJson {
   }
 }
 
-export class CollaborativeJsonString implements CollaborativeJsonNode {
+export class CollaborativeJsonAtom implements CollaborativeJsonNode {
   sync(key: string, node: Object, foreign: Object): boolean {
     if (node[key] === foreign[key]) {
-      node[key] = foreign[key];
       return true;
     } else {
       return false;
     }
   }
-}
 
-export class CollaborativeJsonAtom implements CollaborativeJsonNode {
-  sync(key: string, node: Object, foreign: Object): boolean {
+  set(key: string, node: Object, foreign: Object) {
     node[key] = foreign[key];
-    return true;
-  }
-}
-
-export class CollaborativeJsonArray implements CollaborativeJsonNode {
-  sync(key: string, node: Object, foreign: Object): boolean {
-    if (node[key].length === foreign[key].length) {
-      let equal = true;
-      for (let i in node[key]) {
-        if (node[key][i].id !== foreign[key][i].id) {
-          equal = false;
-          break;
-        }
-      }
-
-      if (equal) {
-        return true;
-      }
-    }
-
-    return false;
   }
 }
