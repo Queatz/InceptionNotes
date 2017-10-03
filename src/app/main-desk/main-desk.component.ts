@@ -9,7 +9,7 @@ import { OpComponent } from '../op/op.component';
   templateUrl: './main-desk.component.html',
   styleUrls: ['./main-desk.component.css'],
   host: {
-    '[style.background-color]': 'getEnv().useDarkTheme ? \'#404040\' : undefined',
+    '[style.background-color]': 'list.backgroundUrl[0] === \'#\' ? list.backgroundUrl : (getEnv().useDarkTheme ? \'#404040\' : undefined)',
     '[style.background-image]': 'list.backgroundUrl ? (\'url(\' + list.backgroundUrl + \')\') : undefined'
   }
 })
