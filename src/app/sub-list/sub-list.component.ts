@@ -71,6 +71,7 @@ export class SubListComponent implements OnInit, OnChanges {
       view: ColorPickerComponent,
       init: dialog => {
         dialog.component.instance.onColorSelected.subscribe(color => dialog.model.input = color);
+        dialog.component.instance.onColorConfirmed.subscribe(color => dialog.clickOk());
       },
       ok: result => {
         if (result.input) {

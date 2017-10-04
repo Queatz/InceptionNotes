@@ -11,6 +11,7 @@ export class ColorPickerComponent implements OnInit {
 
   colors: any;
   @Output() onColorSelected = new EventEmitter<string>();
+  @Output() onColorConfirmed = new EventEmitter();
 
   constructor(private api: ApiService, private ui: UiService) { }
 
