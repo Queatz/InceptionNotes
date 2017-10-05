@@ -1,0 +1,14 @@
+.search-results {
+}
+
+.result {
+    padding: .5rem;
+    margin-top: .5rem;
+    border-radius: 2.5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    color: black;
+    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent);
+    cursor: pointer;
+}

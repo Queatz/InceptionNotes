@@ -19,6 +19,7 @@ import { OpComponent } from './op/op.component';
 import { MenuComponent } from './menu/menu.component';
 import { ColorPickerComponent } from './color-picker/color-picker.component';
 import { DiffComponent } from './diff/diff.component';
+import { SearchComponent } from './search/search.component';
 
 enableProdMode();
 
@@ -34,13 +35,15 @@ enableProdMode();
     OpComponent,
     MenuComponent,
     ColorPickerComponent,
-    DiffComponent
+    DiffComponent,
+    SearchComponent
   ],
   entryComponents: [
     DialogComponent,
     OpComponent,
     MenuComponent,
-    ColorPickerComponent
+    ColorPickerComponent,
+    SearchComponent
   ],
   imports: [
     BrowserModule,

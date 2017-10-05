@@ -3,6 +3,7 @@ import { ApiService } from '../api.service';
 import { UiService } from '../ui.service';
 import { VillageService } from '../village.service';
 import { OpComponent } from '../op/op.component';
+import { SearchComponent } from '../search/search.component';
 
 @Component({
   selector: 'main-desk',
@@ -126,12 +127,14 @@ export class MainDeskComponent implements OnInit, OnChanges {
 
     if (!v) {
       opts = [
+        'Search...',
         'Change background...',
         'Connect with Village...',
         'Options...'
       ];
     } else {
       opts = [
+        'Search...',
         'Change background...',
         'Sync...',
         'Options...'
@@ -142,9 +145,12 @@ export class MainDeskComponent implements OnInit, OnChanges {
     choose => {
       switch (choose) {
         case 0:
+            this.showSearch();
+            break;
+        case 1:
           this.changeBackground();
           break;
-        case 1:
+        case 2:
           if (this.village.isConnected()) {
             if (v) {
               this.village.sync();
@@ -158,7 +164,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
             this.village.connect();
           }
           break;
-        case 2:
+        case 3:
           this.ui.dialog({
             message: 'How to use Inception Notes\n\n1. Press F11 to make this act as your desktop\n2. Right-click on a note to change it\'s color\n3. Double-click on a note to focus\n4. Press escape to go to the previous note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to easily move items\n7. Use Ctrl+Down to "snip" off the last item of a list',
             view: OpComponent
@@ -168,6 +174,32 @@ export class MainDeskComponent implements OnInit, OnChanges {
     });
   }
 
+  @HostListener('window:keydown.alt.s')
+  showSearch() {
+    this.ui.dialog({
+      message: 'Search',
+      input: true,
+      view: SearchComponent,
+      init: dialog => {
+          dialog.changes.subscribe(val => {
+              dialog.component.instance.searchString = val;
+              dialog.component.instance.ngOnChanges(null);
+              dialog.component.instance.onSelection.subscribe(note => {
+                  this.api.setEye(note);
+                  dialog.back();
+              });
+              dialog.component.instance.resultsChanged.subscribe(results => {
+                  dialog.model.results = results;
+              });
+          })
+      },
+      ok: result => {
+          if (result.results && result.results.length) {
+              this.api.setEye(result.results[0]);
+          }
+      }
+    });
+  }
 
   @HostListener('dblclick')
   toggleSidepane() {

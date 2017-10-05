@@ -1,0 +1,6 @@
+<div class="search-results">
+  <div class="result" *ngFor="let note of results"
+       [innerHtml]="note.name"
+       [style.background-color]="note.color"
+       (click)="click(note)"></div>
+</div>

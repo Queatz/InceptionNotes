@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, Input, ElementRef, ViewChild, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, Input, EventEmitter, ElementRef, ViewChild, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
 
 @Component({
   selector: 'app-dialog',
@@ -16,6 +16,7 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
    * message: string
    * input: null | 'some string'
    * ok: () => {}
+   * init: dialog => {}
    */
   @Input() config: any;
   @Input() clickout: any;
@@ -29,6 +30,8 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
     choice: null,
     input: ''
   };
+
+  changes: EventEmitter<string> = new EventEmitter();
 
   constructor(private element: ElementRef,
     private resolver: ComponentFactoryResolver,
@@ -62,6 +65,10 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.config.init) {
       this.config.init(this);
     }
+  }
+
+  onChanges() {
+    this.changes.emit(this.model.input);
   }
 
   onClickInsideDialog(event: Event) {
