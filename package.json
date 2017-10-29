@@ -6,31 +6,32 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "ng test",
+    "test": "CHROME_BIN=/usr/bin/chromium ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^4.0.0",
-    "@angular/common": "^4.0.0",
-    "@angular/compiler": "^4.0.0",
-    "@angular/core": "^4.0.0",
-    "@angular/forms": "^4.0.0",
-    "@angular/http": "^4.0.0",
-    "@angular/platform-browser": "^4.0.0",
-    "@angular/platform-browser-dynamic": "^4.0.0",
-    "@angular/router": "^4.0.0",
-    "core-js": "^2.4.1",
-    "rxjs": "^5.1.0",
-    "zone.js": "^0.8.4"
+    "@angular/animations": "4.4.4",
+    "@angular/common": "4.4.4",
+    "@angular/compiler": "4.4.4",
+    "@angular/core": "4.4.4",
+    "@angular/forms": "4.4.4",
+    "@angular/http": "4.4.4",
+    "@angular/platform-browser": "4.4.4",
+    "@angular/platform-browser-dynamic": "4.4.4",
+    "@angular/router": "4.4.4",
+    "core-js": "^2.5.1",
+    "rxjs": "^5.4.3",
+    "zone.js": "^0.8.18"
   },
   "devDependencies": {
-    "@angular/cli": "1.1.2",
-    "@angular/compiler-cli": "^4.0.0",
-    "@angular/language-service": "^4.0.0",
+    "@angular/cli": "1.4.4",
+    "@angular/compiler-cli": "4.4.4",
+    "@angular/language-service": "4.4.4",
     "@types/jasmine": "2.5.45",
-    "@types/node": "~6.0.60",
+    "@types/node": "^8.0.32",
+    "@types/core-js": "^0.9.43",
     "codelyzer": "~3.0.1",
     "jasmine-core": "~2.6.2",
     "jasmine-spec-reporter": "~4.1.0",
@@ -43,6 +44,6 @@
     "protractor": "~5.1.2",
     "ts-node": "~3.0.4",
     "tslint": "~5.3.2",
-    "typescript": "~2.3.3"
+    "typescript": "~2.5.2"
   }
 }

@@ -166,7 +166,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
           break;
         case 3:
           this.ui.dialog({
-            message: 'How to use Inception Notes\n\n1. Press F11 to make this act as your desktop\n2. Right-click on a note to change it\'s color\n3. Double-click on a note to focus\n4. Press escape to go to the previous note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to easily move items\n7. Use Ctrl+Down to "snip" off the last item of a list',
+            message: 'How to use Inception Notes\n\n1. Press F11 to make this act as your desktop\n2. Right-click on a note to change it\'s color\n3. Double-click on a note to focus\n4. Press escape to go to the previous note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to easily move items\n7. Use Ctrl+Down to "snip" off the last item of a list\n8. Use ALT+S to search',
             view: OpComponent
           });
           break;
