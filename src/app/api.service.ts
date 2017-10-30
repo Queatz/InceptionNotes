@@ -223,7 +223,7 @@ export class ApiService {
     return list;
   }
 
-  public contains(id: string, note: any) {
+  public contains(id: string, note: any, exclude: any[] = null) {
     if (!note || !note.items) {
       return false;
     }
@@ -232,8 +232,18 @@ export class ApiService {
       return true;
     }
 
+    if (!exclude) {
+      exclude = [];
+    }
+
+    if (exclude.indexOf(note) !== -1) {
+      return true;
+    }
+
+    exclude.push(note);
+
     for (let subItem of note.items) {
-      if (this.contains(id, subItem)) {
+      if (this.contains(id, subItem, exclude)) {
         return true;
       }
     }
@@ -241,8 +251,18 @@ export class ApiService {
     return false;
   }
 
-  public getSubItemNames(item: any): Array<string> {
+  public getSubItemNames(item: any, exclude: any[] = null): Array<string> {
     let result: Array<string> = [];
+
+    if (!exclude) {
+      exclude = [];
+    }
+
+    if (exclude.indexOf(item) !== -1) {
+      return result;
+    }
+
+    exclude.push(item);
 
     for (let subItem of item.items) {
       if (subItem.transient) {
@@ -250,7 +270,7 @@ export class ApiService {
       }
 
       result.push(subItem.name);
-      result = result.concat(this.getSubItemNames(subItem));
+      result = result.concat(this.getSubItemNames(subItem, exclude));
     }
 
     return result;
@@ -326,11 +346,6 @@ export class ApiService {
 
   private breakCeiling() {
     let id = this.newId();
-
-    if (id in this.notes) {
-      console.log('Cannot override note with id: ' + id);
-      return;
-    }
 
     let newTop = {
       id: id,

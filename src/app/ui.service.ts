@@ -91,6 +91,7 @@ export class UiService {
     this.lastMenu.choose = onChooseCallback;
     this.lastMenu.clickout = () => menu.hostView.destroy();
   }
+
   public addRecentColor(color: string) {
     let exists = this.env.recentColors.indexOf(color);
 
