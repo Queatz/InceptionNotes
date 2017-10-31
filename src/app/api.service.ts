@@ -514,6 +514,8 @@ export class ApiService {
 
     list.ref.push(toList);
     this.modified(list, 'ref');
+
+    this.save();
   }
 
   public removeRef(list: any, toList: any) {
@@ -538,6 +540,8 @@ export class ApiService {
         this.modified(list, 'ref');
       }
     }
+
+    this.save();
   }
 
   /* Util */
