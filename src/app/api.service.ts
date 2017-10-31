@@ -64,12 +64,20 @@ export class ApiService {
         items.push(item.id);
       }
 
+      let ref = [];
+      if (a.ref) {
+        for (let item of a.ref) {
+          ref.push(item.id);
+        }
+      }
+
       fossil[a.id] = {
         id: a.id,
         name: a.name,
         description: a.description,
         color: a.color,
         items: items,
+        ref: ref,
         transient: a.transient,
         backgroundUrl: a.backgroundUrl,
         _sync: a._sync
@@ -103,6 +111,22 @@ export class ApiService {
       }
 
       a.items = items;
+
+      if (a.ref) {
+        let ref = [];
+
+        for (let id of a.ref) {
+          let n = fossil[id];
+
+          if (n) {
+            ref.push(n);
+          } else {
+            console.log('unfreeze error: missing note \'' + id + '\'');
+          }
+        }
+
+        a.ref = ref;
+      }
     }
 
     return fossil;
@@ -460,6 +484,60 @@ export class ApiService {
     }
 
     return note;
+  }
+
+  /* Relationships */
+
+  public addRef(list: any, toList: any) {
+    if (list === toList) {
+      return;
+    }
+
+    if (!toList.ref) {
+      toList.ref = [];
+    }
+
+    if (!list.ref) {
+      list.ref = [];
+    }
+
+    if (toList.ref.indexOf(list) !== -1) {
+      return;
+    }
+
+    if (list.ref.indexOf(toList) !== -1) {
+      return;
+    }
+
+    toList.ref.push(list);
+    this.modified(toList, 'ref');
+
+    list.ref.push(toList);
+    this.modified(list, 'ref');
+  }
+
+  public removeRef(list: any, toList: any) {
+    if (list === toList) {
+      return;
+    }
+
+    if (toList.ref) {
+      let idx = toList.ref.indexOf(list);
+
+      if (idx !== -1) {
+        toList.ref.splice(idx, 1);
+        this.modified(toList, 'ref');
+      }
+    }
+
+    if (list.ref) {
+      let idx = list.ref.indexOf(toList);
+
+      if (idx !== -1) {
+        list.ref.splice(idx, 1);
+        this.modified(list, 'ref');
+      }
+    }
   }
 
   /* Util */

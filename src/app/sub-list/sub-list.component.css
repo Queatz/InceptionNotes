@@ -16,9 +16,9 @@
     font: inherit;
     border: none;
     padding: 0;
+    flex: 1;
     outline: none;
     font-weight: bold;
-    margin-bottom: 1rem;
     display: block;
     cursor: text;
 }
@@ -27,6 +27,7 @@
     border: none;
     padding: 0;
     outline: none;
+    flex: 1;
     display: block;
     word-break: break-word;
     cursor: text;
@@ -95,4 +96,39 @@
   left: -1rem;
   background: orange;
   border-radius: 3px;
+}
+
+.item-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-links {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: 1rem;
+}
+
+.item-link {
+  margin-right: .125rem;
+  margin-bottom: .125rem;
+  font-size: 75%;
+  max-width: 50%;
+  position: relative;
+  padding: 0 .25rem;
+  border-radius: 2.5px;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent);
+  box-shadow: inset 0 0 1px 0px rgba(0, 0, 0, .5);
+}
+
+.spaced {
+  margin-bottom: 1rem;
+}
+
+.spaced .item-links {
+  margin-left: 0;
 }

@@ -67,6 +67,7 @@ export class CollaborateService {
     this.collaborativeJson.addRule('color', new CollaborativeJsonAtom());
     this.collaborativeJson.addRule('backgroundUrl', new CollaborativeJsonAtom());
     this.collaborativeJson.addRule('items', new CollaborativeJsonArray(api));
+    this.collaborativeJson.addRule('ref', new CollaborativeJsonArray(api));
 
     let diffStr = this.diffStr;
 

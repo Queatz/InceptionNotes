@@ -60,6 +60,7 @@ export class UiService {
       useDarkTheme: false,
       showAsPriorityList: false,
       showSublistPreviews: false,
+      showLinks: false,
       recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff']
     };
   }

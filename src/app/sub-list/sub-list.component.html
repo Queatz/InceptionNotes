@@ -1,30 +1,40 @@
 <div [ngClass]="{'is-navigation': useAsNavigation}" (dblclick)="dontPropagate($event)">
-	<div [contentEditable]="true"
-	    #element
-      [(contenteditableModel)]="list.name"
-      (contenteditableModelChange)="onNameChange()"
-      (dblclick)="getEnv().dblClickToOpen && !useAsNavigation ? openList($event) : dontPropagate($event)"
-      (click)="useAsNavigation ? openList($event) : undefined"
-      (keydown.backspace)="onNameBackspacePressed()"
-      (keydown.enter)="onNameEnterPressed(element)"
-      class="sub-list-title"></div>
-  <div *ngIf="!useAsNavigation">
-    <div *ngFor="let item of list.items" class="sub-list-item-container">
-      <div [contentEditable]="!useAsNavigation"
-        [hidden]="useAsNavigation && item.transient"
+  <div class="item-name spaced">
+    <div [contentEditable]="true"
         #element
-        [(contenteditableModel)]="item.name"
-        (contenteditableModelChange)="onItemChange(item)"
-        (click)="useAsNavigation ? showItem($event, item) : undefined"
-        (dblclick)="getEnv().dblClickToOpen ? openItem($event, item) : dontPropagate($event)"
-        (keydown.enter)="onItemEnterPressed(element, item)"
-        (keydown.backspace)="onItemBackspacePressed(element, item)"
-        (keydown.control.arrowup)="moveItem($event, item, -1)"
-        (keydown.control.arrowdown)="moveItem($event, item, 1)"
-        [ngClass]="{'is-selected': isSelectedNav(item)}"
-        [title]="getSubitemText(item)"
-        [attr.data-after]="getAfterText(item)"
-        class="sub-list-item"></div>
+        [(contenteditableModel)]="list.name"
+        (contenteditableModelChange)="onNameChange()"
+        (dblclick)="getEnv().dblClickToOpen && !useAsNavigation ? openList($event) : dontPropagate($event)"
+        (click)="useAsNavigation ? openList($event) : undefined"
+        (keydown.backspace)="onNameBackspacePressed()"
+        (keydown.enter)="onNameEnterPressed(element)"
+        class="sub-list-title"></div>
+    <div class="item-links" *ngIf="!useAsNavigation && getEnv().showLinks && list.ref">
+      <div *ngFor="let i of list.ref" class="item-link" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name"></div>
+    </div>
+  </div>
+  <div *ngIf="!useAsNavigation">
+    <div *ngFor="let item of list.items" class="sub-list-item-container" (contextmenu)="showSubitemOptions($event, item)">
+      <div class="item-name">
+        <div [contentEditable]="!useAsNavigation"
+          [hidden]="useAsNavigation && item.transient"
+          #element
+          [(contenteditableModel)]="item.name"
+          (contenteditableModelChange)="onItemChange(item)"
+          (click)="useAsNavigation ? showItem($event, item) : undefined"
+          (dblclick)="getEnv().dblClickToOpen ? openItem($event, item) : dontPropagate($event)"
+          (keydown.enter)="onItemEnterPressed(element, item)"
+          (keydown.backspace)="onItemBackspacePressed(element, item)"
+          (keydown.control.arrowup)="moveItem($event, item, -1)"
+          (keydown.control.arrowdown)="moveItem($event, item, 1)"
+          [ngClass]="{'is-selected': isSelectedNav(item)}"
+          [title]="getSubitemText(item)"
+          [attr.data-after]="getAfterText(item)"
+          class="sub-list-item"></div>
+        <div *ngIf="!useAsNavigation && getEnv().showLinks && item.ref" class="item-links">
+          <div *ngFor="let i of item.ref" class="item-link" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name"></div>
+        </div>
+      </div>
       <div class="sneak-peek" *ngIf="getEnv().showSublistPreviews">
         <div class="sneak-peek-item" *ngFor="let i of item.items"
           [innerHTML]="i.name"

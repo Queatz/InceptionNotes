@@ -26,7 +26,7 @@ export class SearchComponent implements OnInit, OnChanges {
         }
 
         let all = this.api.getAllNotes();
-        let s = this.searchString.toLowerCase();
+        let s = this.searchString.trim().toLowerCase();
         this.results = (<any>Object).values(all).filter(n => n.name.toLowerCase().indexOf(s) !== -1);
 
         if (this.results.length > 10) {

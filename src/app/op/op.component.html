@@ -9,6 +9,8 @@
   <label><input type="checkbox" name="showAsPriorityList" [(ngModel)]="env.showAsPriorityList" (ngModelChange)="update()" /> Show as priority list</label>
   <br /><br />
   <label><input type="checkbox" name="showSublistPreviews" [(ngModel)]="env.showSublistPreviews" (ngModelChange)="update()" /> Show sublist previews</label>
+  <br /><br />
+  <label><input type="checkbox" name="showLinks" [(ngModel)]="env.showLinks" (ngModelChange)="update()" /> Show links</label>
 </form>
 <br />
 <span *ngIf="isVillageConnected()">

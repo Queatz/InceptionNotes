@@ -3,6 +3,7 @@ import { Component, ElementRef, OnInit, OnChanges, Input, Output, EventEmitter, 
 import { ApiService } from '../api.service';
 import { UiService } from '../ui.service';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
+import { SearchComponent } from '../search/search.component';
 
 @Component({
   selector: 'sub-list',
@@ -40,27 +41,96 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   @HostListener('contextmenu', ['$event'])
-  showOptions(event) {
+  showOptions(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
 
     this.ui.menu([
+      'Link...',
       'Add people...',
-      'Paste as Plain Text...',
       'Change color...',
       'View edits...'
     ], { x: event.clientX, y: event.clientY },
     choose => {
       switch (choose) {
         case 0:
+          this.addToNote(this.list);
           break;
         case 1:
           break;
         case 2:
           this.changeColor();
           break;
+        case 3:
+          break;
       }
     });
+  }
+
+  showSubitemOptions(event: MouseEvent, item: any) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.ui.menu([
+      'Link...',
+    ], { x: event.clientX, y: event.clientY },
+    choose => {
+      switch (choose) {
+        case 0:
+          this.addToNote(item);
+          break;
+      }
+    });
+  }
+
+  showRefOptions(event: MouseEvent, item: any, refItem: any) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.ui.menu([
+      'Unlink',
+    ], { x: event.clientX, y: event.clientY },
+    choose => {
+      switch (choose) {
+        case 0:
+          this.api.removeRef(item, refItem);
+          break;
+      }
+    });
+  }
+
+  private addToNote(item: any) {
+    this.ui.dialog({
+          message: 'Link',
+          input: true,
+          view: SearchComponent,
+          init: dialog => {
+              dialog.changes.subscribe(val => {
+                  dialog.component.instance.searchString = val;
+                  dialog.component.instance.ngOnChanges(null);
+                  dialog.component.instance.onSelection.subscribe(note => {
+                      this.api.addRef(item, note);
+                      if (!this.getEnv().showLinks) {
+                        this.getEnv().showLinks = true;
+                        setTimeout(() => this.ui.dialog({ message: 'Show links enabled' }));
+                      }
+                      dialog.back();
+                  });
+                  dialog.component.instance.resultsChanged.subscribe(results => {
+                      dialog.model.results = results;
+                  });
+              })
+          },
+          ok: result => {
+              if (result.results && result.results.length) {
+                  this.api.addRef(item, result.results[0]);
+                  if (!this.getEnv().showLinks) {
+                    this.getEnv().showLinks = true;
+                    setTimeout(() => this.ui.dialog({ message: 'Show links enabled' }));
+                  }
+              }
+          }
+        });
   }
 
   private changeColor() {
@@ -288,7 +358,7 @@ export class SubListComponent implements OnInit, OnChanges {
     this.newBlankList(0);
 
     setTimeout(() => {
-      let n = element.nextElementSibling.children[0].children[0];
+      let n = element.parentNode.nextElementSibling.children[0].children[0].children[0];
       if (n && n.focus) {
         n.focus();
       }
@@ -334,10 +404,10 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   onItemEnterPressed(element: any, item: any) {
-    let n = element.parentNode.nextSibling;
+    let n = element.parentNode.parentNode.nextSibling;
 
     if (n && n.children && n.children.length) {
-      n = n.children[0];
+      n = n.children[0].children[0];
     }
 
     if (n && n.focus) {
@@ -345,14 +415,14 @@ export class SubListComponent implements OnInit, OnChanges {
 
       if (i !== -1) {
         this.newBlankList(i + 1);
-        setTimeout(() => element.parentNode.nextSibling && element.parentNode.nextSibling.children[0] && element.parentNode.nextSibling.children[0].focus());
+        setTimeout(() => element.parentNode && element.parentNode.parentNode.nextSibling && element.parentNode.parentNode.nextSibling.children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0].focus());
       } else {
         n.children[0].focus();
       }
     } else if (item.name) {
       item.transient = false;
       this.initNext();
-      setTimeout(() => element.parentNode.nextSibling && element.parentNode.nextSibling.children[0] && element.parentNode.nextSibling.children[0].focus());
+      setTimeout(() => element.parentNode && element.parentNode.parentNode.nextSibling && element.parentNode.parentNode.nextSibling.children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0].focus());
     }
 
     return false;
