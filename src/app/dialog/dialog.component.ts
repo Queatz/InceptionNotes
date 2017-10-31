@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, Input, EventEmitter, ElementRef, ViewChild, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
 
+import { Subject } from 'rxjs';
+
 @Component({
   selector: 'app-dialog',
   templateUrl: './dialog.component.html',
@@ -31,7 +33,7 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
     input: ''
   };
 
-  changes: EventEmitter<string> = new EventEmitter();
+  changes: Subject<string> = new Subject<string>();
 
   constructor(private element: ElementRef,
     private resolver: ComponentFactoryResolver,
@@ -42,6 +44,10 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (this.config.view) {
       this.component = this.custom.createComponent(this.resolver.resolveComponentFactory(this.config.view));
+    }
+
+    if (this.config.init) {
+      this.config.init(this);
     }
   }
 
@@ -61,14 +67,10 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
     if (first) {
       first.focus();
     }
-
-    if (this.config.init) {
-      this.config.init(this);
-    }
   }
 
   onChanges() {
-    this.changes.emit(this.model.input);
+    this.changes.next(this.model.input);
   }
 
   onClickInsideDialog(event: Event) {

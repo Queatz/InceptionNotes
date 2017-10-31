@@ -108,18 +108,18 @@ export class SubListComponent implements OnInit, OnChanges {
               dialog.changes.subscribe(val => {
                   dialog.component.instance.searchString = val;
                   dialog.component.instance.ngOnChanges(null);
-                  dialog.component.instance.onSelection.subscribe(note => {
-                      this.api.addRef(item, note);
-                      if (!this.getEnv().showLinks) {
-                        this.getEnv().showLinks = true;
-                        setTimeout(() => this.ui.dialog({ message: 'Show links enabled' }));
-                      }
-                      dialog.back();
-                  });
-                  dialog.component.instance.resultsChanged.subscribe(results => {
-                      dialog.model.results = results;
-                  });
-              })
+              });
+              dialog.component.instance.onSelection.subscribe(note => {
+                  this.api.addRef(item, note);
+                  if (!this.getEnv().showLinks) {
+                    this.getEnv().showLinks = true;
+                    setTimeout(() => this.ui.dialog({ message: 'Show links enabled' }));
+                  }
+                  dialog.back();
+              });
+              dialog.component.instance.resultsChanged.subscribe(results => {
+                  dialog.model.results = results;
+              });
           },
           ok: result => {
               if (result.results && result.results.length) {

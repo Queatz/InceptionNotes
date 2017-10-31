@@ -184,14 +184,14 @@ export class MainDeskComponent implements OnInit, OnChanges {
           dialog.changes.subscribe(val => {
               dialog.component.instance.searchString = val;
               dialog.component.instance.ngOnChanges(null);
-              dialog.component.instance.onSelection.subscribe(note => {
-                  this.api.setEye(note);
-                  dialog.back();
-              });
-              dialog.component.instance.resultsChanged.subscribe(results => {
-                  dialog.model.results = results;
-              });
-          })
+          });
+          dialog.component.instance.onSelection.subscribe(note => {
+              this.api.setEye(note);
+              dialog.back();
+          });
+          dialog.component.instance.resultsChanged.subscribe(results => {
+              dialog.model.results = results;
+          });
       },
       ok: result => {
           if (result.results && result.results.length) {

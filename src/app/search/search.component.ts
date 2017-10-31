@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges, EventEmitter } from '@angular/core';
 import { ApiService } from '../api.service';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-search',
@@ -9,14 +10,15 @@ import { ApiService } from '../api.service';
 export class SearchComponent implements OnInit, OnChanges {
 
     @Input() searchString: string;
-    onSelection: EventEmitter<any> = new EventEmitter();
-    resultsChanged: EventEmitter<any[]> = new EventEmitter();
+    onSelection: Subject<any> = new Subject();
+    resultsChanged: Subject<any[]> = new Subject();
 
     results: any[] = [];
 
     constructor(private api: ApiService) { }
 
     ngOnInit() {
+        this.resultsChanged.next(this.results);
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -33,10 +35,10 @@ export class SearchComponent implements OnInit, OnChanges {
             this.results.length = 10;
         }
 
-        this.resultsChanged.emit(this.results);
+        this.resultsChanged.next(this.results);
     }
 
     click(note: any) {
-        this.onSelection.emit(note);
+        this.onSelection.next(note);
     }
 }
