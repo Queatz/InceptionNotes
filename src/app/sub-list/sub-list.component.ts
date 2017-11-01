@@ -47,6 +47,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
     this.ui.menu([
       'Link...',
+      'Move to...',
       'Add people...',
       'Change color...',
       'View edits...'
@@ -57,11 +58,14 @@ export class SubListComponent implements OnInit, OnChanges {
           this.addToNote(this.list);
           break;
         case 1:
+          this.moveToNote(this.list);
           break;
         case 2:
-          this.changeColor();
           break;
         case 3:
+          this.changeColor();
+          break;
+        case 4:
           break;
       }
     });
@@ -73,11 +77,15 @@ export class SubListComponent implements OnInit, OnChanges {
 
     this.ui.menu([
       'Link...',
+      'Move to...',
     ], { x: event.clientX, y: event.clientY },
     choose => {
       switch (choose) {
         case 0:
           this.addToNote(item);
+          break;
+        case 1:
+          this.moveToNote(item);
           break;
       }
     });
@@ -128,6 +136,32 @@ export class SubListComponent implements OnInit, OnChanges {
                     this.getEnv().showLinks = true;
                     setTimeout(() => this.ui.dialog({ message: 'Show links enabled' }));
                   }
+              }
+          }
+        });
+  }
+
+  private moveToNote(item: any) {
+    this.ui.dialog({
+          message: 'Move to...',
+          input: true,
+          view: SearchComponent,
+          init: dialog => {
+              dialog.changes.subscribe(val => {
+                  dialog.component.instance.searchString = val;
+                  dialog.component.instance.ngOnChanges(null);
+              });
+              dialog.component.instance.onSelection.subscribe(note => {
+                  this.api.moveList(item.id, note.id);
+                  dialog.back();
+              });
+              dialog.component.instance.resultsChanged.subscribe(results => {
+                  dialog.model.results = results;
+              });
+          },
+          ok: result => {
+              if (result.results && result.results.length) {
+                  this.api.moveList(item.id, result.results[0].id);
               }
           }
         });

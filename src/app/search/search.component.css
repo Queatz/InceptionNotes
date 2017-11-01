@@ -12,3 +12,7 @@
     background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent);
     cursor: pointer;
 }
+
+.note-parent {
+  opacity: .33;
+}
