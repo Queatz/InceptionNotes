@@ -101,6 +101,7 @@
 .item-name {
   display: flex;
   flex-direction: column;
+  min-height: 1rem;
 }
 
 .item-links {
