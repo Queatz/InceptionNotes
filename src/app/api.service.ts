@@ -353,7 +353,9 @@ export class ApiService {
     let dlAnchorElem = (document.createElement('A') as HTMLAnchorElement);
     dlAnchorElem.href = window.URL.createObjectURL(dataStr);
     dlAnchorElem.setAttribute('download', 'Inception Notes (' + dateStr + ').json');
+    document.body.appendChild(dlAnchorElem);
     dlAnchorElem.click();
+    document.body.removeChild(dlAnchorElem);
   }
 
   /* Edit */

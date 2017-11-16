@@ -145,7 +145,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
     choose => {
       switch (choose) {
         case 0:
-            this.showSearch();
+            this.showSearch(null);
             break;
         case 1:
           this.changeBackground();
@@ -174,8 +174,12 @@ export class MainDeskComponent implements OnInit, OnChanges {
     });
   }
 
-  @HostListener('window:keydown.alt.s')
-  showSearch() {
+  @HostListener('window:keydown.alt.s', ['$event'])
+  showSearch(event: Event) {
+    if (event) {
+      event.preventDefault();
+    }
+
     this.ui.dialog({
       message: 'Search',
       input: true,
