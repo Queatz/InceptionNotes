@@ -10,6 +10,7 @@
     overflow: hidden;
     color: black;
     background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent);
+    box-shadow: 3px 3px 9px rgba(0, 0, 0, .125);
     cursor: pointer;
 }
 
