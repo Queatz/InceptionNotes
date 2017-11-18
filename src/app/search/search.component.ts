@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges, EventEmitter, HostListener } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Subject } from 'rxjs';
 
@@ -13,12 +13,33 @@ export class SearchComponent implements OnInit, OnChanges {
     onSelection: Subject<any> = new Subject();
     resultsChanged: Subject<any[]> = new Subject();
 
+    resultsHistory: any[] = [];
     results: any[] = [];
 
     constructor(private api: ApiService) { }
 
     ngOnInit() {
         this.resultsChanged.next(this.results);
+    }
+
+    @HostListener('window:keydown.arrowdown')
+    down() {
+        if (this.results.length > 1) {
+            this.resultsHistory.push(this.results.shift());
+            this.resultsChanged.next(this.results);
+        }
+
+        return false;
+    }
+
+    @HostListener('window:keydown.arrowup')
+    up() {
+        if (this.resultsHistory.length) {
+            this.results.unshift(this.resultsHistory.pop());
+            this.resultsChanged.next(this.results);
+        }
+
+        return false;
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -34,6 +55,8 @@ export class SearchComponent implements OnInit, OnChanges {
         if (this.results.length > 10) {
             this.results.length = 10;
         }
+
+        this.resultsHistory = [];
 
         this.resultsChanged.next(this.results);
     }
