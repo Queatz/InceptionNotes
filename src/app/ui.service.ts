@@ -108,4 +108,8 @@ export class UiService {
 
     this.save();
   }
+
+  public isAnyDialogOpened() {
+    return this.dialogs.length > 0;
+  }
 }

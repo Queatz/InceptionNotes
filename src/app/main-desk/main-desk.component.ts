@@ -176,6 +176,10 @@ export class MainDeskComponent implements OnInit, OnChanges {
 
   @HostListener('window:keydown.alt.s', ['$event'])
   showSearch(event: Event) {
+    if (this.ui.isAnyDialogOpened()) {
+      return;
+    }
+
     if (event) {
       event.preventDefault();
     }
