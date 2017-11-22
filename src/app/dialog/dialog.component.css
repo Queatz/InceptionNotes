@@ -10,6 +10,17 @@
   align-items: flex-start;
   justify-content: center;
   overflow-y: auto;
+  animation: fade-in .125s;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 .dialogbox {
@@ -22,6 +33,7 @@
   box-shadow: 3px 3px 9px rgba(0, 0, 0, .125);
   vertical-align: top;
   overflow: hidden;
+  border-radius: 8px;
 }
 
 .dialog-message {

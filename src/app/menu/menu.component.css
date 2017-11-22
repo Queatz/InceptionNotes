@@ -7,6 +7,7 @@
   overflow-y: auto;
   box-shadow: 3px 3px 9px rgba(0, 0, 0, .125);
   padding: .5rem 0;
+  border-radius: 8px;
 }
 
 .menu-option {
@@ -14,6 +15,7 @@
   flex-grow: 1;
   padding: 1rem;
   cursor: default;
+  transition: background-color .125s;
 }
 
 .menu-option:hover {

@@ -10,7 +10,7 @@ import { CollaborateService } from './collaborate.service';
 @Injectable()
 export class VillageService {
 
-  private beta = true;
+  private beta = false;
   private url: string = this.beta ? 'http://localhost:3000/authenticate' : 'https://vlllage.com/authenticate';
   private storeUrl: string = this.beta ? 'http://localhost:8080/api/earth/app/store' : 'https://vlllage.com:8443/api/earth/app/store';
   private listener: any;
