@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChanges, HostListener, HostBinding } from '@angular/core';
+import { Component, ElementRef, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChanges, HostListener, HostBinding, ViewChild } from '@angular/core';
 
 import { ApiService } from '../api.service';
 import { UiService } from '../ui.service';
@@ -22,7 +22,10 @@ export class SubListComponent implements OnInit, OnChanges {
 	@Input() list: any;
 	@Input() useAsNavigation: any;
 	@Output('modified') modified = new EventEmitter();
-	@Output('removed') removed = new EventEmitter();
+  @Output('removed') removed = new EventEmitter();
+  
+  @ViewChild('element') nameElement: ElementRef;
+  @ViewChild('items') itemsElement: ElementRef;
 
   private isDraggingList: boolean;
   private isDroppingList: boolean;
@@ -453,7 +456,7 @@ export class SubListComponent implements OnInit, OnChanges {
       } else {
         n.children[0].focus();
       }
-    } else if (item.name) {
+    } else {
       item.transient = false;
       this.initNext();
       setTimeout(() => element.parentNode && element.parentNode.parentNode.nextSibling && element.parentNode.parentNode.nextSibling.children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0].focus());
@@ -493,15 +496,50 @@ export class SubListComponent implements OnInit, OnChanges {
     event.stopPropagation();
   }
 
+  public onArrowUpDown(event: Event, item: any, move: number) {
+    event.preventDefault();
+
+    if (move === 1) {
+      let e = (event.target as any).parentNode.parentNode.nextElementSibling;
+
+      if (e && e.children[0].children[0] && e.children[0].focus) {
+        e.children[0].children[0].focus();
+        event.preventDefault();
+      }
+    } else if (move === -1) {
+      let e = (event.target as any).parentNode.parentNode.previousElementSibling;
+
+      event.preventDefault();
+
+      if (e && e.children[0].children[0] && e.children[0].focus) {
+        e.children[0].children[0].focus();
+      } else {
+        this.focusName();
+      }
+    }
+  }
+  
+  private focusName() {
+    this.nameElement.nativeElement.focus();
+  }
+
+  private focusItem(index: number) {
+    this.itemsElement
+        .nativeElement
+        .children[index]
+        .querySelector('[contenteditable]')
+        .focus();
+  }
+
   private deleteItem(element: any, item: any) {
     this.list.items.splice(this.list.items.indexOf(item), 1);
     this.api.modified(this.list, 'items');
     this.api.save();
 
-    let e = element.previousElementSibling || element.parentNode.previousElementSibling;
+    let e = element.parentNode.parentNode.previousElementSibling;
 
-    if (e && e.focus) {
-      e.focus();
+    if (e && e.children[0].children[0] && e.children[0].focus) {
+      e.children[0].children[0].focus();
     }
   }
 

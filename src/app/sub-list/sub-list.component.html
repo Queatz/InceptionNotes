@@ -8,12 +8,13 @@
         (click)="useAsNavigation ? openList($event) : undefined"
         (keydown.backspace)="onNameBackspacePressed()"
         (keydown.enter)="onNameEnterPressed(element)"
+        (keydown.arrowdown)="focusItem(0)"
         class="sub-list-title"></div>
     <div class="item-links" *ngIf="!useAsNavigation && getEnv().showLinks && list.ref">
       <div *ngFor="let i of list.ref" class="item-link" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name"></div>
     </div>
   </div>
-  <div *ngIf="!useAsNavigation">
+  <div *ngIf="!useAsNavigation" #items>
     <div *ngFor="let item of list.items" class="sub-list-item-container" (contextmenu)="showSubitemOptions($event, item)">
       <div class="item-name">
         <div [contentEditable]="!useAsNavigation"
@@ -27,6 +28,8 @@
           (keydown.backspace)="onItemBackspacePressed(element, item)"
           (keydown.control.arrowup)="moveItem($event, item, -1)"
           (keydown.control.arrowdown)="moveItem($event, item, 1)"
+          (keydown.arrowup)="onArrowUpDown($event, item, -1)"
+          (keydown.arrowdown)="onArrowUpDown($event, item, 1)"
           [ngClass]="{'is-selected': isSelectedNav(item)}"
           [title]="getSubitemText(item)"
           [attr.data-after]="getAfterText(item)"
