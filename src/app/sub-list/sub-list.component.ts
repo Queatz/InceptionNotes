@@ -417,6 +417,8 @@ export class SubListComponent implements OnInit, OnChanges {
 
   moveItem(event: Event, item: any, move: number) {
     event.stopPropagation();
+    event.preventDefault();
+    
     let location = this.list.items.indexOf(item);
 
     if (location === -1) {
@@ -428,8 +430,16 @@ export class SubListComponent implements OnInit, OnChanges {
     }
 
     if (move > 0 && location === this.list.items.length - 1) {
+      if (this.list.parent) {
+        let pos = this.list.parent.items.indexOf(this.list);
+
+        if (pos >= 0 && pos <= this.list.parent.items.length - 1) {
+          this.api.moveListUp(item, pos + 1);
+          return;
+        }
+      }
+
       this.api.moveListUp(item);
-      return;
     }
 
     this.list.items.splice(location, 1);

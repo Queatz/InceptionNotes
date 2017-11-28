@@ -391,7 +391,7 @@ export class ApiService {
     this.save();
   }
 
-  public moveListUp(list: any) {
+  public moveListUp(list: any, position: number = -1) {
     let parents = this.parents(list);
     let parent = parents.length >= 2 ? parents[parents.length - 2] : null;
 
@@ -399,7 +399,11 @@ export class ApiService {
       return;
     }
 
-    this.moveList(list.id, parent.id);
+    if (position !== -1) {
+      this.moveListToPosition(list.id, parent.id, position);
+    } else {
+      this.moveList(list.id, parent.id);
+    }
   }
 
   public moveList(listId: string, toListId: string) {
