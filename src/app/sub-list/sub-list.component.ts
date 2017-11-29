@@ -50,7 +50,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
     this.ui.menu([
       'Link...',
-      'Move to...',
+      'Move...',
       'Add people...',
       'Change color...',
       'View edits...'
@@ -80,7 +80,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
     this.ui.menu([
       'Link...',
-      'Move to...',
+      'Move...',
     ], { x: event.clientX, y: event.clientY },
     choose => {
       switch (choose) {
@@ -146,7 +146,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
   private moveToNote(item: any) {
     this.ui.dialog({
-          message: 'Move to...',
+          message: 'Move...',
           input: true,
           view: SearchComponent,
           init: dialog => {
