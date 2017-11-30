@@ -1,4 +1,4 @@
-<div class="menu-option" *ngFor="let option of options; let i = index" (click)="clicked(i)">
+<div class="menu-option" *ngFor="let option of options; let i = index" tabindex="0" (keydown.enter)="clicked($event, i)" (click)="clicked($event, i)">
   <span *ngIf="!option.push">{{ option }}</span>
   <span *ngIf="option.push" class="space-between">
     <span>{{ option[0] }}</span>

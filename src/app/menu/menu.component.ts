@@ -26,7 +26,10 @@ export class MenuComponent implements OnInit, AfterViewInit {
   
   ngAfterViewInit() {
     // Prevent inital clicks from closing the menu right away
-    setTimeout(() => this.showing = true);
+    setTimeout(() => {
+      this.elementRef.nativeElement.querySelectorAll('.menu-option')[0].focus();
+      this.showing = true;
+    });
   }
   
   @HostBinding('style.top')
@@ -71,7 +74,9 @@ export class MenuComponent implements OnInit, AfterViewInit {
     }
   }
   
-  clicked(option: number) {
+  clicked(event: Event, option: number) {
+    event.stopPropagation();
+
     if (this.choose) {
       this.choose(option);
     }

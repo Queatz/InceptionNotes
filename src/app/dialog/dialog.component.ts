@@ -8,7 +8,7 @@ import { Subject } from 'rxjs';
   styleUrls: ['./dialog.component.css'],
   host: {
     '(click)': 'back()',
-    '(keyup.enter)': 'clickOk()',
+    '(keydown.enter)': 'clickOk()',
     '[style.background-color]': 'environment.useDarkTheme ? \'rgba(0, 0, 0, .25)\' : undefined'
   }
 })
