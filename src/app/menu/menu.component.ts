@@ -73,6 +73,10 @@ export class MenuComponent implements OnInit, AfterViewInit {
       this.clickout();
     }
   }
+
+  hovered(event: Event, option: number) {
+    (event.target as HTMLElement).focus();
+  }
   
   clicked(event: Event, option: number) {
     event.stopPropagation();
