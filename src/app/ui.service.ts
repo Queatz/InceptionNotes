@@ -54,9 +54,9 @@ export class UiService {
   intro() {
     this.env = {
       sidepane: true,
-      dblClickToOpen: true,
+      dblClickToOpen: false,
       lastBackup: '',
-      showDescriptions: true,
+      showDescriptions: false,
       useDarkTheme: false,
       showAsPriorityList: false,
       showSublistPreviews: false,
