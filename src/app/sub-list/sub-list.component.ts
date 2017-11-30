@@ -533,7 +533,7 @@ export class SubListComponent implements OnInit, OnChanges {
     this.nameElement.nativeElement.focus();
   }
 
-  private focusItem(index: number) {
+  public focusItem(index: number) {
     this.itemsElement
         .nativeElement
         .children[index]

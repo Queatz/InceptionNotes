@@ -1,3 +1,7 @@
 <div class="menu-option" *ngFor="let option of options; let i = index" (click)="clicked(i)">
-  {{ option }}
+  <span *ngIf="!option.push">{{ option }}</span>
+  <span *ngIf="option.push" class="space-between">
+    <span>{{ option[0] }}</span>
+    <span class="menu-shortcut">{{ option[1] }}</span>
+  </span>
 </div>

@@ -62,8 +62,9 @@ export class MenuComponent implements OnInit, AfterViewInit {
     this.back();
   }
 
+
+  @HostListener('window:click', ['$event'])
   @HostListener('window:contextmenu')
-  @HostListener('window:click')
   back() {
     if (this.showing && this.clickout) {
       this.clickout();
