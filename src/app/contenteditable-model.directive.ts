@@ -4,7 +4,7 @@ import { Directive, ElementRef, Input, Output, OnChanges, SimpleChanges, EventEm
 	selector: '[contenteditableModel]',
 	host: {
 		'(blur)': 'onBlur()',
-		'(keyup)': 'onBlur()'
+		'(keyup)': 'changed()'
 	}
 })
 export class ContenteditableModelDirective implements OnChanges {
@@ -24,12 +24,14 @@ export class ContenteditableModelDirective implements OnChanges {
 	}
 
 	onBlur() {
-		if (this.elRef.nativeElement.lastElementChild) {
-			if ((this.elRef.nativeElement.lastElementChild as HTMLElement).tagName.toLowerCase() === 'br') {
-				(this.elRef.nativeElement.lastElementChild as HTMLElement).remove();
+		if (this.elRef.nativeElement.lastChild) {
+			if ((this.elRef.nativeElement.lastChild as HTMLElement).tagName.toLowerCase() === 'br') {
+				(this.elRef.nativeElement.lastChild as HTMLElement).remove();
 			}
 		}
+	}
 
+	changed() {
 		let value = this.elRef.nativeElement.innerHTML;
 		this.lastViewModel = this.model = value;
 		this.update.emit(value);
