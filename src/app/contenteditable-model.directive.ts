@@ -17,13 +17,19 @@ export class ContenteditableModelDirective implements OnChanges {
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
-    if (changes['model'] && changes['model'].currentValue !== this.lastViewModel) {
-      this.lastViewModel = this.model;
-      this.refreshView();
-    }
+		if (changes['model'] && changes['model'].currentValue !== this.lastViewModel) {
+		this.lastViewModel = this.model;
+		this.refreshView();
+		}
 	}
 
 	onBlur() {
+		if (this.elRef.nativeElement.lastElementChild) {
+			if ((this.elRef.nativeElement.lastElementChild as HTMLElement).tagName.toLowerCase() === 'br') {
+				(this.elRef.nativeElement.lastElementChild as HTMLElement).remove();
+			}
+		}
+
 		let value = this.elRef.nativeElement.innerHTML;
 		this.lastViewModel = this.model = value;
 		this.update.emit(value);
