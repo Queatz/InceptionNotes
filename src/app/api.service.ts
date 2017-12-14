@@ -80,6 +80,7 @@ export class ApiService {
         ref: ref,
         transient: a.transient,
         backgroundUrl: a.backgroundUrl,
+        collapsed: a.collapsed,
         _sync: a._sync
       };
     }

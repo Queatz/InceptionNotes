@@ -53,7 +53,7 @@ export class SubListComponent implements OnInit, OnChanges {
       'Move...',
       'Add people...',
       'Change color...',
-      'View edits...'
+      this.list.collapsed ? 'Un-collapse' : 'Collapse'
     ], { x: event.clientX, y: event.clientY },
     choose => {
       switch (choose) {
@@ -69,6 +69,7 @@ export class SubListComponent implements OnInit, OnChanges {
           this.changeColor();
           break;
         case 4:
+          this.toggleCollapse();
           break;
       }
     });
@@ -108,6 +109,12 @@ export class SubListComponent implements OnInit, OnChanges {
           break;
       }
     });
+  }
+
+  private toggleCollapse() {
+    this.list.collapsed = !this.list.collapsed;
+    this.api.modified(this.list, 'collapsed');
+    this.api.save();
   }
 
   private addToNote(item: any) {
