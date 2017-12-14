@@ -25,7 +25,7 @@ export class ContenteditableModelDirective implements OnChanges {
 
 	onBlur() {
 		if (this.elRef.nativeElement.lastChild) {
-			if ((this.elRef.nativeElement.lastChild as HTMLElement).tagName.toLowerCase() === 'br') {
+			if ((this.elRef.nativeElement.lastChild as HTMLElement).tagName === 'BR') {
 				(this.elRef.nativeElement.lastChild as HTMLElement).remove();
 			}
 		}
