@@ -28,3 +28,11 @@
     white-space: pre;
     color: rgba(0, 0, 0, .25);
 }
+
+.sub-sub-sup {
+  overflow: hidden;
+}
+
+.sub-sub-sup {
+  transition: max-height .25s;
+}

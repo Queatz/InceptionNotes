@@ -76,6 +76,14 @@ export class SubSubListItemComponent implements OnInit {
     return c ? ' (' + c + ')' : null;
   }
 
+  getMaxHeight(e: HTMLElement) {
+    if (this.isSelectedNav(this.item)) {
+      return e.scrollHeight + 'px';
+    }
+
+    return '0px';
+  }
+
   countSubItems(item: any) {
     return this.api.getSubItemNames(item).length;
   }
