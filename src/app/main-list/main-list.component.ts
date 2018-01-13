@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, HostBinding } from '@angular/core';
 import { ApiService } from '../api.service';
+import { UiService } from 'app/ui.service';
 
 @Component({
   selector: 'main-list',
@@ -9,7 +10,9 @@ import { ApiService } from '../api.service';
 })
 export class MainListComponent implements OnInit {
 
-  constructor(public api: ApiService) { }
+  @Input() @HostBinding('class.is-showing') show: boolean;
+
+  constructor(public api: ApiService, public ui: UiService) { }
 
   ngOnInit() {
     

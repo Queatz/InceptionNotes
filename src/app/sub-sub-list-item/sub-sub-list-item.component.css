@@ -18,10 +18,15 @@
 }
 
 .sub-sub {
+  opacity: 0;  
   background: rgba(0, 0, 0, .05);
   padding: .75rem;
   font-size: 85%;
-  transition: background-color .125s;  
+  transition: background-color .125s, opacity .25s ease-out;  
+}
+
+.sub-sub-sup.is-selected .sub-sub {
+  opacity: 1;
 }
 
 .sub-item:after {

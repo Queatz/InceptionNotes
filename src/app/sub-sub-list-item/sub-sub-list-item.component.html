@@ -4,6 +4,7 @@
   [ngClass]="{'is-selected': isSelectedNav(item)}"></div>
 <div #subsub
     [style.max-height]="getMaxHeight(subsub)"
+    [ngClass]="{'is-selected': isSelectedNav(item)}"
     class="sub-sub-sup">
   <div class="sub-item sub-sub"
     *ngFor="let subItem of item.items"

@@ -1,2 +1,2 @@
-<main-list *ngIf="getEnv().sidepane"></main-list>
+<main-list [show]="getEnv().sidepane"></main-list>
 <main-desk [list]="api.getShow()"></main-desk>

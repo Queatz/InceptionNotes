@@ -11,6 +11,13 @@
 	background-image: -webkit-linear-gradient(right, rgba(255, 255, 255, .25), transparent);
 	z-index: 1;
   box-shadow: 3px 0px 9px rgba(0, 0, 0, .125);
+
+  transition: transform .25s ease-out;
+  transform: translateX(-100%);
+}
+
+:host.is-showing {
+  transform: translateX(0%);
 }
 
 :host sub-list {

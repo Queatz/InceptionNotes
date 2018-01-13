@@ -8,10 +8,12 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	overflow-y: auto;
+  overflow-y: auto;
+  
+  transition: left ease-out .25s;
 }
 
-main-list+:host {
+main-list.is-showing+:host {
   left: 16rem;
 }
 
