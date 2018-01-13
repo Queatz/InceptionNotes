@@ -8,19 +8,20 @@
   display: block;
   margin: 0;
 
-  transition: background-color .125s;
+  transition: background-color .125s ease-out;
 }
 
 .sub-item:hover,
 .sub-item.is-selected {
-  background: rgba(0, 0, 0, .125);
+  background: rgba(0, 0, 0, .1);
   cursor: pointer;
 }
 
 .sub-sub {
-  background: rgba(0, 0, 0, .075);
+  background: rgba(0, 0, 0, .05);
   padding: .75rem;
   font-size: 85%;
+  transition: background-color .125s;  
 }
 
 .sub-item:after {
