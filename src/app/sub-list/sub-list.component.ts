@@ -392,6 +392,10 @@ export class SubListComponent implements OnInit, OnChanges {
     return c ? ' (' + c + ')' : null;
   }
 
+  getBeforeText(item: any) {
+    return  '•';
+  }
+
   onNameBackspacePressed() {
     if (this.isEmptyName(this.list.name)) {
       this.removed.emit();

@@ -1,9 +1,10 @@
 @import url('https://fonts.googleapis.com/css?family=Overpass');
+@import url('https://fonts.googleapis.com/css?family=Delius');
 
 body {
 	height: 100%;
 	margin: 0;
-	font-family: 'Overpass', sans-serif;
+	font-family: 'Delius', 'Overpass', sans-serif;
 }
 
 [hidden] { display: none !important;}
