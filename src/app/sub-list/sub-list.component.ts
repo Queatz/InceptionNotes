@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChanges, HostListener, HostBinding, ViewChild } from '@angular/core';
 
+import Util from '../util';
 import { ApiService } from '../api.service';
 import { UiService } from '../ui.service';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
@@ -384,6 +385,18 @@ export class SubListComponent implements OnInit, OnChanges {
     let c = this.countSubItems(item);
 
     return c ? c + ' sub-item' + (c === 1 ? '' : 's') : 'No sub-items';
+  }
+
+  getItemLinkText(item: any) {
+    let t = '';
+    let p = item.parent;
+
+    for(let i = 0; i < 3 && p; i++) {
+      t += ' → ' + p.name;
+      p = p.parent;
+    }
+
+    return Util.htmlToText(t);
   }
 
   getAfterText(item: any) {

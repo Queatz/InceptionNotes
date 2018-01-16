@@ -66,6 +66,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
 
   dontPropagate(event: Event) {
     event.stopPropagation();
+    event.preventDefault();
   }
 
   changeBackground() {
@@ -229,8 +230,9 @@ export class MainDeskComponent implements OnInit, OnChanges {
     this.ui.save();
   }
 
-  @HostListener('dblclick')
-  toggleSidepane() {
+  @HostListener('dblclick', ['$event'])
+  toggleSidepane(event: Event) {
+    this.dontPropagate(event);
     this.ui.getEnv().sidepane = !this.ui.getEnv().sidepane;
     this.ui.save();
   }
