@@ -83,6 +83,7 @@ export class SubListComponent implements OnInit, OnChanges {
     this.ui.menu([
       'Link...',
       'Move...',
+      'Estimate...',
     ], { x: event.clientX, y: event.clientY },
     choose => {
       switch (choose) {
@@ -91,6 +92,18 @@ export class SubListComponent implements OnInit, OnChanges {
           break;
         case 1:
           this.moveToNote(item);
+          break;
+        case 2:
+          this.ui.dialog({
+            message: 'Estimate',
+            prefill: item.estimate,
+            input: true,
+            ok: r => {
+              item.estimate = Number(r.input);
+              this.api.modified(item, 'estimate');
+              this.api.save();
+            }
+          });
           break;
       }
     });
@@ -401,8 +414,9 @@ export class SubListComponent implements OnInit, OnChanges {
 
   getAfterText(item: any) {
     let c = this.countSubItems(item);
+    let d = this.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0;
 
-    return c ? ' (' + c + ')' : null;
+    return c || d ? ' (' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') + ')' : null;
   }
 
   getBeforeText(item: any) {

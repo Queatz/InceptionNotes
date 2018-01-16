@@ -81,6 +81,7 @@ export class ApiService {
         transient: a.transient,
         backgroundUrl: a.backgroundUrl,
         collapsed: a.collapsed,
+        estimate: a.estimate,
         _sync: a._sync
       };
     }
@@ -274,6 +275,33 @@ export class ApiService {
     }
 
     return false;
+  }
+
+  public getSubItemEstimates(item: any, exclude: any[] = null): Array<number> {
+    let result: Array<number> = [];
+     if (item.transient) {
+         return result;
+     }
+
+    if (!exclude) {
+      exclude = [];
+    }
+
+    if (exclude.indexOf(item) !== -1) {
+      return result;
+    }
+
+    if (item.estimate) {
+        result.push(item.estimate);
+    }
+
+    exclude.push(item);
+
+    for (let subItem of item.items) {
+      result = result.concat(this.getSubItemEstimates(subItem, exclude));
+    }
+
+    return result;
   }
 
   public getSubItemNames(item: any, exclude: any[] = null): Array<string> {

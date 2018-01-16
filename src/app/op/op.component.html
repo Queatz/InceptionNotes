@@ -11,6 +11,8 @@
   <label><input type="checkbox" name="showSublistPreviews" [(ngModel)]="env.showSublistPreviews" (ngModelChange)="update()" /> Show sublist previews</label>
   <br /><br />
   <label><input type="checkbox" name="showLinks" [(ngModel)]="env.showLinks" (ngModelChange)="update()" /> Show links</label>
+  <br /><br />
+  <label><input type="checkbox" name="showEstimates" [(ngModel)]="env.showEstimates" (ngModelChange)="update()" /> Show estimates</label>
 </form>
 <br />
 <span *ngIf="isVillageConnected()">

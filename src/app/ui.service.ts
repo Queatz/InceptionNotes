@@ -61,6 +61,7 @@ export class UiService {
       showAsPriorityList: false,
       showSublistPreviews: false,
       showLinks: false,
+      showEstimates: false,
       recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff']
     };
   }
