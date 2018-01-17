@@ -59,9 +59,9 @@ export class UiService {
       showDescriptions: false,
       useDarkTheme: false,
       showAsPriorityList: false,
-      showSublistPreviews: false,
-      showLinks: false,
-      showEstimates: false,
+      showSublistPreviews: true,
+      showLinks: true,
+      showEstimates: true,
       recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff']
     };
   }

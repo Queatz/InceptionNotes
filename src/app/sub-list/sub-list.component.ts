@@ -95,7 +95,7 @@ export class SubListComponent implements OnInit, OnChanges {
           break;
         case 2:
           this.ui.dialog({
-            message: 'Estimate',
+            message: 'Estimate (in days)',
             prefill: item.estimate,
             input: true,
             ok: r => {
