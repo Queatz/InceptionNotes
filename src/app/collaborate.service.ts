@@ -13,9 +13,9 @@ import {
 
 const _sync: string = '_sync';
 
-class CollaborativeJsonString extends CollaborativeJsonAtom {}
+export class CollaborativeJsonString extends CollaborativeJsonAtom {}
 
-class CollaborativeJsonArray implements CollaborativeJsonNode {
+export class CollaborativeJsonArray implements CollaborativeJsonNode {
 
   constructor(private api: ApiService) {}
 
@@ -65,6 +65,8 @@ export class CollaborateService {
     this.collaborativeJson.addRule('name', new CollaborativeJsonString());
     this.collaborativeJson.addRule('description', new CollaborativeJsonString());
     this.collaborativeJson.addRule('color', new CollaborativeJsonAtom());
+    this.collaborativeJson.addRule('estimate', new CollaborativeJsonAtom());
+    this.collaborativeJson.addRule('collapsed', new CollaborativeJsonAtom());
     this.collaborativeJson.addRule('backgroundUrl', new CollaborativeJsonAtom());
     this.collaborativeJson.addRule('items', new CollaborativeJsonArray(api));
     this.collaborativeJson.addRule('ref', new CollaborativeJsonArray(api));

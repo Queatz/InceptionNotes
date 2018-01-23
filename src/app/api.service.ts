@@ -469,12 +469,6 @@ export class ApiService {
     if (listParent) {
       oldPos = listParent.items.indexOf(list);
 
-      if (position !== -1) {
-        if (oldPos < position) {
-          position -= 1;
-        }
-      }
-
       listParent.items.splice(oldPos, 1);
       this.modified(listParent, 'items');
     }

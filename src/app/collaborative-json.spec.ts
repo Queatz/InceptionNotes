@@ -1,13 +1,15 @@
 import {
   CollaborativeJson,
-  CollaborativeJsonString,
   CollaborativeJsonAtom,
-  CollaborativeJsonArray,
   ConflictResolver,
   Conflict,
   ConflictResolution
 } from './collaborative-json';
 
+import {
+  CollaborativeJsonArray,
+  CollaborativeJsonString,
+} from './collaborate.service';
 
 describe('collaborative-json', () => {
   let collaborativeJson: CollaborativeJson;

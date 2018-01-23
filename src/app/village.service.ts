@@ -6,13 +6,11 @@ import 'rxjs/add/operator/map'
 import { ApiService } from './api.service';
 import { UiService } from './ui.service';
 import { CollaborateService } from './collaborate.service';
+import { Config } from 'app/config.service';
 
 @Injectable()
 export class VillageService {
 
-  private beta = false;
-  private url: string = this.beta ? 'http://localhost:3000/authenticate' : 'https://vlllage.com/authenticate';
-  private storeUrl: string = this.beta ? 'http://localhost:8080/api/earth/app/store' : 'https://vlllage.com:8443/api/earth/app/store';
   private listener: any;
   private villageFrame: any;
   private interval: any;
@@ -20,7 +18,7 @@ export class VillageService {
   private connected: boolean;
   private data: any = null;
 
-  constructor(private http: Http, private api: ApiService, private ui: UiService, private collaborate: CollaborateService) {
+  constructor(private http: Http, private config: Config, private api: ApiService, private ui: UiService, private collaborate: CollaborateService) {
     var local = JSON.parse(localStorage.getItem('village'));
 
     if (local) {
@@ -129,7 +127,7 @@ export class VillageService {
 
     if (!this.villageFrame) {
       this.villageFrame = document.createElement('iframe');
-      this.villageFrame.setAttribute('src', this.url);
+      this.villageFrame.setAttribute('src', this.config.vlllageAuthenticateUrl());
       this.villageFrame.style.width = '0';
       this.villageFrame.style.height = '0';
       this.villageFrame.style.visibility = 'hidden';
@@ -168,7 +166,7 @@ export class VillageService {
 
       if (receiver) {
         this.interval = () => {
-          receiver.postMessage('com.vlllage.message.hey', this.url);
+          receiver.postMessage('com.vlllage.message.hey', this.config.vlllageAuthenticateUrl());
         };
         setInterval(this.interval, 500);
       }
@@ -178,12 +176,12 @@ export class VillageService {
   /* Network */
 
   private put(k: string, v: any) {
-    return this.http.post(this.storeUrl + (k ? '?q=' + k : ''), v, this.options())
+    return this.http.post(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), v, this.options())
         .map((res: Response) => res.json());
   }
 
   private get(k: string) {
-    return this.http.get(this.storeUrl + (k ? '?q=' + k : ''), this.options())
+    return this.http.get(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), this.options())
         .map((res: Response) => res.json());
   }
 

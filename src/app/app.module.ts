@@ -20,6 +20,8 @@ import { MenuComponent } from './menu/menu.component';
 import { ColorPickerComponent } from './color-picker/color-picker.component';
 import { DiffComponent } from './diff/diff.component';
 import { SearchComponent } from './search/search.component';
+import { SyncService } from 'app/sync.service';
+import { Config } from 'app/config.service';
 
 enableProdMode();
 
@@ -55,7 +57,9 @@ enableProdMode();
     ApiService,
     UiService,
     VillageService,
-    CollaborateService
+    CollaborateService,
+    SyncService,
+    Config
   ],
   bootstrap: [AppComponent]
 })

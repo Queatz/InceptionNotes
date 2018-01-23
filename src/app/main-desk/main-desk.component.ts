@@ -84,6 +84,13 @@ export class MainDeskComponent implements OnInit, OnChanges {
     });
   }
 
+  addPeople(list: any) {
+    this.ui.dialog({
+      message: 'Add people',
+      input: true,
+    });
+  }
+
   moveItem(event: Event, item: any, move: number) {
     let location = this.list.items.indexOf(item);
 
@@ -129,6 +136,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
     if (!v) {
       opts = [
         ['Search...', 'ALT + S'],
+        'Add people...',
         'Change background...',
         'Connect with Village...',
         ['Options...', 'ALT + O']
@@ -149,9 +157,12 @@ export class MainDeskComponent implements OnInit, OnChanges {
             this.showSearch(null);
             break;
         case 1:
+            this.addPeople(this.list);
+            break;
+        case 2:
           this.changeBackground();
           break;
-        case 2:
+        case 3:
           if (this.village.isConnected()) {
             if (v) {
               this.village.sync();
@@ -165,7 +176,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
             this.village.connect();
           }
           break;
-        case 3:
+        case 4:
           this.showOptions(null);
           break;
       }

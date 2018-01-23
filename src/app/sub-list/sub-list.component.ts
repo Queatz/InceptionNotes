@@ -65,6 +65,7 @@ export class SubListComponent implements OnInit, OnChanges {
           this.moveToNote(this.list);
           break;
         case 2:
+          this.addPeople(this.list);
           break;
         case 3:
           this.changeColor();
@@ -73,6 +74,13 @@ export class SubListComponent implements OnInit, OnChanges {
           this.toggleCollapse();
           break;
       }
+    });
+  }
+
+  addPeople(list: any) {
+    this.ui.dialog({
+      message: 'Add people',
+      input: true,
     });
   }
 

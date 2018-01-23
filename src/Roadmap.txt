@@ -1,21 +1,87 @@
- [   ] Add Options dialog to configure
-   [   ] persistent backends: backend(s)
-     [   ] Health check to make sure the API is working correctly (try to store + retrieve)
-   [   ] double-click to open or  
-   [   ] bottom drawer on/off
-   [   ] Note: Press F11 or make this window fullscreen to make this your desktop
-   [   ] Dark theme
 
 
-Maybe:
- [   ] Bottom drawer with interior (preview) of clicked on item
- [   ] View list history of edits
- [   ] Change background
- 
- 
-   [ X ] If no parent, "Create new list with "My Todo List" as first item? [ No     Yes ]" dialog
-   [ X ] doubleclk on desk to hide/show nav (or press esc to show)
- [ X ] Esc goes UP
-  [ X ] Make eye favicon icon
- [ X ] Color
- [ X ] Persist to Local Strage
+Sync
+====
+
+
+Client -> Server
+
+-> state {since: 'E-TAG'}
+-> update {note: {id: , field: }}
+
+Client <- Server
+
+<- state [{note}, {note}, ...]
+<- update {note: {id: , field: }}
+
+
+
+
+
+
+
+
+
+
+Events (Push Notification \ Email)
+====
+
+Jacob shared a note with you[ and 3 others]
+Jacob updated 12 notes
+Jacob added Nate Ferrero to "Some Note"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Server
+======
+
+sync.inceptionnotes.com
+
+API
+===
+
+Catch Up
+
+{
+  all: {
+    dirty: true,
+    since: 'date'
+  }
+}
+
+
+
+Edits
+
+{
+  'state': { 'id': '1231321312', background: '3232' }
+}
+
+{
+  'state': { 'id': '1231321312', background: '3232' }
+}
+
+People
+
+{
+  'add': { 'id': '12121212', people: ['32232323'] }
+}
+
+{
+  'remove': { 'id': '12121212', people: ['32232323'] }
+}
