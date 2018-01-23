@@ -178,12 +178,14 @@ export class ApiService {
     }
 
     let view: any = localStorage.getItem('view');
+    let show: any = localStorage.getItem('view-show') || view;
 
-    // Search for view and rebuild parents
     view = this.search(view);
+    show = this.search(show);
 
     if (view) {
-      this.view.eye = this.view.show = view;
+      this.view.eye = view;
+      this.view.show = show;
     } else {
       this.view.eye = this.view.show = this.top;
     }
@@ -210,6 +212,7 @@ export class ApiService {
 
   private saveView() {
     localStorage.setItem('view', this.view.eye.id);
+    localStorage.setItem('view-show', this.view.show.id);
   }
 
   /* Etc */
