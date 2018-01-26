@@ -31,7 +31,6 @@
 
 .sub-item:after {
     content: attr(data-after);
-    white-space: pre;
     color: rgba(0, 0, 0, .25);
 }
 

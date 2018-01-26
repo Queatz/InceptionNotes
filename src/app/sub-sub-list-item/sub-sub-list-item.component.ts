@@ -17,7 +17,7 @@ export class SubSubListItemComponent implements OnInit {
   private isDroppingList: boolean;
   private dragCounter: number = 0;
 
-  constructor(private api: ApiService) { }
+  constructor(private ui: UiService, private api: ApiService) { }
 
   ngOnInit() {
   }
@@ -72,8 +72,9 @@ export class SubSubListItemComponent implements OnInit {
 
   getAfterText(item: any) {
     let c = this.countSubItems(item);
+    let d = this.ui.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0;
 
-    return c ? ' (' + c + ')' : null;
+    return c || d ? ' (' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') + ')' : null;
   }
 
   getMaxHeight(e: HTMLElement) {

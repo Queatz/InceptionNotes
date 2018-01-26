@@ -6,20 +6,38 @@ Sync
 
 Client -> Server
 
--> state {since: 'E-TAG'}
--> update {note: {id: , field: }}
+-> sync {timestamp: 'E-TAG'}
+-> sync [{id: , field: }, {id: , field: }, ...]
 
 Client <- Server
 
-<- state [{note}, {note}, ...]
-<- update {note: {id: , field: }}
+<- sync {timestamp: 'E-TAG', notes: [{note}, {note}, ...]}
+<- sync [{id: , field: }, {id: , field: }, ...]
 
 
 
 
 
+Notes
+=====
+
+Server is there for the client (heavy client)
+
+Debounce server-sync every 5s
+If window closed while not saved, notify with alert
+
+Notes client-side are marked dirty as in not-sent
+THESE NOTES are sent to the server on forst possibility
+
+All merging happens client-side
 
 
+Merge
+=====
+
+resolve: {
+  [{id: }, {id: }]
+}
 
 
 
