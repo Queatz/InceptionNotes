@@ -25,7 +25,6 @@ export class MenuComponent implements OnInit, AfterViewInit {
   }
   
   ngAfterViewInit() {
-    // Prevent inital clicks from closing the menu right away
     setTimeout(() => {
       this.elementRef.nativeElement.querySelectorAll('.menu-option')[0].focus();
       this.showing = true;
@@ -66,9 +65,9 @@ export class MenuComponent implements OnInit, AfterViewInit {
   }
 
 
-  @HostListener('window:click', ['$event'])
+  @HostListener('window:mousedown', ['$event'])
   @HostListener('window:contextmenu')
-  back() {
+  back(event?: Event) { if (event) console.log(event.target);
     if (this.showing && this.clickout) {
       this.clickout();
     }
