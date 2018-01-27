@@ -67,7 +67,11 @@ export class MenuComponent implements OnInit, AfterViewInit {
 
   @HostListener('window:mousedown', ['$event'])
   @HostListener('window:contextmenu')
-  back(event?: Event) { if (event) console.log(event.target);
+  back(event?: Event) {
+    if (event && this.elementRef.nativeElement.contains((<HTMLElement>event.target))) {
+      return;
+    }
+
     if (this.showing && this.clickout) {
       this.clickout();
     }
