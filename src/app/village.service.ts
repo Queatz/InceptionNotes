@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers, Response, RequestOptions } from '@angular/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import 'rxjs/add/operator/map'
 
 import { ApiService } from './api.service';
@@ -22,6 +22,9 @@ export class VillageService {
   private data: any = null;
   private meId: string = null;
 
+  private friendsObservable: Subject<any[]>;
+  private backers: any[];
+
   constructor(private http: Http,
       private config: Config,
       private api: ApiService,
@@ -35,6 +38,8 @@ export class VillageService {
       this.connected = true;
       this.found = true;
     }
+
+    this.friendsObservable = new Subject();
   }
 
   /* Sync - see SYNC.md */
@@ -180,6 +185,24 @@ export class VillageService {
   }
 
   /* Network */
+
+  public friends(k: string): Observable<any[]> {
+    k = k.toLowerCase();
+
+    if (this.backers) {
+      let backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1);
+      return Observable.of(backs);
+    } else {
+      this.http.get(this.config.vlllageFriends(this.me().id, this.me().token), this.options())
+          .map((res: Response) => res.json()).subscribe(person => {
+            this.backers = person.backs.map(back => back.source);
+            let backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1);
+            this.friendsObservable.next(backs);
+          });
+    }
+
+    return this.friendsObservable.first();
+  }
 
   private put(k: string, v: any) {
     return this.http.post(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), v, this.options())

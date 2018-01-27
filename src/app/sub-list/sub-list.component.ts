@@ -6,6 +6,7 @@ import { UiService } from '../ui.service';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { SearchComponent } from '../search/search.component';
 import { VillageService } from 'app/village.service';
+import { AddPeopleComponent } from 'app/add-people/add-people.component';
 
 @Component({
   selector: 'sub-list',
@@ -84,6 +85,16 @@ export class SubListComponent implements OnInit, OnChanges {
     this.ui.dialog({
       message: 'Add people',
       input: true,
+      view: AddPeopleComponent,
+      init: dialog => {
+        dialog.changes.subscribe(input => {
+          (<AddPeopleComponent>dialog.component.instance).search(input);
+        });
+
+        (<AddPeopleComponent>dialog.component.instance).onSelection.subscribe(person => {
+          dialog.back();
+        });
+      }
     });
   }
 

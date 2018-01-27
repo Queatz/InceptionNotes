@@ -23,6 +23,7 @@ import { SearchComponent } from './search/search.component';
 import { SyncService } from 'app/sync.service';
 import { WsService } from 'app/ws.service';
 import { Config } from 'app/config.service';
+import { AddPeopleComponent } from './add-people/add-people.component';
 
 enableProdMode();
 
@@ -39,14 +40,16 @@ enableProdMode();
     MenuComponent,
     ColorPickerComponent,
     DiffComponent,
-    SearchComponent
+    SearchComponent,
+    AddPeopleComponent
   ],
   entryComponents: [
     DialogComponent,
     OpComponent,
     MenuComponent,
     ColorPickerComponent,
-    SearchComponent
+    SearchComponent,
+    AddPeopleComponent
   ],
   imports: [
     BrowserModule,

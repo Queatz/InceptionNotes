@@ -4,6 +4,8 @@ import { UiService } from '../ui.service';
 import { VillageService } from '../village.service';
 import { OpComponent } from '../op/op.component';
 import { SearchComponent } from '../search/search.component';
+import { DialogConfig } from 'app/dialog/dialog.component';
+import { AddPeopleComponent } from 'app/add-people/add-people.component';
 
 @Component({
   selector: 'main-desk',
@@ -85,6 +87,16 @@ export class MainDeskComponent implements OnInit, OnChanges {
     this.ui.dialog({
       message: 'Add people',
       input: true,
+      view: AddPeopleComponent,
+      init: dialog => {
+        dialog.changes.subscribe(input => {
+          (<AddPeopleComponent>dialog.component.instance).search(input);
+        });
+
+        (<AddPeopleComponent>dialog.component.instance).onSelection.subscribe(person => {
+          dialog.back();
+        });
+      }
     });
   }
 

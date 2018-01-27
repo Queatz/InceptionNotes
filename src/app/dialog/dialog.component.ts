@@ -2,6 +2,21 @@ import { Component, OnInit, OnDestroy, AfterViewInit, Input, EventEmitter, Eleme
 
 import { Subject } from 'rxjs';
 
+export class DialogModel {
+  choice: string;
+  input: string;
+}
+
+export class DialogConfig {
+  message?: string;
+  prefill?: string;
+  input?: boolean;
+  view?: any;
+  init?: (DialogComponent) => void;
+  ok?: (DialogModel) => void;
+  cancel?:() => void;
+}
+
 @Component({
   selector: 'app-dialog',
   templateUrl: './dialog.component.html',
@@ -14,13 +29,7 @@ import { Subject } from 'rxjs';
 })
 export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  /**
-   * message: string
-   * input: null | 'some string'
-   * ok: () => {}
-   * init: dialog => {}
-   */
-  @Input() config: any;
+  @Input() config: DialogConfig;
   @Input() clickout: any;
   @Input() environment: any;
 
@@ -28,7 +37,7 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
   private custom: ViewContainerRef;
   private component: any;
 
-  private model = {
+  private model: DialogModel = {
     choice: null,
     input: ''
   };

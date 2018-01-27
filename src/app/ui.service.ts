@@ -1,7 +1,7 @@
 import { Injectable, ComponentFactoryResolver, ViewContainerRef, ComponentFactory } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { DialogComponent } from './dialog/dialog.component';
+import { DialogComponent, DialogConfig } from './dialog/dialog.component';
 import { MenuComponent } from './menu/menu.component';
 
 @Injectable()
@@ -66,7 +66,7 @@ export class UiService {
     };
   }
 
-  public dialog(config: any) {
+  public dialog(config: DialogConfig) {
     let dialog = this.appComponent.view
         .createComponent(this.resolver.resolveComponentFactory(DialogComponent));
 
