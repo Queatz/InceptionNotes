@@ -7,6 +7,7 @@ import { ApiService } from './api.service';
 import { UiService } from './ui.service';
 import { CollaborateService } from './collaborate.service';
 import { Config } from 'app/config.service';
+import { SyncService } from 'app/sync.service';
 
 @Injectable()
 export class VillageService {
@@ -21,7 +22,12 @@ export class VillageService {
   private data: any = null;
   private meId: string = null;
 
-  constructor(private http: Http, private config: Config, private api: ApiService, private ui: UiService, private collaborate: CollaborateService) {
+  constructor(private http: Http,
+      private config: Config,
+      private api: ApiService,
+      private ui: UiService,
+      private collaborate: CollaborateService,
+      private syncService: SyncService) {
     var local = JSON.parse(localStorage.getItem('village'));
 
     if (local) {
@@ -43,7 +49,7 @@ export class VillageService {
   }
 
   public sync() {
-    this.get(VillageService.VLLLAGE_ME_KEY).subscribe(me => me ? this.onMeLoaded(me) : this.setup(), err => {
+    this.get(VillageService.VLLLAGE_ME_KEY).subscribe(me => me ? this.onMeAvailable(me) : this.setup(), err => {
       if (err.status === 404) {
         this.setup();
       } else {
@@ -57,7 +63,7 @@ export class VillageService {
   private setup() {
     let me = this.newKey();
     this.put(VillageService.VLLLAGE_ME_KEY, JSON.stringify(me)).subscribe(success => {
-      this.onMeLoaded(me);
+      this.onMeAvailable(me);
     }, err => {
       this.ui.dialog({
         message: 'Village connection didn\'t work because of a server error.\n\nYou might want to try again after disconnecting Village from the options.'
@@ -65,9 +71,9 @@ export class VillageService {
     });
   }
 
-  private onMeLoaded(me: string) {
+  private onMeAvailable(me: string) {
     this.meId = me;
-    console.log('Connecting to sync.inceptionnotes.com with me: ' + me);
+    this.syncService.start(me);
   }
 
   private newKey() {

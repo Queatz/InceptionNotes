@@ -21,6 +21,7 @@ import { ColorPickerComponent } from './color-picker/color-picker.component';
 import { DiffComponent } from './diff/diff.component';
 import { SearchComponent } from './search/search.component';
 import { SyncService } from 'app/sync.service';
+import { WsService } from 'app/ws.service';
 import { Config } from 'app/config.service';
 
 enableProdMode();
@@ -59,6 +60,7 @@ enableProdMode();
     VillageService,
     CollaborateService,
     SyncService,
+    WsService,
     Config
   ],
   bootstrap: [AppComponent]

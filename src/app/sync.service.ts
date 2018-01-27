@@ -1,55 +1,54 @@
 import { Injectable } from '@angular/core';
 import { Config } from 'app/config.service';
+import { WsService } from 'app/ws.service';
+import { Event, SyncEvent } from 'app/sync/event';
 
 @Injectable()
 export class SyncService {
 
-  private websocket: WebSocket;
-  private pending: any[] = [];
+  private me: string;
+  private event: Event;
 
-  constructor(private config: Config) {
-    this.reconnect();
+  constructor(private ws: WsService) {
+    this.ws.syncService = this;
+    this.event = new Event();
   }
 
-  public reconnect() {
-    if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
-      return;
-    }
-
-    this.websocket = new WebSocket(this.config.getWebSocketUrl());
-    this.websocket.onmessage = message => this.onMessage(message.data);
-    this.websocket.onopen = () => this.onOpen();
-    this.websocket.onclose = () => this.onClose();
+  /**
+   * Start syncing
+   */
+  public start(me: string) {
+    this.me = me;
+    this.send(new SyncEvent(me));
   }
 
-  public send(events: any): boolean {
-    if (this.websocket.readyState !== WebSocket.CLOSED) {
-      this.reconnect();
-    }
-
-    if (this.websocket.readyState !== WebSocket.OPEN) {
-      this.pending.push(events);
-
-      return false;
-    }
-
-    this.websocket.send(JSON.stringify(events));
-    
-    return true;
+  /**
+   * Send
+   */
+  public send(event: any) {
+    let str = JSON.stringify([[this.event.types.get(event.constructor), event]]);
+    console.log('(ws) send: ' + str);    
+    this.ws.send(str);
   }
 
-  private onOpen() {
-    while(this.pending.length) {
-      this.send(this.pending.shift());
-    }
+  /**
+   * Called on got
+   */
+  public got(events: any[]) {
+    console.log('(ws) event: ' + JSON.stringify(events));
   }
 
-  private onClose() {
-
+  /**
+   * Called on close
+   */
+  public close() {
+    console.log('(ws) closed');    
   }
 
-  private onMessage(message: string) {
-    
+  /**
+   * Called on open
+   */
+  public open() {
+    console.log('(ws) opened');
   }
-
 }
