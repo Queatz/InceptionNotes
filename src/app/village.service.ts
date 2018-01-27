@@ -11,12 +11,15 @@ import { Config } from 'app/config.service';
 @Injectable()
 export class VillageService {
 
+  private static VLLLAGE_ME_KEY = 'me';
+
   private listener: any;
   private villageFrame: any;
   private interval: any;
   private found: boolean;
   private connected: boolean;
   private data: any = null;
+  private meId: string = null;
 
   constructor(private http: Http, private config: Config, private api: ApiService, private ui: UiService, private collaborate: CollaborateService) {
     var local = JSON.parse(localStorage.getItem('village'));
@@ -30,56 +33,52 @@ export class VillageService {
 
   /* Sync - see SYNC.md */
 
+  /**
+   * Check
+   */
+  public check() {
+    if (this.me()) {
+      this.sync();
+    }
+  }
+
   public sync() {
-    // Pull, then push
-    this.get('notes').subscribe(obj => this.syncCheck(obj), err => {
+    this.get(VillageService.VLLLAGE_ME_KEY).subscribe(me => me ? this.onMeLoaded(me) : this.setup(), err => {
       if (err.status === 404) {
-        this.pushNow();
+        this.setup();
       } else {
         this.ui.dialog({
-          message: 'Village sync didn\'t work because of a server error.\n\nYou might want to try again after disconnecting Village from the options.'
+          message: 'Village connection didn\'t work because of a server error.\n\nYou might want to try again after disconnecting Village from the options.'
         });
       }
     });
   }
 
-  private syncCheck(obj: any) {
-    obj = this.api.unfreeze(obj);
-
-    this.collaborate.syncAll(this.api.getAllNotes(), obj)
-      .then(() => this.pushNow())
-      .catch((err) => {
-        this.ui.dialog({
-          message: 'Sync failed due to merge conflicts.\n\n' + err
-        });
-
-        console.error(err);
+  private setup() {
+    let me = this.newKey();
+    this.put(VillageService.VLLLAGE_ME_KEY, JSON.stringify(me)).subscribe(success => {
+      this.onMeLoaded(me);
+    }, err => {
+      this.ui.dialog({
+        message: 'Village connection didn\'t work because of a server error.\n\nYou might want to try again after disconnecting Village from the options.'
       });
+    });
   }
 
-  private pushNow() {
-    let notes = this.api.getAllNotes();
-    Object.keys(notes).forEach(note => Object.keys(notes[note]).forEach(k => k !== '_sync' ? this.collaborate.setSynchronized(notes[note], k) : null ));
-    this.api.save();
+  private onMeLoaded(me: string) {
+    this.meId = me;
+    console.log('Connecting to sync.inceptionnotes.com with me: ' + me);
+  }
 
-    this.put('notes', this.api.getFrozenNotes()).subscribe(result => {
-      if (result.success) {
-        this.ui.dialog({
-          message: 'Village has been sync\'d'
-        });
-      } else {
-        this.ui.dialog({
-          message: 'Village sync didn\'t work this time'
-        });
-      }
-    });
+  private newKey() {
+    return Array.from(Array(10)).reduce(a => a + Math.random().toString(36).substring(2, 15), '');
   }
 
   public nuke() {
     this.ui.dialog({
-      message: 'Remove all notes from Village?',
-      ok: () => this.put('notes', {}).subscribe(() => this.ui.dialog({
-        message: 'Notes successfully removed from Village.\n\nTo access these notes on another device, use the file backup and load feature, or reconnect Village and sync.'
+      message: 'Unsync notes from Village?',
+      ok: () => this.put(VillageService.VLLLAGE_ME_KEY, JSON.stringify(null)).subscribe(() => this.ui.dialog({
+        message: 'Notes successfully unsync\'d from Village.\n\nTo access these notes on another device, use the file backup and load feature.'
       }))
     });
   }
@@ -139,6 +138,7 @@ export class VillageService {
           if (event.data && event.data.me !== undefined) {
             if (event.data.me) {
               this.data = event.data.me;
+              this.sync();
               localStorage.setItem('village', JSON.stringify(this.data));
 
               if (this.found) {

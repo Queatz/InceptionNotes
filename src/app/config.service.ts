@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 export class Config {
 
   private beta: boolean = true;
+  private betaVlllage: boolean = false;
 
   constructor() { }
 
@@ -16,15 +17,15 @@ export class Config {
   }
 
   public vlllageAuthenticateUrl() {
-    return this.beta ? 'http://localhost:3000/authenticate' : 'https://vlllage.com/authenticate';
+    return this.betaVlllage ? 'http://localhost:3000/authenticate' : 'https://vlllage.com/authenticate';
   }
 
   public vlllageStoreUrl() {
-    return this.beta ? 'http://localhost:8080/api/earth/app/store' : 'https://vlllage.com:8443/api/earth/app/store';
+    return this.betaVlllage ? 'http://localhost:8080/api/earth/app/store' : 'https://vlllage.com:8443/api/earth/app/store';
   }
 
   public friends(id: string, auth: string) {
-    if (this.beta) {
+    if (this.betaVlllage) {
       return 'http://localhost:8080/api/earth/' + id + '?select=backs(source(firstName,lastName))&auth=' + auth;
     }
 

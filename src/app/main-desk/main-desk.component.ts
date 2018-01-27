@@ -144,14 +144,19 @@ export class MainDeskComponent implements OnInit, OnChanges {
     } else {
       opts = [
         'Search...',
+        'Add people...',
         'Change background...',
-        'Sync...',
         'Options...'
       ];
     }
 
     this.ui.menu(opts, { x: event.clientX, y: event.clientY },
     choose => {
+
+      if (v && choose >= 3) {
+        choose++;
+      }
+
       switch (choose) {
         case 0:
             this.showSearch(null);

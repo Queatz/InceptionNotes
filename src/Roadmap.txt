@@ -6,15 +6,36 @@ Sync
 
 Client -> Server
 
--> sync {timestamp: 'E-TAG'}
+-> sync {me: '12345...128', timestamp: 'E-TAG'}
 -> sync [{id: , field: }, {id: , field: }, ...]
 
 Client <- Server
 
-<- sync {timestamp: 'E-TAG', notes: [{note}, {note}, ...]}
+<- sync {me: '12345...128', timestamp: 'E-TAG', notes: [{note}, {note}, ...]}
 <- sync [{id: , field: }, {id: , field: }, ...]
 
 
+
+
+
+Vlllage Sync MVP (Zero-to-One)
+==============================
+
+Right click -> Connect to Village...
+
+VlllageInceptionNotesToken is grabbed from Village Store
+
+If no VlllageInceptionNotesToken is found, create and store token in Village Store
+
+Store VlllageInceptionNotesToken in localStorage
+
+Connect to wss://sync.inceptionnotes.com/ws
+
+send state event with VlllageInceptionNotesToken
+
+receive state event
+
+--- Zero-to-One completed ---
 
 
 
@@ -23,8 +44,8 @@ Notes
 
 Server is there for the client (heavy client)
 
-Debounce server-sync every 5s
-If window closed while not saved, notify with alert
+Debounce server-sync every 5s (i.e. not every character press)
+If window closed while not saved, notify with system alert
 
 Notes client-side are marked dirty as in not-sent
 THESE NOTES are sent to the server on forst possibility

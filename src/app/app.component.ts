@@ -2,6 +2,7 @@ import { Component, ViewContainerRef, ComponentFactoryResolver } from '@angular/
 import { Location, LocationStrategy, PathLocationStrategy, PopStateEvent } from '@angular/common';
 import { ApiService } from './api.service';
 import { UiService } from './ui.service';
+import { VillageService } from 'app/village.service';
 
 @Component({
   selector: 'app-root',
@@ -14,11 +15,13 @@ export class AppComponent {
   constructor(
       public api: ApiService,
       public ui: UiService,
+      public village: VillageService,
       public view: ViewContainerRef,
       public resolver: ComponentFactoryResolver,
       private location: Location
   ) {
     this.ui.registerAppComponent(this);
+    this.village.check();
   }
 
   escapePressed(event: any) {
