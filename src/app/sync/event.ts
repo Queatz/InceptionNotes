@@ -12,7 +12,7 @@ export class SyncEvent {
     since: string;
     events: any[];
 
-    constructor(me: string, since: string = null, events: any[] = null) {
+    constructor(me: string, since: string = undefined, events: any[] = undefined) {
         this.me = me;
         this.since = since;
         this.events = events;

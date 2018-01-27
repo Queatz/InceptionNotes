@@ -5,6 +5,7 @@ import { ApiService } from '../api.service';
 import { UiService } from '../ui.service';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { SearchComponent } from '../search/search.component';
+import { VillageService } from 'app/village.service';
 
 @Component({
   selector: 'sub-list',
@@ -34,7 +35,7 @@ export class SubListComponent implements OnInit, OnChanges {
   private isTouch: boolean;
   private dragCounter: number = 0;
 
-  constructor(private ui: UiService, private api: ApiService, private elementRef: ElementRef) { }
+  constructor(private ui: UiService, private api: ApiService, private elementRef: ElementRef, private village: VillageService) { }
 
   ngOnInit() {
     this.initNext();
@@ -49,32 +50,34 @@ export class SubListComponent implements OnInit, OnChanges {
     event.preventDefault();
     event.stopPropagation();
 
-    this.ui.menu([
-      'Link...',
-      'Move...',
-      'Add people...',
-      'Change color...',
-      this.list.collapsed ? 'Un-collapse' : 'Collapse'
-    ], { x: event.clientX, y: event.clientY },
-    choose => {
-      switch (choose) {
-        case 0:
-          this.addToNote(this.list);
-          break;
-        case 1:
-          this.moveToNote(this.list);
-          break;
-        case 2:
-          this.addPeople(this.list);
-          break;
-        case 3:
-          this.changeColor();
-          break;
-        case 4:
-          this.toggleCollapse();
-          break;
-      }
-    });
+    let menu = {
+      options: this.village.me() ? [
+        'Link...',
+        'Move...',
+        'Add people...',
+        'Change color...',
+        this.list.collapsed ? 'Un-collapse' : 'Collapse'
+      ] : [
+        'Link...',
+        'Move...',
+        'Change color...',
+        this.list.collapsed ? 'Un-collapse' : 'Collapse'
+      ],
+      actions: this.village.me() ? [
+        () => this.addToNote(this.list),
+        () => this.moveToNote(this.list),
+        () => this.addPeople(this.list),
+        () => this.changeColor(),
+        () => this.toggleCollapse()
+      ] : [
+        () => this.addToNote(this.list),
+        () => this.moveToNote(this.list),
+        () => this.changeColor(),
+        () => this.toggleCollapse()
+      ]
+    };
+
+    this.ui.menu(menu.options, { x: event.clientX, y: event.clientY }, choice => menu.actions[choice]());
   }
 
   addPeople(list: any) {

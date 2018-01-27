@@ -132,7 +132,6 @@ export class MainDeskComponent implements OnInit, OnChanges {
     if (!v) {
       opts = [
         ['Search...', 'ALT + S'],
-        'Add people...',
         'Change background...',
         'Connect with Village...',
         ['Options...', 'ALT + O']
@@ -140,48 +139,25 @@ export class MainDeskComponent implements OnInit, OnChanges {
     } else {
       opts = [
         'Search...',
-        'Add people...',
         'Change background...',
+        'Add people...',
         'Options...'
       ];
     }
 
-    this.ui.menu(opts, { x: event.clientX, y: event.clientY },
-    choose => {
+    let acts = v ? [
+      () => this.showSearch(null),
+      () => this.changeBackground(),
+      () => this.addPeople(this.list),
+      () => this.showOptions(null)
+    ] : [
+      () => this.showSearch(null),
+      () => this.changeBackground(),
+      () => this.village.connect(),
+      () => this.showOptions(null)
+    ];
 
-      if (v && choose >= 3) {
-        choose++;
-      }
-
-      switch (choose) {
-        case 0:
-            this.showSearch(null);
-            break;
-        case 1:
-            this.addPeople(this.list);
-            break;
-        case 2:
-          this.changeBackground();
-          break;
-        case 3:
-          if (this.village.isConnected()) {
-            if (v) {
-              this.village.sync();
-            } else {
-              this.ui.dialog({
-                message: 'Not connected to Village.  Retry?',
-                ok: () => this.village.connect()
-              });
-            }
-          } else {
-            this.village.connect();
-          }
-          break;
-        case 4:
-          this.showOptions(null);
-          break;
-      }
-    });
+    this.ui.menu(opts, { x: event.clientX, y: event.clientY }, choice => acts[choice]());
   }
 
   @HostListener('window:keydown.alt.o', ['$event'])

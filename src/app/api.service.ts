@@ -27,7 +27,7 @@ export class ApiService {
     let version = +localStorage.getItem('version');
     let root = null;
 
-    if (version <= 1) {
+    if (version < 1) {
       root = JSON.parse(localStorage.getItem('root'));
     }
 
@@ -41,9 +41,10 @@ export class ApiService {
       }, 1000);
     }
     
-    if (version <= 2) {
-      this.notes = this.unfreeze(localStorage.getItem('notes'));
+    if (version < 2) {
       localStorage.setItem('version', '2');
+      this.notes = this.unfreeze(localStorage.getItem('notes'));
+      this.saveAll();      
     }
 
     let localNotes = {};

@@ -1,5 +1,31 @@
 
 
+
+
+
+Collab Backend
+======
+
+Models:
+Group <id, people>
+Person <>
+Client
+Note
+
+
+A -> B (mai,bun) -> C -> D -> E (yum) -> F {mai,bun,yum}
+
+A.group = null
+B.group = mb94kg
+C.group = null
+D.group = null
+E.group = yodk35
+F.group = null
+
+No deep searches for access group
+No changes to other notes when moving or changing a parent
+No changes to other notes when adding or removing groups to parent notes
+
 Sync
 ====
 

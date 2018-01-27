@@ -16,7 +16,7 @@
 </form>
 <br />
 <span *ngIf="isVillageConnected()">
-  <span [ngClass]="{ 'dark': env.useDarkTheme }" class="green">Connected as {{ villageName() }} (Village)</span><br />
+  <span [ngClass]="{ 'dark': env.useDarkTheme }" class="green">Connected as <a target="_blank" [href]="villageUrl()">{{ villageName() }}</a> (Village)</span><br />
   <button (click)="disconnectVillage()">Disconnect</button>
   <button (click)="nukeVillage()">Delete notes</button>
   <br /><br />

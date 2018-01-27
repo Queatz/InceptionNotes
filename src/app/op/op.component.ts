@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UiService } from '../ui.service';
 import { ApiService } from '../api.service';
 import { VillageService } from '../village.service';
+import { Config } from 'app/config.service';
 
 @Component({
   selector: 'app-options',
@@ -12,7 +13,7 @@ export class OpComponent implements OnInit {
 
   env: any;
 
-  constructor(private ui: UiService, private api: ApiService, private village: VillageService) {
+  constructor(private ui: UiService, private api: ApiService, private village: VillageService, private config: Config) {
     this.env = this.ui.getEnv();
   }
 
@@ -38,6 +39,10 @@ export class OpComponent implements OnInit {
 
   villageName() {
     return this.village.me() && this.village.me().firstName;
+  }
+
+  villageUrl() {
+    return this.config.vlllageUrl() + (this.village.me() && this.village.me().url);
   }
 
   backup() {
