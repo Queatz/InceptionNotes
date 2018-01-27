@@ -21,13 +21,13 @@ export class ApiService {
 
   public save() {
     localStorage.setItem('top', this.top.id);
-    localStorage.setItem('notes', this.freeze(this.notes));
   }
 
   public load() {
+    let version = +localStorage.getItem('version');
     let root = null;
 
-    if (localStorage.getItem('version') !== '1') {
+    if (version <= 1) {
       root = JSON.parse(localStorage.getItem('root'));
     }
 
@@ -39,8 +39,27 @@ export class ApiService {
           message: 'Inception Notes has received an update.\n\nA backup copy of notes have been downloaded. If all else fails, check Right Click -> Inspect -> Application (tab) -> Local Storage -> \'root\''
         });
       }, 1000);
-    } else {
+    }
+    
+    if (version <= 2) {
       this.notes = this.unfreeze(localStorage.getItem('notes'));
+      localStorage.setItem('version', '2');
+    }
+
+    let localNotes = {};
+    for (let n in localStorage) {
+      if (n.substring(0, 5) === 'note:') {
+        let n2 = JSON.parse(localStorage.getItem(n));
+        localNotes[n2.id] = n2;
+      }
+    }
+
+    if (Object.keys(localNotes).length) {
+      Object.keys(localNotes).forEach(k => {
+        localNotes[k] = this.unfreezeNote(localNotes[k], localNotes);
+      });
+
+      this.notes = localNotes;
     }
 
     if (!this.notes) {
@@ -48,6 +67,26 @@ export class ApiService {
     }
 
     this.resetView();
+  }
+
+  public saveAll() {
+    Object.keys(this.notes).forEach(k => {
+      this.saveNote(this.notes[k]);
+    });
+  }
+
+  /**
+   * Load a single note.
+   */
+  public loadNote(note: string) {
+    
+  }
+
+  /**
+   * Save a single note
+   */
+  public saveNote(note: any) {
+    localStorage.setItem('note:' + note.id, JSON.stringify(this.freezeNote(note)));
   }
 
   private freeze(animal: any) {
@@ -58,32 +97,7 @@ export class ApiService {
     let fossil = {};
 
     for (let a of (<any>Object).values(animal)) {
-      let items = [];
-
-      for (let item of a.items) {
-        items.push(item.id);
-      }
-
-      let ref = [];
-      if (a.ref) {
-        for (let item of a.ref) {
-          ref.push(item.id);
-        }
-      }
-
-      fossil[a.id] = {
-        id: a.id,
-        name: a.name,
-        description: a.description,
-        color: a.color,
-        items: items,
-        ref: ref,
-        transient: a.transient,
-        backgroundUrl: a.backgroundUrl,
-        collapsed: a.collapsed,
-        estimate: a.estimate,
-        _sync: a._sync
-      };
+      fossil[a.id] = this.freezeNote(a);
     }
 
     return JSON.stringify(fossil);
@@ -99,39 +113,85 @@ export class ApiService {
     }
 
     for (let a of (<any>Object).values(fossil)) {
-      let items = [];
+      this.unfreezeNote(a, fossil);
+    }
 
-      for (let id of a.items) {
+    return fossil;
+  }
+
+  /**
+   * Semi-freeze a single note
+   */
+  public freezeNote(a: any): any {
+    let items = [];
+
+    for (let item of a.items) {
+      if (!item.transient) {
+        items.push(item.id);
+      }
+    }
+
+    let ref = [];
+    if (a.ref) {
+      for (let item of a.ref) {
+        ref.push(item.id);
+      }
+    }
+    
+    return {
+      id: a.id,
+      name: a.name,
+      description: a.description,
+      color: a.color,
+      items: items,
+      ref: ref,
+      transient: a.transient,
+      backgroundUrl: a.backgroundUrl,
+      collapsed: a.collapsed,
+      estimate: a.estimate,
+      _sync: a._sync
+    };
+  }
+
+  /**
+   * Unfreeze a note
+   * 
+   * @param a The currently semi-frozen note
+   * @param fossil A pool of semi-frozen notes 
+   */
+  public unfreezeNote(a: any, fossil: any) {
+    let items = [];
+
+    for (let id of a.items) {
+      let n = fossil[id];
+
+      if (n) {
+        items.push(n);
+        n.parent = a;
+      } else {
+        console.log('unfreeze error: missing note \'' + id + '\'');
+      }
+    }
+
+    a.items = items;
+
+    if (a.ref) {
+      let ref = [];
+
+      for (let id of a.ref) {
         let n = fossil[id];
 
         if (n) {
-          items.push(n);
-          n.parent = a;
+          ref.push(n);
         } else {
           console.log('unfreeze error: missing note \'' + id + '\'');
         }
       }
 
-      a.items = items;
-
-      if (a.ref) {
-        let ref = [];
-
-        for (let id of a.ref) {
-          let n = fossil[id];
-
-          if (n) {
-            ref.push(n);
-          } else {
-            console.log('unfreeze error: missing note \'' + id + '\'');
-          }
-        }
-
-        a.ref = ref;
-      }
+      a.ref = ref;
     }
 
-    return fossil;
+    return a;
   }
 
   /* View */
@@ -347,7 +407,7 @@ export class ApiService {
     }
 
     this.resetView();
-    this.save();
+    this.saveAll();
   }
 
   /* Backup */
@@ -400,6 +460,8 @@ export class ApiService {
         note['_sync'][prop].synchronized = false;
       }
     }
+
+    this.saveNote(note);
   }
 
   private breakCeiling() {
@@ -420,7 +482,7 @@ export class ApiService {
 
     this.view.eye = this.view.show = this.top;
     this.saveView();
-    this.save();
+    this.modified(newTop);
   }
 
   public moveListUp(list: any, position: number = -1) {
@@ -485,8 +547,6 @@ export class ApiService {
     this.modified(toList, 'items');
 
     list.parent = toList;
-
-    this.save();
   }
 
   public newBlankList(list: any = null, position: number = null) {
@@ -546,8 +606,6 @@ export class ApiService {
 
     list.ref.push(toList);
     this.modified(list, 'ref');
-
-    this.save();
   }
 
   public removeRef(list: any, toList: any) {
@@ -572,8 +630,6 @@ export class ApiService {
         this.modified(list, 'ref');
       }
     }
-
-    this.save();
   }
 
   /* Util */
@@ -590,6 +646,8 @@ export class ApiService {
 
   private intro() {
     this.notes = this.unfreeze({"9ecal36r08qsegt2q7ruar":{"id":"9ecal36r08qsegt2q7ruar","name":"My Notes","description":"Take notes here...","color":"#80d8ff","items":["ezyw5zl0s7k5ky66oz7368","tprx0gv41gepcofy7yia","tpot361b974p1mn3jxbr4","7fv55sy73d7epp5kqnguul"],"ref":[]},"ezyw5zl0s7k5ky66oz7368":{"id":"ezyw5zl0s7k5ky66oz7368","name":"Welcome to Inception Notes!","description":"","color":"#ff80ab","items":["3ooxxyu6ko97smbzcigvza","7llyfbgu4eb9rae6kb074l","s3flakxhf2mb8pixx0w1l","isqms385v5batkjoztpn15"],"ref":[]},"3ooxxyu6ko97smbzcigvza":{"id":"3ooxxyu6ko97smbzcigvza","name":"<b>Right-click</b> on the background to get help","description":"","color":"#ff8a80","items":["r8um73em8ikjy1847ituem"],"ref":[]},"r8um73em8ikjy1847ituem":{"id":"r8um73em8ikjy1847ituem","name":"","color":"#ffffff","items":["do7uegwh31lf6qu8lxpye"],"ref":[],"transient":true},"do7uegwh31lf6qu8lxpye":{"id":"do7uegwh31lf6qu8lxpye","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"s3flakxhf2mb8pixx0w1l":{"id":"s3flakxhf2mb8pixx0w1l","name":"Have fun!","description":"","color":"#ea80fc","items":["rjq9391912ae63xb2e8y"],"ref":[]},"rjq9391912ae63xb2e8y":{"id":"rjq9391912ae63xb2e8y","name":"","color":"#ffffff","items":["rgmgxz8fabchssd0j75acb"],"ref":[],"transient":true},"rgmgxz8fabchssd0j75acb":{"id":"rgmgxz8fabchssd0j75acb","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"isqms385v5batkjoztpn15":{"id":"isqms385v5batkjoztpn15","name":"","color":"#ffffff","items":["w0ok2ypdxqugorshz54l"],"ref":[],"transient":true},"w0ok2ypdxqugorshz54l":{"id":"w0ok2ypdxqugorshz54l","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"tprx0gv41gepcofy7yia":{"id":"tprx0gv41gepcofy7yia","name":"Main Projects","description":"","color":"#ffd180","items":["bxw7hfpcmytcq0738o31ef","rbcx2x3og4b2ty3efm4aux","whfs7lj4i5gzrdyifbt4td","7oknreb5imgufsn1ohxcib","ialkx35n6mo697qcqaulvl"],"ref":[]},"bxw7hfpcmytcq0738o31ef":{"id":"bxw7hfpcmytcq0738o31ef","name":"My First Project","description":"","color":"#E6E3D7","items":["di8colqbb8lyyvf5gidqqj"],"ref":[]},"di8colqbb8lyyvf5gidqqj":{"id":"di8colqbb8lyyvf5gidqqj","name":"","color":"#ffffff","items":["t6tdhnfx3ydzbvul20lti"],"ref":[],"transient":true},"t6tdhnfx3ydzbvul20lti":{"id":"t6tdhnfx3ydzbvul20lti","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"rbcx2x3og4b2ty3efm4aux":{"id":"rbcx2x3og4b2ty3efm4aux","name":"My Other Project","description":"","color":"#E6E3D7","items":["pl7mhv8mjxqs48qw1n3ku"],"ref":[]},"pl7mhv8mjxqs48qw1n3ku":{"id":"pl7mhv8mjxqs48qw1n3ku","name":"","color":"#ffffff","items":["yvnljwa9yhhqk3pqztuwh"],"ref":[],"transient":true},"yvnljwa9yhhqk3pqztuwh":{"id":"yvnljwa9yhhqk3pqztuwh","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"whfs7lj4i5gzrdyifbt4td":{"id":"whfs7lj4i5gzrdyifbt4td","name":"Big project!","color":"#ff80ab","items":["0xbh8qf3zrnfjfl0ibldk1","eeg9e8s76diffzstgsuch","ci0zuqdnygdbqbcw7g74tp","ftard0ob3qvu6yeinge5hr","977zrwrwinb41yjrncg0et"],"ref":[]},"0xbh8qf3zrnfjfl0ibldk1":{"id":"0xbh8qf3zrnfjfl0ibldk1","name":"First task","color":"#ffffff","items":["ycwwxs46gwnzama41koc"],"ref":[],"estimate":2},"tpot361b974p1mn3jxbr4":{"id":"tpot361b974p1mn3jxbr4","name":"My Reminders","description":"","color":"#b9f6ca ","items":["uc54p4plm19f9sgnnwux3i","isfiozt8g5ppt4y4u9hni","2b05yurzcc6z0au55zknfc"],"ref":[]},"uc54p4plm19f9sgnnwux3i":{"id":"uc54p4plm19f9sgnnwux3i","name":"Clean room","description":"","color":"#D7E6D9","items":["1pxfcxl9yxpop7cu9nnu2e"],"ref":[]},"1pxfcxl9yxpop7cu9nnu2e":{"id":"1pxfcxl9yxpop7cu9nnu2e","name":"","color":"#ffffff","items":["tut1poxh5ejbn9429bc9"],"ref":[],"transient":true},"tut1poxh5ejbn9429bc9":{"id":"tut1poxh5ejbn9429bc9","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"isfiozt8g5ppt4y4u9hni":{"id":"isfiozt8g5ppt4y4u9hni","name":"Go for a run","description":"","color":"#D7E6D9","items":["mhnttcm1ca3hd7cnvxg8a"],"ref":[]},"mhnttcm1ca3hd7cnvxg8a":{"id":"mhnttcm1ca3hd7cnvxg8a","name":"","color":"#ffffff","items":["zuo967kb1dsecaunq3eszq"],"ref":[],"transient":true},"zuo967kb1dsecaunq3eszq":{"id":"zuo967kb1dsecaunq3eszq","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"2b05yurzcc6z0au55zknfc":{"id":"2b05yurzcc6z0au55zknfc","name":"","color":"#ffffff","items":["qc12atkaitmosp34yv95c"],"ref":[],"transient":true},"qc12atkaitmosp34yv95c":{"id":"qc12atkaitmosp34yv95c","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"7oknreb5imgufsn1ohxcib":{"id":"7oknreb5imgufsn1ohxcib","name":"My Categories","color":"#ffffff","items":["9vk9ywmx4szziub8qxqo","ez1lvoo3dwkwmhdrh9s77","9ywa2zu4zgtbqz8v7sa2j"],"ref":[],"transient":false},"9vk9ywmx4szziub8qxqo":{"id":"9vk9ywmx4szziub8qxqo","name":"🐊 Fun","color":"#80d8ff","items":["34606nw061xmm5vbsi9r6c"],"ref":["7llyfbgu4eb9rae6kb074l"]},"jugi69kmkhdq0k459wehn":{"id":"jugi69kmkhdq0k459wehn","name":"","description":"","color":"#ffd180","items":["ym01shouprrrrfsnxmzh"],"ref":[],"transient":true},"ym01shouprrrrfsnxmzh":{"id":"ym01shouprrrrfsnxmzh","name":"","description":"","color":"#ffd180","items":[],"ref":[],"transient":true},"ftard0ob3qvu6yeinge5hr":{"id":"ftard0ob3qvu6yeinge5hr","name":"Bonus task!","description":"","color":"#ff80ab","items":["4a07xdt072df7qw4tzvrjt"],"ref":[],"estimate":1},"eeg9e8s76diffzstgsuch":{"id":"eeg9e8s76diffzstgsuch","name":"Second task","description":"","color":"#ff80ab","items":["8o3pww4qn1xq2luyz717c"],"ref":[],"estimate":2},"ci0zuqdnygdbqbcw7g74tp":{"id":"ci0zuqdnygdbqbcw7g74tp","name":"Third task","description":"","color":"#ff80ab","items":["yyuay36cjzf57s18hg0d5t"],"ref":[],"estimate":4},"163j3kckevih3kmtfqkstf9":{"id":"163j3kckevih3kmtfqkstf9","name":"<br>","description":"","color":"#80d8ff","items":["djzte0aqmudbb88jo448qe"],"ref":[]},"977zrwrwinb41yjrncg0et":{"id":"977zrwrwinb41yjrncg0et","name":"","description":"","color":"#ff80ab","items":["bmdf45dmf5jfz96rxkq10h"],"ref":[],"transient":true},"ycwwxs46gwnzama41koc":{"id":"ycwwxs46gwnzama41koc","name":"","description":"","color":"#ffffff","items":[],"ref":[],"transient":true},"8o3pww4qn1xq2luyz717c":{"id":"8o3pww4qn1xq2luyz717c","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"yyuay36cjzf57s18hg0d5t":{"id":"yyuay36cjzf57s18hg0d5t","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"4a07xdt072df7qw4tzvrjt":{"id":"4a07xdt072df7qw4tzvrjt","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"djzte0aqmudbb88jo448qe":{"id":"djzte0aqmudbb88jo448qe","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"bmdf45dmf5jfz96rxkq10h":{"id":"bmdf45dmf5jfz96rxkq10h","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"7llyfbgu4eb9rae6kb074l":{"id":"7llyfbgu4eb9rae6kb074l","name":"I'm a task with links!","description":"","color":"#ff80ab","items":["jc0m3uxidpb1krerkvh3v2"],"ref":["9vk9ywmx4szziub8qxqo","ez1lvoo3dwkwmhdrh9s77"]},"7fv55sy73d7epp5kqnguul":{"id":"7fv55sy73d7epp5kqnguul","name":"","description":"","color":"#80d8ff","items":["v52993i59eby59317v6ejc"],"ref":[],"transient":true},"v52993i59eby59317v6ejc":{"id":"v52993i59eby59317v6ejc","name":"","description":"","color":"#80d8ff","items":[],"ref":[],"transient":true},"9ywa2zu4zgtbqz8v7sa2j":{"id":"9ywa2zu4zgtbqz8v7sa2j","name":"","description":"","color":"#ffffff","items":["7khopamf94pri5sb56dtwr"],"ref":[],"transient":true},"ez1lvoo3dwkwmhdrh9s77":{"id":"ez1lvoo3dwkwmhdrh9s77","name":"🐟 Easy","description":"","color":"#ffd180","items":["nmhbxh86d9gpf3zgxcv0e"],"ref":["7llyfbgu4eb9rae6kb074l"]},"34606nw061xmm5vbsi9r6c":{"id":"34606nw061xmm5vbsi9r6c","name":"","description":"","color":"#ffffff","items":[],"ref":[],"transient":true},"nmhbxh86d9gpf3zgxcv0e":{"id":"nmhbxh86d9gpf3zgxcv0e","name":"","description":"","color":"#ffffff","items":[],"ref":[],"transient":true},"7khopamf94pri5sb56dtwr":{"id":"7khopamf94pri5sb56dtwr","name":"","description":"","color":"#ffffff","items":[],"ref":[],"transient":true},"jc0m3uxidpb1krerkvh3v2":{"id":"jc0m3uxidpb1krerkvh3v2","name":"","description":"","color":"#ff80ab","items":["uw92fsodzs8scqpxraedd"],"ref":[],"transient":true},"uw92fsodzs8scqpxraedd":{"id":"uw92fsodzs8scqpxraedd","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"ialkx35n6mo697qcqaulvl":{"id":"ialkx35n6mo697qcqaulvl","name":"","description":"","color":"#ffd180","items":["jb9zpt8uecbm04vlm2hg2h"],"ref":[],"transient":true},"jb9zpt8uecbm04vlm2hg2h":{"id":"jb9zpt8uecbm04vlm2hg2h","name":"","description":"","color":"#ffd180","items":[],"ref":[],"transient":true}});
+    this.top = this.notes['9ecal36r08qsegt2q7ruar'];
+    this.saveAll();
   }
 
   private migrateRoot(root: any) {
@@ -598,9 +656,8 @@ export class ApiService {
     this.top = root;
     this.migrateRootAdd(root);
 
-    this.save();
+    this.saveAll();
     localStorage.setItem('version', '1');
-    // XXX TODO: localStorage.removeItem('root'); <-- add after some time
   }
 
   private migrateRootAdd(note: any) {

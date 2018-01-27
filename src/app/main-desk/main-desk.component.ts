@@ -56,12 +56,10 @@ export class MainDeskComponent implements OnInit, OnChanges {
   private removeItem(item: any) {
     this.list.items.splice(this.list.items.indexOf(item), 1);
     this.api.modified(this.list, 'items');
-    this.api.save();
   }
 
   saveDescription() {
     this.api.modified(this.list, 'description');
-    this.api.save();
   }
 
   dontPropagate(event: Event) {
@@ -78,7 +76,6 @@ export class MainDeskComponent implements OnInit, OnChanges {
         if (result.input) {
           this.list.backgroundUrl = result.input;
           this.api.modified(this.list, 'backgroundUrl');
-          this.api.save();
         }
       }
     });
@@ -109,7 +106,6 @@ export class MainDeskComponent implements OnInit, OnChanges {
     this.list.items.splice(location, 1);
     this.list.items.splice(location + move, 0, item);
     this.api.modified(this.list, 'description');
-    this.api.save();
 
     setTimeout(() => this.elementRef.nativeElement.querySelectorAll('sub-list')[(location + move)].querySelector('.sub-list-title').focus());
   }
