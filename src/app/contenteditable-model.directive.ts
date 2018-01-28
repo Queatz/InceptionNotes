@@ -29,6 +29,11 @@ export class ContenteditableModelDirective implements OnChanges {
 				(this.elRef.nativeElement.lastChild as HTMLElement).remove();
 			}
 		}
+		if (this.elRef.nativeElement.firstChild) {
+			if ((this.elRef.nativeElement.firstChild as HTMLElement).tagName === 'BR') {
+				(this.elRef.nativeElement.firstChild as HTMLElement).remove();
+			}
+		}
 		this.changed();
 	}
 
