@@ -46,6 +46,11 @@
       </div>
     </div>
   </div>
+  <div *ngIf="!useAsNavigation && list.people && list.people.length">
+    <a class="person-link" *ngFor="let person of list.people" [href]="villageUrl(person)" target="_blank">
+      <img [src]="person.imageUrl" class="person-img" [title]="person.firstName + ' ' + person.lastName" />
+    </a>
+  </div>
   <div *ngIf="useAsNavigation">
     <sub-sub-list-item
       *ngFor="let item of list.items"

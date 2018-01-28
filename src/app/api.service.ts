@@ -6,6 +6,7 @@ export class ApiService {
 
   private top: any;
   private notes: any;
+  private people: Map<string, any>;
 
   private view = {
     eye: null,
@@ -14,6 +15,7 @@ export class ApiService {
   };
 
   constructor(private ui: UiService) {
+    this.people = new Map();
     this.load();
   }
 
@@ -52,6 +54,8 @@ export class ApiService {
       if (n.substring(0, 5) === 'note:') {
         let n2 = JSON.parse(localStorage.getItem(n));
         localNotes[n2.id] = n2;
+      } else if(n.substring(0, 7) === 'person:') {
+        this.updatePerson(JSON.parse(localStorage.getItem(n)));
       }
     }
 
@@ -138,6 +142,13 @@ export class ApiService {
         ref.push(item.id);
       }
     }
+
+    let people = [];
+    if (a.people) {
+      for (let person of a.people) {
+        people.push(person.id);
+      }
+    }
     
     return {
       id: a.id,
@@ -146,6 +157,7 @@ export class ApiService {
       color: a.color,
       items: items,
       ref: ref,
+      people: people,
       transient: a.transient,
       backgroundUrl: a.backgroundUrl,
       collapsed: a.collapsed,
@@ -192,7 +204,56 @@ export class ApiService {
       a.ref = ref;
     }
 
+    if (a.people) {
+      let people = [];
+
+      for (let id of a.people) {
+        let n = this.person(id);
+        people.push(n)
+      }
+
+      a.people = people;
+    }
+
     return a;
+  }
+
+  /* People */
+
+  /**
+   * Get a person by Village Id
+   */
+  public person(id: string) {
+    if (this.people.has(id)) {
+      return this.people.get(id);
+    }
+
+    let p = { id: id };
+    this.people.set(id, p);
+    return p;
+  }
+
+  public updatePerson(person: any) {
+    if (!person || !person.id) {
+      return;
+    }
+
+    let p = this.person(person.id);
+    Object.assign(p, person);
+    localStorage.setItem('person:' + person.id, JSON.stringify(p));
+  }
+
+  public addPersonToNote(note: any, person: any) {
+    if (!note.people) {
+      note.people = [];
+    }
+
+    if (note.people.indexOf(person) !== -1) {
+      return;
+    }
+
+    note.people.push(person);
+    this.modified(note, 'people');
   }
 
   /* View */

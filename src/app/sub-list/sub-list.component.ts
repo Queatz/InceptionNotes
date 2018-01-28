@@ -7,6 +7,7 @@ import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { SearchComponent } from '../search/search.component';
 import { VillageService } from 'app/village.service';
 import { AddPeopleComponent } from 'app/add-people/add-people.component';
+import { Config } from 'app/config.service';
 
 @Component({
   selector: 'sub-list',
@@ -37,7 +38,7 @@ export class SubListComponent implements OnInit, OnChanges {
   private dragCounter: number = 0;
   private mouseDownHack: boolean;
 
-  constructor(private ui: UiService, private api: ApiService, private elementRef: ElementRef, private village: VillageService) { }
+  constructor(private ui: UiService, private api: ApiService, private elementRef: ElementRef, private village: VillageService, private config: Config) { }
 
   ngOnInit() {
     this.initNext();
@@ -94,9 +95,14 @@ export class SubListComponent implements OnInit, OnChanges {
 
         (<AddPeopleComponent>dialog.component.instance).onSelection.subscribe(person => {
           dialog.back();
+          this.api.addPersonToNote(this.list, person);
         });
       }
     });
+  }
+
+  villageUrl(person: any) {
+    return this.config.vlllageUrl() + person.url;
   }
 
   showSubitemOptions(event: MouseEvent, item: any) {

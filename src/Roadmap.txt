@@ -1,10 +1,38 @@
 
 
 
+sync: {
+  view: 'abc123'
+}
+
+
+
+
+
+
+
+
+
+
+Does any note that I own point to this note? Then I have access!
+
+
+
+
+Collab Frontend
+===============
+
+Access Rules
+
+Note: Visible
+Reference: Visible if reference target is visible
+Item: Always visible
+Parent: Visible if parent is visible
+
 
 
 Collab Backend
-======
+==============
 
 Models:
 Group <id, people>

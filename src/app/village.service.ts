@@ -196,12 +196,17 @@ export class VillageService {
       this.http.get(this.config.vlllageFriends(this.me().id, this.me().token), this.options())
           .map((res: Response) => res.json()).subscribe(person => {
             this.backers = person.backs.map(back => back.source);
+            this.update(this.backers);
             let backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1);
             this.friendsObservable.next(backs);
           });
     }
 
     return this.friendsObservable.first();
+  }
+
+  private update(people: any[]) {
+    people.forEach(p => this.api.updatePerson(p));
   }
 
   private put(k: string, v: any) {

@@ -95,6 +95,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
 
         (<AddPeopleComponent>dialog.component.instance).onSelection.subscribe(person => {
           dialog.back();
+          this.api.addPersonToNote(this.list, person);
         });
       }
     });
