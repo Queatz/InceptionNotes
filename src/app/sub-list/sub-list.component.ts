@@ -35,6 +35,7 @@ export class SubListComponent implements OnInit, OnChanges {
   public dropAt: string;
   private isTouch: boolean;
   private dragCounter: number = 0;
+  private mouseDownHack: boolean;
 
   constructor(private ui: UiService, private api: ApiService, private elementRef: ElementRef, private village: VillageService) { }
 
@@ -243,7 +244,21 @@ export class SubListComponent implements OnInit, OnChanges {
 
   @HostBinding('draggable')
   get draggable() {
-    return !this.useAsNavigation && !this.isTouch;
+    return this.mouseDownHack && !this.useAsNavigation && !this.isTouch;
+  }
+
+  // Hack for Firefox and Safari
+  @HostListener('mousedown', ['$event'])
+  mouseDownDraggable(event: Event) {
+    if (event.target === this.elementRef.nativeElement) {
+      this.mouseDownHack = true;
+    }
+  }
+
+  // Hack for Firefox and Safari
+  @HostListener('mouseup', ['$event'])
+  mouseUpDraggable(event: Event) {
+    this.mouseDownHack = false;
   }
 
   @HostListener('dragstart', ['$event'])
