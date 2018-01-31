@@ -5,7 +5,6 @@ import 'rxjs/add/operator/map'
 
 import { ApiService } from './api.service';
 import { UiService } from './ui.service';
-import { CollaborateService } from './collaborate.service';
 import { Config } from 'app/config.service';
 import { SyncService } from 'app/sync.service';
 
@@ -29,7 +28,6 @@ export class VillageService {
       private config: Config,
       private api: ApiService,
       private ui: UiService,
-      private collaborate: CollaborateService,
       private syncService: SyncService) {
     var local = JSON.parse(localStorage.getItem('village'));
 

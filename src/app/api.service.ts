@@ -1,11 +1,22 @@
 import { Injectable } from '@angular/core';
 import { UiService } from './ui.service';
+import { Subject } from 'rxjs';
+
+export class NoteChanges {
+  public note: any;
+  public property: string;
+
+  constructor(note: any, property: string) {
+    this.note = note;
+    this.property = property;
+  }
+}
 
 @Injectable()
 export class ApiService {
 
   private top: any;
-  private notes: any;
+  private notes: Map<string, any>;
   private people: Map<string, any>;
 
   private view = {
@@ -13,6 +24,8 @@ export class ApiService {
     show: null,
     parents: []
   };
+
+  public onNoteChangedObservable: Subject<NoteChanges> = new Subject<NoteChanges>();
 
   constructor(private ui: UiService) {
     this.people = new Map();
@@ -49,7 +62,7 @@ export class ApiService {
       this.saveAll();      
     }
 
-    let localNotes = {};
+    let localNotes = new Map<string, any>();
     for (let n in localStorage) {
       if (n.substring(0, 5) === 'note:') {
         let n2 = JSON.parse(localStorage.getItem(n));
@@ -128,23 +141,27 @@ export class ApiService {
    * Semi-freeze a single note
    */
   public freezeNote(a: any): any {
-    let items = [];
-
-    for (let item of a.items) {
-      if (!item.transient) {
-        items.push(item.id);
+    let items = undefined;
+    if (a.items) {
+      items = [];
+      for (let item of a.items) {
+        if (!item.transient) {
+          items.push(item.id);
+        }
       }
     }
 
-    let ref = [];
+    let ref = undefined;
     if (a.ref) {
+      ref = [];
       for (let item of a.ref) {
         ref.push(item.id);
       }
     }
 
-    let people = [];
+    let people = undefined;
     if (a.people) {
+      people = [];
       for (let person of a.people) {
         people.push(person.id);
       }
@@ -244,6 +261,8 @@ export class ApiService {
   }
 
   public addPersonToNote(note: any, person: any) {
+    person = this.person(person.id);
+
     if (!note.people) {
       note.people = [];
     }
@@ -339,7 +358,7 @@ export class ApiService {
 
   /* Etc */
 
-  public getAllNotes() {
+  public getAllNotes(): Map<string, any> {
     return this.notes;
   }
 
@@ -524,6 +543,7 @@ export class ApiService {
     }
 
     this.saveNote(note);
+    this.onNoteChangedObservable.next(new NoteChanges(note, prop));
   }
 
   private breakCeiling() {
@@ -717,7 +737,7 @@ export class ApiService {
   }
 
   private migrateRoot(root: any) {
-    this.notes = {};
+    this.notes = new Map<string, any>();
 
     this.top = root;
     this.migrateRootAdd(root);

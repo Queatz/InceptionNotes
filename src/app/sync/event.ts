@@ -9,12 +9,10 @@ export class Event {
 
 export class SyncEvent {
     me: string;
-    since: string;
-    events: any[];
+    notes: any[];
 
-    constructor(me: string, since: string = undefined, events: any[] = undefined) {
+    constructor(me: string, notes: any[] = undefined) {
         this.me = me;
-        this.since = since;
-        this.events = events;
+        this.notes = notes;
     }
 }

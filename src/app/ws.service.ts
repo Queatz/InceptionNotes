@@ -16,10 +16,8 @@ export class WsService {
 
   public reconnect() {
     if (this.websocket) {
-      if (this.websocket.readyState === WebSocket.OPEN) {
+      if (this.websocket.readyState === WebSocket.OPEN || this.websocket.readyState === WebSocket.CONNECTING) {
         return;
-      } else {
-        this.websocket.close();
       }
     }
 

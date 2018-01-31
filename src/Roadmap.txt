@@ -1,6 +1,71 @@
 
 
 
+Collaboration ticker at the top (w/ silence icon)
+Auto appears (hide for now)
+
+Click on note in ticker to jump
+
+Visibility is always by parent search (any parents visible to me?)
+
+No caching for now
+
+Email if no client, or no client responds "seen" in 5 mins
+
+Notes auto-add person to note who 1st sent it to server
+
+Perf: Don't resend same note+revision to same client session (client persistence rule)
+
+onEdit: note.dirty
+onSendToServer: note.dirty = false
+onLoadFromServer: note.dirty = false
+
+onLoadConflict: resolve
+onSaveConflictThrown: resolve
+
+~ DONE ~
+
+<TBD verify vlllage user id with token>
+<TBD show note>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 sync: {
   view: 'abc123'
 }
