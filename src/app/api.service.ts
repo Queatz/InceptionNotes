@@ -542,8 +542,35 @@ export class ApiService {
       }
     }
 
+    if (!note.transient) {
+      this.saveNote(note);
+      this.onNoteChangedObservable.next(new NoteChanges(note, prop));
+    }
+  }
+
+  /**
+   * Set a note as synced.
+   */
+  public setSynced(id: string, prop: string) {
+    let note = this.search(id);
+
+    if (!note) {
+      console.log('Cannot set note as synced: ' + id);
+      return;
+    }
+
+    if (!('_sync' in note)) {
+      note['_sync'] = {};
+    }
+
+    if(!(prop in note['_sync'])) {
+      note['_sync'][prop] = {};
+    }
+
+    note['_sync'][prop].time = new Date().getTime();
+    note['_sync'][prop].synchronized = true;
+    
     this.saveNote(note);
-    this.onNoteChangedObservable.next(new NoteChanges(note, prop));
   }
 
   private breakCeiling() {

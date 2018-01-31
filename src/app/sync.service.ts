@@ -38,8 +38,14 @@ export class SyncService {
     this.send(new IdentifyEvent(me, this.clientKey()));
 
     let syncAllEvent = new SyncEvent([]);
-    for(let k in this.api.getAllNotes()) {
-      let n = this.api.getAllNotes()[k];
+    let an = this.api.getAllNotes();
+    for(let k in an) {
+      let n = an[k];
+
+      if (n.transient) {
+        continue;
+      }
+
       if ('_sync' in n) {
         let p: any = {};
         for(let k in n['sync']) {
@@ -102,5 +108,12 @@ export class SyncService {
    */
   public open() {
     console.log('(ws) opened');
+  }
+
+  /**
+   * Set a note as sync'd
+   */
+  public setSynced(id: string, prop: string) {
+    this.api.setSynced(id, prop);
   }
 }
