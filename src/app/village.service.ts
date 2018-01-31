@@ -7,6 +7,7 @@ import { ApiService } from './api.service';
 import { UiService } from './ui.service';
 import { Config } from 'app/config.service';
 import { SyncService } from 'app/sync.service';
+import util from 'app/util';
 
 @Injectable()
 export class VillageService {
@@ -64,7 +65,7 @@ export class VillageService {
   }
 
   private setup() {
-    let me = this.newKey();
+    let me = util.newKey();
     this.put(VillageService.VLLLAGE_ME_KEY, JSON.stringify(me)).subscribe(success => {
       this.onMeAvailable(me);
     }, err => {
@@ -77,10 +78,6 @@ export class VillageService {
   private onMeAvailable(me: string) {
     this.meId = me;
     this.syncService.start(me);
-  }
-
-  private newKey() {
-    return Array.from(Array(10)).reduce(a => a + Math.random().toString(36).substring(2, 15), '');
   }
 
   public nuke() {
