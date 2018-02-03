@@ -567,6 +567,8 @@ export class ApiService {
       note['_sync'][prop] = {};
     }
 
+    // TODO: Conflict on synchronized != true
+
     note['_sync'][prop].time = new Date().getTime();
     note['_sync'][prop].synchronized = true;
     

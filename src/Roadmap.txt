@@ -1,87 +1,68 @@
 
+Todo:
+
+[ ] Collaboration ticker
+[ ] Click note in ticker to view
+[ ] Visibility
+[ ] URLs
+[ ] Set visible to me on save server-side
+[ ] Conflict resolution
+[ ] Send client notes updated since last checkin
+[ ] Email
 
 
-Collaboration ticker at the top (w/ silence icon)
-Auto appears (hide for now)
+ -> Does any note that I own point to this note? Then I have access!
 
-Click on note in ticker to jump
+ClientNotePropSyncState {
+  notePropId,
+  clientToken,
+  lastSyncTime
+}
 
-Visibility is always by parent search (any parents visible to me?)
+NoteProps {
+  noteId,
+  propName,
+  lastUpdated
+}
 
-No caching for now
-
-Email if no client, or no client responds "seen" in 5 mins
-
-Notes auto-add person to note who 1st sent it to server
-
-Perf: Don't resend same note+revision to same client session (client persistence rule)
-
-onEdit: note.dirty
-onSendToServer: note.dirty = false
-onLoadFromServer: note.dirty = false
-
-onLoadConflict: resolve
-onSaveConflictThrown: resolve
-
-~ DONE ~
-
-<TBD verify vlllage user id with token>
-<TBD show note>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-sync: {
-  view: 'abc123'
+Note {
+  <props>
 }
 
 
+  
 
 
+Collab How-To
+===============
+
+ClientMapOfNotes
+
+note -> prop -> rev
+
+onClientEyeChange:
+
+for all props in current note
+  check if client has been sent current version
+    if not, send
+      repeat for all ref(1 deep), item(3 deep)
+        send compiled event
+
+note {
+  id, color, name, ref, items
+}
+
+syncstate {
+  noteId, prop, clientToken, version
+}
 
 
-
-
-
-
-Does any note that I own point to this note? Then I have access!
-
-
+if i can see current note
+FOR note IN Notes FILTER (
+  is or is child of current note depth 3
+  syncstate(currentClientToken, note) exists AND // have access?
+  syncstate(currentClientToken, note, prop) != currentNotePropRevision // out of date?
+) RETURN note
 
 
 Collab Frontend

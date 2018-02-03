@@ -14,6 +14,7 @@ export class SyncService {
 
   constructor(private ws: WsService, private api: ApiService) {
     this.ws.syncService = this;
+    this.ws.onBeforeOpen.subscribe(() => this.send(new IdentifyEvent(this.me, this.clientKey())));
     this.event = new Event();
   }
 
@@ -35,7 +36,8 @@ export class SyncService {
    */
   public start(me: string) {
     this.me = me;
-    this.send(new IdentifyEvent(me, this.clientKey()));
+
+    this.ws.reconnect();
 
     let syncAllEvent = new SyncEvent([]);
     let an = this.api.getAllNotes();
@@ -83,6 +85,8 @@ export class SyncService {
     console.log('(ws) send: ' + JSON.stringify(events));    
     this.ws.send(events);
   }
+
+
 
   /**
    * Called on got

@@ -31,7 +31,14 @@ export class SyncEvent implements ServerEvent {
                     return;
                 }
 
-                sync.setSynced(n.id, prop);
+                if(prop === 'sync') {
+                    n[prop].forEach(p => {
+                        sync.setSynced(n.id, p);
+                    });                  
+                    return;
+                }
+
+                // TODO: Update note from server!
             });
         });
     }

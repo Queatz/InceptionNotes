@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Config } from 'app/config.service';
 import { SyncService } from 'app/sync.service';
+import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class WsService {
@@ -10,6 +11,9 @@ export class WsService {
 
   // Injections
   public syncService: SyncService;
+
+  // Events
+  public onBeforeOpen: Subject<any> = new Subject();
 
   constructor(private config: Config) {
   }
@@ -34,7 +38,7 @@ export class WsService {
   }
 
   public send(events: any): boolean {
-    if (!this.websocket || this.websocket.readyState !== WebSocket.CLOSED) {
+    if (!this.websocket || this.websocket.readyState === WebSocket.CLOSED) {
       this.reconnect();
     }
 
@@ -50,6 +54,8 @@ export class WsService {
   }
 
   private onOpen() {
+    this.onBeforeOpen.next();
+    
     while(this.pending.length) {
       this.send(this.pending.shift());
     }
