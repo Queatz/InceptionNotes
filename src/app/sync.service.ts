@@ -81,18 +81,13 @@ export class SyncService {
    * Send
    */
   public send(event: any) {
-    let events = [[this.event.types.get(event.constructor), event]];
-    console.log('(ws) send: ' + JSON.stringify(events));    
-    this.ws.send(events);
+    this.ws.send([[this.event.types.get(event.constructor), event]]);
   }
-
-
 
   /**
    * Called on got
    */
   public got(events: any[]) {
-    console.log('(ws) got: ' + JSON.stringify(events));
     events.forEach((event: any[]) => {
       let t = this.event.actions.get(event[0]);
       event[1].__proto__ = t.prototype;
@@ -104,14 +99,12 @@ export class SyncService {
    * Called on close
    */
   public close() {
-    console.log('(ws) closed');    
   }
 
   /**
    * Called on open
    */
   public open() {
-    console.log('(ws) opened');
   }
 
   /**

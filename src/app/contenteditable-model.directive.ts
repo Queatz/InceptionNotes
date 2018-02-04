@@ -39,8 +39,11 @@ export class ContenteditableModelDirective implements OnChanges {
 
 	changed() {
 		let value = this.elRef.nativeElement.innerHTML;
-		this.lastViewModel = this.model = value;
-		this.update.emit(value);
+
+		if (this.model !== value) {
+			this.lastViewModel = this.model = value;
+			this.update.emit(value);
+		}
 	}
 
 	private refreshView() {

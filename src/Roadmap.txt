@@ -30,7 +30,72 @@ Note {
 }
 
 
-  
+
+QUERIES
+=======
+
+### Set Eye Query
+
+Sample data:
+{
+	"note": "entities/42564108",
+	"person": "entities/42564381",
+	"client": "entities/42564430"
+}
+
+let visible = append(
+    (FOR note IN entities FILTER note._id == @note RETURN note),
+    (FOR entity, rel IN 1..2 OUTBOUND @note GRAPH "graph"
+        FILTER (rel.kind == 'item' OR rel.kind == 'ref' OR (rel.kind == 'person' AND entity == @person))
+        RETURN entity
+    )
+)
+
+for note in visible return [
+    note._key,
+    (FOR prop IN entities FILTER prop.note == note._id AND (
+        FOR syncProp, sync IN OUTBOUND @client GRAPH "state" FILTER syncProp == prop RETURN sync
+    )[0].version != prop.version RETURN [
+        prop.type,
+        prop.value
+    ])
+]
+
+
+
+
+### Is Visible To Client Eye
+
+Sample data:
+{
+	"note": "entities/42564672",
+	"eye": "entities/42564108"
+}
+
+let visible = (FOR entity, rel IN 1..2 OUTBOUND @eye GRAPH "graph"
+  FILTER (rel.kind == 'item' OR rel.kind == 'ref')
+  RETURN entity._id
+)
+
+return @note in visible
+
+
+### Is Visible To Person
+
+## @person The person to test visibility to
+## @note The note to test visibility to
+
+let visible = (
+    FOR entity, rel IN 1..10 INBOUND @note GRAPH 'graph'
+        FOR person, rel2 IN OUTBOUND entity GRAPH 'graph'
+            FILTER (rel.kind == 'item' OR rel.kind == 'ref' OR (rel.kind == 'person' AND person._id == @person))
+            FILTER rel2.kind == 'person' AND person._id == @person
+            RETURN true
+)
+
+return visible[0] == true
+
+
 
 
 Collab How-To

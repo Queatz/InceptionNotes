@@ -8,6 +8,7 @@ export class WsService {
 
   private websocket: WebSocket;
   private pending: any[] = [];
+  private lastReconnectAttempt: number;
 
   // Injections
   public syncService: SyncService;
@@ -19,6 +20,12 @@ export class WsService {
   }
 
   public reconnect() {
+    if (new Date().getTime() - this.lastReconnectAttempt < 10000) {
+      return;
+    }
+
+    this.lastReconnectAttempt = new Date().getTime();
+    
     if (this.websocket) {
       if (this.websocket.readyState === WebSocket.OPEN || this.websocket.readyState === WebSocket.CONNECTING) {
         return;
@@ -55,7 +62,7 @@ export class WsService {
 
   private onOpen() {
     this.onBeforeOpen.next();
-    
+
     while(this.pending.length) {
       this.send(this.pending.shift());
     }
