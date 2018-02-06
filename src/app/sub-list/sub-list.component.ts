@@ -516,11 +516,11 @@ export class SubListComponent implements OnInit, OnChanges {
       }
 
       this.api.moveListUp(item);
+    } else {
+      this.list.items.splice(location, 1);
+      this.list.items.splice(location + move, 0, item);
+      this.api.modified(this.list, 'items');
     }
-
-    this.list.items.splice(location, 1);
-    this.list.items.splice(location + move, 0, item);
-    this.api.modified(this.list, 'items');
 
     setTimeout(() => this.elementRef.nativeElement.querySelectorAll('.sub-list-item')[(location + move)].focus());
   }

@@ -70,6 +70,10 @@ export class SyncService {
     }
 
     this.api.onNoteChangedObservable.subscribe(change => {
+      if (!this.ws.active()) {
+        return;
+      }
+
       this.send(new SyncEvent([this.api.freezeNote({
         id: change.note.id,
         [change.property]: change.note[change.property]

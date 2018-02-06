@@ -1,5 +1,37 @@
 
-Todo:
+
+SYNC REMAINING TODOS:
+
+Server:
+[ ] Handle prop from client
+  [ ] Save prop in DB (QUERY saveNote saveNoteProp)
+  [ ] Relay to all active clients (QUERY noteVisibleToPersonFromEye)
+[ ] Handle eye from client
+  [ ] Save on in-memory client object (QUERY getPerson getClient) (Client.java)
+  [ ] Send changed notes (QUERY changesUnderNoteForClientToken)
+[ ] Send prop to client
+  [ ] Save client seen prop (QUERY setPropSeenByClient)
+[ ] 
+[ ] 
+
+Client:
+[ ] Handle prop from server
+  [ ] Is synchronized?
+    [ ] Overwrite
+    [ ] Set synchronized
+  [ ] Not synchronized?
+    [ ] Show conflict dialog
+    [ ] Send resolution to server
+      [ ] Server sends to client
+[ ] Send eye on every eye change
+[ ] Change URL on eye change
+  [ ] Load from local
+  [ ] Create transient blank note if not found
+  [ ] Load from server (see: "Send eye on every eye change")
+
+
+
+Next Todo:
 
 [ ] Collaboration ticker
 [ ] Click note in ticker to view

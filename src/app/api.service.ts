@@ -541,7 +541,7 @@ export class ApiService {
         note['_sync'][prop].synchronized = false;
       }
     }
-
+    
     if (!note.transient) {
       this.saveNote(note);
       this.onNoteChangedObservable.next(new NoteChanges(note, prop));
@@ -625,6 +625,11 @@ export class ApiService {
 
     if (!list || !toList) {
       return;
+    }
+
+    if (list.transient) {
+      list.transient = undefined;
+      this.modified(list, 'transient');
     }
 
     let listParents = this.parents(list);

@@ -118,7 +118,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
 
     this.list.items.splice(location, 1);
     this.list.items.splice(location + move, 0, item);
-    this.api.modified(this.list, 'description');
+    this.api.modified(this.list, 'items');
 
     setTimeout(() => this.elementRef.nativeElement.querySelectorAll('sub-list')[(location + move)].querySelector('.sub-list-title').focus());
   }

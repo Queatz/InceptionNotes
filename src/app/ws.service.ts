@@ -19,6 +19,10 @@ export class WsService {
   constructor(private config: Config) {
   }
 
+  public active() {
+    return this.websocket && this.websocket.readyState !== WebSocket.OPEN;
+  }
+
   public reconnect() {
     if (new Date().getTime() - this.lastReconnectAttempt < 10000) {
       return;
