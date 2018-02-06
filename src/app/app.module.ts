@@ -25,6 +25,9 @@ import { WsService } from 'app/ws.service';
 import { Config } from 'app/config.service';
 import { AddPeopleComponent } from './add-people/add-people.component';
 
+import { AppRoutingModule } from './app.routes';
+import { WindowComponent } from './window/window.component';
+
 enableProdMode();
 
 @NgModule({
@@ -41,7 +44,8 @@ enableProdMode();
     ColorPickerComponent,
     DiffComponent,
     SearchComponent,
-    AddPeopleComponent
+    AddPeopleComponent,
+    WindowComponent
   ],
   entryComponents: [
     DialogComponent,
@@ -54,8 +58,8 @@ enableProdMode();
   imports: [
     BrowserModule,
     FormsModule,
-    RouterModule,
     HttpModule,
+    AppRoutingModule
   ],
   providers: [
     ApiService,
@@ -66,6 +70,6 @@ enableProdMode();
     WsService,
     Config
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [WindowComponent]
 })
 export class AppModule { }

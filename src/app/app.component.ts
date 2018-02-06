@@ -1,5 +1,6 @@
 import { Component, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 import { Location, LocationStrategy, PathLocationStrategy, PopStateEvent } from '@angular/common';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from './api.service';
 import { UiService } from './ui.service';
 import { VillageService } from 'app/village.service';
@@ -18,10 +19,29 @@ export class AppComponent {
       public village: VillageService,
       public view: ViewContainerRef,
       public resolver: ComponentFactoryResolver,
-      private location: Location
+      private location: Location,
+      private route: ActivatedRoute
   ) {
     this.ui.registerAppComponent(this);
     this.village.check();
+
+    route.params.subscribe(params => {
+      if (!params['id']) {
+        return;
+      }
+      
+      let note = this.api.search(params['id']);
+
+      if (note) {
+        if (!this.api.getShow() || note.id !== this.api.getShow().id) {
+          this.api.setEye(note);
+        }
+      } else {
+        this.ui.dialog({
+          message: 'The note was not found'
+        });
+      }
+    })
   }
 
   escapePressed(event: any) {

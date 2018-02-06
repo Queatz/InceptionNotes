@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { UiService } from './ui.service';
 import { Subject } from 'rxjs';
 
@@ -27,7 +28,7 @@ export class ApiService {
 
   public onNoteChangedObservable: Subject<NoteChanges> = new Subject<NoteChanges>();
 
-  constructor(private ui: UiService) {
+  constructor(private ui: UiService, private router: Router) {
     this.people = new Map();
     this.load();
   }
@@ -352,6 +353,7 @@ export class ApiService {
   }
 
   private saveView() {
+    this.router.navigate(['n', this.view.show.id]);        
     localStorage.setItem('view', this.view.eye.id);
     localStorage.setItem('view-show', this.view.show.id);
   }

@@ -3,33 +3,32 @@
 SYNC REMAINING TODOS:
 
 Server:
-[ ] Handle prop from client
+[ ] Handle prop from client (SyncEvent.java)
   [ ] Save prop in DB (QUERY saveNote saveNoteProp)
   [ ] Relay to all active clients (QUERY noteVisibleToPersonFromEye)
 [ ] Handle eye from client
   [ ] Save on in-memory client object (QUERY getPerson getClient) (Client.java)
   [ ] Send changed notes (QUERY changesUnderNoteForClientToken)
-[ ] Send prop to client
+[ ] Send prop to client (SyncEvent.java)
   [ ] Save client seen prop (QUERY setPropSeenByClient)
-[ ] 
-[ ] 
 
 Client:
 [ ] Handle prop from server
-  [ ] Is synchronized?
+  [ ] Handle when client version is "synchronized"
     [ ] Overwrite
     [ ] Set synchronized
-  [ ] Not synchronized?
+  [ ] Handle when client version is not "synchronized"
     [ ] Show conflict dialog
     [ ] Send resolution to server
       [ ] Server sends to client
-[ ] Send eye on every eye change
-[ ] Change URL on eye change
+[ ] Send eye to server on every eye change
+[ ] Router: Change URL on eye change
   [ ] Load from local
   [ ] Create transient blank note if not found
   [ ] Load from server (see: "Send eye on every eye change")
 
-
+People:
+[ ] Save village person
 
 Next Todo:
 
