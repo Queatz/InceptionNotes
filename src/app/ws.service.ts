@@ -20,7 +20,7 @@ export class WsService {
   }
 
   public active() {
-    return this.websocket && this.websocket.readyState !== WebSocket.OPEN;
+    return this.websocket && this.websocket.readyState === WebSocket.OPEN;
   }
 
   public reconnect() {

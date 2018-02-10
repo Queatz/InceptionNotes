@@ -12,7 +12,7 @@ export class SyncService {
   private event: Event;
   private _clientKey = null;
 
-  constructor(private ws: WsService, private api: ApiService) {
+  constructor(private ws: WsService, private api: ApiService, private config: Config) {
     this.ws.syncService = this;
     this.ws.onBeforeOpen.subscribe(() => this.send(new IdentifyEvent(this.me, this.clientKey())));
     this.event = new Event();
@@ -85,6 +85,9 @@ export class SyncService {
    * Send
    */
   public send(event: any) {
+    if (this.config.beta) {
+      console.log('send', event);
+    }
     this.ws.send([[this.event.types.get(event.constructor), event]]);
   }
 
@@ -93,6 +96,9 @@ export class SyncService {
    */
   public got(events: any[]) {
     events.forEach((event: any[]) => {
+      if (this.config.beta) {
+        console.log('got', event);
+      }  
       let t = this.event.actions.get(event[0]);
       event[1].__proto__ = t.prototype;
       event[1].got(this);
@@ -103,12 +109,18 @@ export class SyncService {
    * Called on close
    */
   public close() {
+    if (this.config.beta) {
+      console.log('close()');
+    }
   }
 
   /**
    * Called on open
    */
   public open() {
+    if (this.config.beta) {
+      console.log('open()');
+    }
   }
 
   /**
