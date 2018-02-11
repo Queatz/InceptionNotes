@@ -52,10 +52,6 @@ export class SyncService {
     for(let k in an) {
       let n = an[k];
 
-      if (n.transient) {
-        continue;
-      }
-
       if ('_sync' in n) {
         let p: any = {};
         for(let k in n['sync']) {
@@ -150,10 +146,6 @@ export class SyncService {
 
     if (!note) {
       note = this.api.newBlankNote(noteId);
-    }
-
-    if (note.transient) {
-      note.transient = false;
     }
 
     note[prop] = this.api.unfreezeProp(note, prop, value);

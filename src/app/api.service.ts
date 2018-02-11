@@ -157,9 +157,7 @@ export class ApiService {
     if (a.items) {
       items = [];
       for (let item of a.items) {
-        if (!item.transient) {
-          items.push(item.id);
-        }
+        items.push(item.id);
       }
     }
 
@@ -257,7 +255,9 @@ export class ApiService {
   unfreezeProp(note: any, prop: string, value: any) {
     if (['people', 'ref', 'items'].indexOf(prop) !== -1) {
       if (!value) {
-        return [this.newBlankList(note)];
+        let n = this.newBlankList(note);
+        this.modified(n);
+        return [n];
       }
   
       let a = [];
@@ -266,6 +266,7 @@ export class ApiService {
 
         if (!n) {
           n = this.newBlankNote(id);
+          this.modified(n);
         }
   
         a.push(n);
@@ -595,10 +596,8 @@ export class ApiService {
       }
     }
     
-    if (!note.transient) {
-      this.saveNote(note);
-      this.onNoteChangedObservable.next(new NoteChanges(note, prop));
-    }
+    this.saveNote(note);
+    this.onNoteChangedObservable.next(new NoteChanges(note, prop));
   }
 
   /**

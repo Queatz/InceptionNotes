@@ -34,6 +34,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
   onItemModified(item: any) {
     if (item.transient) {
       item.transient = false;
+      this.api.modified(item, 'transient');
       this.initNext();
     }
   }

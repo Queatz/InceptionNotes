@@ -486,6 +486,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
     if (item.transient && item.name) {
       item.transient = undefined;
+      this.api.modified(item, 'transient');
       this.initNext();
       this.modified.emit(item);
     }
@@ -543,6 +544,7 @@ export class SubListComponent implements OnInit, OnChanges {
       }
     } else {
       item.transient = false;
+      this.api.modified(item, 'transient');
       this.initNext();
       setTimeout(() => element.parentNode && element.parentNode.parentNode.nextSibling && element.parentNode.parentNode.nextSibling.children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0].focus());
     }
