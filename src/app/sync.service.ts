@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Config } from 'app/config.service';
 import { WsService } from 'app/ws.service';
-import { Event, SyncEvent, IdentifyEvent, ServerEvent } from 'app/sync/event';
+import { Event, SyncEvent, IdentifyEvent, ServerEvent, ShowEvent } from 'app/sync/event';
 import { ApiService } from 'app/api.service';
 import util from 'app/util';
 
@@ -14,7 +14,15 @@ export class SyncService {
 
   constructor(private ws: WsService, private api: ApiService, private config: Config) {
     this.ws.syncService = this;
-    this.ws.onBeforeOpen.subscribe(() => this.send(new IdentifyEvent(this.me, this.clientKey())));
+
+    this.ws.onBeforeOpen.subscribe(() => {
+      this.send(new IdentifyEvent(this.me, this.clientKey()));
+      
+      if (this.api.getShow()) {
+        this.send(new ShowEvent(this.api.getShow().id));
+      }
+    });
+
     this.event = new Event();
   }
 
@@ -78,6 +86,10 @@ export class SyncService {
         id: change.note.id,
         [change.property]: change.note[change.property]
       })]));
+    });
+
+    this.api.onViewChangedObservable.subscribe(view => {
+      this.send(new ShowEvent(view.show.id));
     });
   }
 

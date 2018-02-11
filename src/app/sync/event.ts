@@ -12,6 +12,7 @@ export class Event {
         this.types.set(SyncEvent, 'sync');
         this.types.set(IdentifyEvent, 'identify');
         this.types.set(BasicMessageEvent, 'message');
+        this.types.set(ShowEvent, 'show');
         
         this.types.forEach((v, k) => this.actions.set(v, k));
     }
@@ -51,6 +52,14 @@ export class IdentifyEvent {
     constructor(me: string, client: string) {
         this.me = me;
         this.client = client;
+    }
+}
+
+export class ShowEvent {
+    show: string;
+
+    constructor(show: string) {
+        this.show = show;
     }
 }
 

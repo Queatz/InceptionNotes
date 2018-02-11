@@ -32,14 +32,12 @@ export class AppComponent {
       
       let note = this.api.search(params['id']);
 
-      if (note) {
-        if (!this.api.getShow() || note.id !== this.api.getShow().id) {
-          this.api.setEye(note);
-        }
-      } else {
-        this.ui.dialog({
-          message: 'The note was not found'
-        });
+      if (!note) {
+        note = this.api.newBlankNote(params['id']);
+      }
+
+      if (!this.api.getShow() || note.id !== this.api.getShow().id) {
+        this.api.setEye(note);
       }
     })
   }

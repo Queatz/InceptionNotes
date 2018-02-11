@@ -21,12 +21,16 @@ Client:
     [ ] Show conflict dialog
     [ ] Send resolution to server
       [ ] Server sends to client
-[ ] Send eye to server on every eye change
-[ ] Router: Change URL on eye change
-  [ ] Load from local
-  [ ] Create transient blank note if not found
-  [ ] Load from server (see: "Send eye on every eye change")
+[X] Send eye to server on every eye change
+[X] Router: Change URL on eye change
+  [X] Load from local
+  [X] Load from server (see: "Send eye on every eye change")
+  [X] Create transient blank note if not found
 [ ] Handle conflict from save to localStorage (two open tabs case)
+
+Relationships:
+[ ] Insert relationships when items, ref, or people props change
+[ ] Remove relationships when items, ref, or people props change
 
 People:
 [ ] Save village person to server
@@ -36,11 +40,15 @@ Next Todo:
 [ ] Collaboration ticker
 [ ] Click note in ticker to view
 [ ] Visibility
-[ ] URLs
 [ ] Set visible to me on save server-side
 [ ] Conflict resolution
 [ ] Send client notes updated since last checkin
 [ ] Email
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
 
 
  -> Does any note that I own point to this note? Then I have access!

@@ -13,6 +13,12 @@ export class NoteChanges {
   }
 }
 
+export class ViewConfig {
+  eye: any;
+  show: any;
+  parents: any[];
+}
+
 @Injectable()
 export class ApiService {
 
@@ -20,13 +26,14 @@ export class ApiService {
   private notes: Map<string, any>;
   private people: Map<string, any>;
 
-  private view = {
+  private view: ViewConfig = {
     eye: null,
     show: null,
     parents: []
   };
 
   public onNoteChangedObservable: Subject<NoteChanges> = new Subject<NoteChanges>();
+  public onViewChangedObservable: Subject<ViewConfig> = new Subject<ViewConfig>();
 
   constructor(private ui: UiService, private router: Router) {
     this.people = new Map();
@@ -356,6 +363,8 @@ export class ApiService {
     this.router.navigate(['n', this.view.show.id]);        
     localStorage.setItem('view', this.view.eye.id);
     localStorage.setItem('view-show', this.view.show.id);
+
+    this.onViewChangedObservable.next(this.view);
   }
 
   /* Etc */
@@ -672,18 +681,9 @@ export class ApiService {
   }
 
   public newBlankList(list: any = null, position: number = null) {
-    let id = this.newId();
+    let note: any = this.newBlankNote();
 
-    let note: any = {
-      id: id,
-      name: '',
-      description: '',
-      color: '#ffffff',
-      items: [],
-      transient: true
-    };
-
-    this.notes[id] = note;
+    this.notes[note.id] = note;
 
     if (list) {
       note.parent = list;
@@ -698,6 +698,20 @@ export class ApiService {
     }
 
     return note;
+  }
+
+
+  public newBlankNote(id?: string): any {
+    if (!id) id = this.newId();
+    
+    return {
+      id: id,
+      name: '',
+      description: '',
+      color: '#ffffff',
+      items: [],
+      transient: true
+    };
   }
 
   /* Relationships */
