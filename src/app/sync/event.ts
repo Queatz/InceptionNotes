@@ -39,7 +39,7 @@ export class SyncEvent implements ServerEvent {
                     return;
                 }
 
-                // TODO: Update note from server!
+                sync.handleUpdateFromServer(n.id, prop, n[prop]);
             });
         });
     }

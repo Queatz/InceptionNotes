@@ -96,6 +96,10 @@ export class ApiService {
   }
 
   public saveAll() {
+    if (!this.notes) {
+      return;
+    }
+
     Object.keys(this.notes).forEach(k => {
       this.saveNote(this.notes[k]);
     });
@@ -200,6 +204,10 @@ export class ApiService {
   public unfreezeNote(a: any, fossil: any) {
     let items = [];
 
+    if (!a.items) {
+      a.items = [];
+    }
+
     for (let id of a.items) {
       let n = fossil[id];
 
@@ -241,6 +249,40 @@ export class ApiService {
     }
 
     return a;
+  }
+
+  /**
+   * Unfreeze a property
+   */
+  unfreezeProp(note: any, prop: string, value: any) {
+    if (['people', 'ref', 'items'].indexOf(prop) !== -1) {
+      if (!value) {
+        return [this.newBlankList(note)];
+      }
+  
+      let a = [];
+      for (let id of value) {
+        let n = this.search(id);
+
+        if (!n) {
+          n = this.newBlankNote(id);
+        }
+  
+        a.push(n);
+
+        if (prop === 'items') {
+          n.parent = note;
+        }
+      }
+
+      if (prop === 'items' && (!a.length || !a[a.length - 1].transient)) {
+        a.push(this.newBlankList(note));
+      }
+
+      return a;
+    }
+
+    return value;
   }
 
   /* People */
@@ -586,6 +628,16 @@ export class ApiService {
     this.saveNote(note);
   }
 
+  /**
+   * Set all notes as needing sync.
+   */
+  public setAllNotesUnsynced() {
+    (<any>Object).values(this.notes).forEach(note => this.modified(note));
+  }
+
+  /**
+   * 
+   */
   private breakCeiling() {
     let id = this.newId();
 
@@ -683,8 +735,6 @@ export class ApiService {
   public newBlankList(list: any = null, position: number = null) {
     let note: any = this.newBlankNote();
 
-    this.notes[note.id] = note;
-
     if (list) {
       note.parent = list;
 
@@ -704,7 +754,7 @@ export class ApiService {
   public newBlankNote(id?: string): any {
     if (!id) id = this.newId();
     
-    return {
+    let note = {
       id: id,
       name: '',
       description: '',
@@ -712,6 +762,10 @@ export class ApiService {
       items: [],
       transient: true
     };
+
+    this.notes[note.id] = note;
+
+    return note;
   }
 
   /* Relationships */

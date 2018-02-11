@@ -141,4 +141,22 @@ export class SyncService {
   public setSynced(id: string, prop: string) {
     this.api.setSynced(id, prop);
   }
+
+  /**
+   * Handle note prop update from sever
+   */
+  public handleUpdateFromServer(noteId: string, prop: string, value: any) {
+    let note = this.api.search(noteId);
+
+    if (!note) {
+      note = this.api.newBlankNote(noteId);
+    }
+
+    if (note.transient) {
+      note.transient = false;
+    }
+
+    note[prop] = this.api.unfreezeProp(note, prop, value);
+    this.api.setSynced(note.id, prop);
+  }
 }

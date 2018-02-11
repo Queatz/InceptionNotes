@@ -189,6 +189,14 @@ export class MainDeskComponent implements OnInit, OnChanges {
     });
   }
 
+  @HostListener('window:keydown.alt.shift.o')
+  moreOptions() {
+    this.api.setAllNotesUnsynced();
+    this.ui.dialog({
+      message: 'All notes marked as unsynced.'
+    });
+  }
+
   @HostListener('window:keydown.alt.s', ['$event'])
   showSearch(event: Event) {
     if (this.ui.isAnyDialogOpened()) {

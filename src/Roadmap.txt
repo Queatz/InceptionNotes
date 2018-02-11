@@ -29,8 +29,8 @@ Client:
 [ ] Handle conflict from save to localStorage (two open tabs case)
 
 Relationships:
-[ ] Insert relationships when items, ref, or people props change
-[ ] Remove relationships when items, ref, or people props change
+[X] Insert relationships when items, ref, or people props change
+[X] Remove relationships when items, ref, or people props change
 
 People:
 [ ] Save village person to server
