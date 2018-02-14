@@ -77,6 +77,10 @@ export class SyncService {
         return;
       }
 
+      if (change.note[change.property] === undefined) {
+        return;
+      }
+
       this.send(new SyncEvent([this.api.freezeNote({
         id: change.note.id,
         [change.property]: change.note[change.property]
@@ -162,27 +166,44 @@ export class SyncService {
       this.api.setSynced(note.id, prop);
     } else {
       this.ui.dialog({
-        message: 'Overwrite ' + prop + '"' + note[prop] + '" with "' + v + '"',
+        message: 'Overwrite ' + prop + ' "' + this.present(note[prop]) + '" with "' + this.present(v) + '"',
         ok: () => {
           note[prop] = v;
           this.api.setSynced(note.id, prop);
+        },
+        cancel: () => {
+          this.send(new SyncEvent([this.api.freezeNote({
+            id: note.id,
+            [prop]: note[prop]
+          })]));
         }
       });
     }
   }
 
   /**
-   * valEquals
+   * Return if a value is equal.
    */
   public valEquals(a: any, b: any): boolean {
     if (a === b) {
       return true;
     }
 
-    if (Array.isArray(a) && Array.isArray(b)) {
+    if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
       return a.every((v, i) => a[i].id === b[i].id);
     }
 
     return false;
+  }
+
+  /**
+   * Show a string from a value
+   */
+  public present(value: any) {
+    if (Array.isArray(value)) {
+      return '\n * ' + value.map(item => item.name).join('\n * ');
+    }
+
+    return value;
   }
 }

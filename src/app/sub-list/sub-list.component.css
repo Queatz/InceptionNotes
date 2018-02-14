@@ -21,6 +21,8 @@
     font-weight: bold;
     display: block;
     cursor: text;
+    overflow: hidden;
+    word-break: break-all;
 }
 
 .sub-list-item {

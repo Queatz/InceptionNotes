@@ -481,7 +481,7 @@ export class SubListComponent implements OnInit, OnChanges {
     this.api.modified(item, 'name');
 
     if (item.transient && item.name) {
-      item.transient = undefined;
+      item.transient = false;
       this.api.modified(item, 'transient');
       this.initNext();
       this.modified.emit(item);
