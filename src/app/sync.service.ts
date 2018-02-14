@@ -156,11 +156,16 @@ export class SyncService {
 
     if (!note) {
       note = this.api.newBlankNote(noteId);
+      this.api.setAllSynced(note);
+    }
+    
+    if (note.trainsent) {
+      note.trainsent = false;
     }
 
     let v = this.api.unfreezeProp(note, prop, value);
-    if (note.transient || this.api.isSynced(note, prop)) {
-      note[prop] = v;
+    if (note[prop] === undefined || note.transient || this.api.isSynced(note, prop)) {
+      this.setProp(note, prop, v);
       this.api.setSynced(note.id, prop);
     } else if(this.valEquals(note[prop], v)) {
       this.api.setSynced(note.id, prop);
@@ -168,7 +173,7 @@ export class SyncService {
       this.ui.dialog({
         message: 'Overwrite ' + prop + ' "' + this.present(note[prop]) + '" with "' + this.present(v) + '"',
         ok: () => {
-          note[prop] = v;
+          this.setProp(note, prop, v);
           this.api.setSynced(note.id, prop);
         },
         cancel: () => {
@@ -178,6 +183,15 @@ export class SyncService {
           })]));
         }
       });
+    }
+  }
+
+  setProp(note: any, prop: string, value: any) {
+    if (Array.isArray(note[prop]) && Array.isArray(value)) {
+      note[prop].length = 0;
+      note[prop].push(...value);
+    } else {
+      note[prop] = value;
     }
   }
 

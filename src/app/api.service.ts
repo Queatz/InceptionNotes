@@ -209,12 +209,13 @@ export class ApiService {
     for (let id of a.items) {
       let n = fossil[id];
 
-      if (n) {
-        items.push(n);
-        n.parent = a;
-      } else {
+      if (!n) {
         console.log('unfreeze error: missing note \'' + id + '\'');
+        n = this.newBlankNote(id);
       }
+
+      items.push(n);
+      n.parent = a;
     }
 
     a.items = items;
@@ -225,11 +226,12 @@ export class ApiService {
       for (let id of a.ref) {
         let n = fossil[id];
 
-        if (n) {
-          ref.push(n);
-        } else {
+        if (!n) {
           console.log('unfreeze error: missing note \'' + id + '\'');
+          n = this.newBlankNote(id);
         }
+
+        ref.push(n);
       }
 
       a.ref = ref;
@@ -621,6 +623,24 @@ export class ApiService {
       return;
     }
 
+    this.setPropSynced(note, prop);
+    this.saveNote(note);
+  }
+
+  /**
+   * Set all props synced
+   */
+  public setAllSynced(note: any) {
+    Object.keys(note).forEach(prop => {
+      if (prop === 'id') return;
+      this.setPropSynced(note, prop);
+    });
+  }
+
+  /**
+   * setPropSynced
+   */
+  public setPropSynced(note: any, prop: string) {
     if (!('_sync' in note)) {
       note['_sync'] = {};
     }
@@ -631,8 +651,6 @@ export class ApiService {
 
     note['_sync'][prop].time = new Date().getTime();
     note['_sync'][prop].synchronized = true;
-    
-    this.saveNote(note);
   }
 
   isSynced(note: any, prop: string): boolean {
@@ -774,7 +792,9 @@ export class ApiService {
       transient: true
     };
 
-    this.notes[note.id] = note;
+    if (this.notes) {
+      this.notes[note.id] = note;
+    }
 
     return note;
   }
