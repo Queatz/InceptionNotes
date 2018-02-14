@@ -4,6 +4,7 @@ import { WsService } from 'app/ws.service';
 import { Event, SyncEvent, IdentifyEvent, ServerEvent, ShowEvent } from 'app/sync/event';
 import { ApiService } from 'app/api.service';
 import util from 'app/util';
+import { UiService } from 'app/ui.service';
 
 @Injectable()
 export class SyncService {
@@ -12,7 +13,7 @@ export class SyncService {
   private event: Event;
   private _clientKey = null;
 
-  constructor(private ws: WsService, private api: ApiService, private config: Config) {
+  constructor(private ws: WsService, private api: ApiService, private ui: UiService, private config: Config) {
     this.ws.syncService = this;
 
     this.ws.onBeforeOpen.subscribe(() => {
@@ -148,7 +149,18 @@ export class SyncService {
       note = this.api.newBlankNote(noteId);
     }
 
-    note[prop] = this.api.unfreezeProp(note, prop, value);
-    this.api.setSynced(note.id, prop);
+    let v = this.api.unfreezeProp(note, prop, value);
+    if (this.api.isSynced(note, prop)) {
+      note[prop] = v;
+      this.api.setSynced(note.id, prop);
+    } else {
+      this.ui.dialog({
+        message: 'Overwrite ' + prop + '"' + note[prop] + '" with "' + v + '"',
+        ok: () => {
+          note[prop] = v;
+          this.api.setSynced(note.id, prop);
+        }
+      });
+    }
   }
 }

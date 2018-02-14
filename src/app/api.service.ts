@@ -256,6 +256,9 @@ export class ApiService {
     if (['people', 'ref', 'items'].indexOf(prop) !== -1) {
       if (!value) {
         let n = this.newBlankList(note);
+        if (note) {
+          n.color = note.color;
+        }
         this.modified(n);
         return [n];
       }
@@ -266,6 +269,9 @@ export class ApiService {
 
         if (!n) {
           n = this.newBlankNote(id);
+          if (note) {
+            n.color = note.color;
+          }
           this.modified(n);
         }
   
@@ -277,7 +283,11 @@ export class ApiService {
       }
 
       if (prop === 'items' && (!a.length || !a[a.length - 1].transient)) {
-        a.push(this.newBlankList(note));
+        let n = this.newBlankList(note);
+        if (note) {
+          n.color = note.color;
+        }
+        a.push(n);
       }
 
       return a;
@@ -625,6 +635,10 @@ export class ApiService {
     note['_sync'][prop].synchronized = true;
     
     this.saveNote(note);
+  }
+
+  isSynced(note: any, prop: string): boolean {
+    return ('_sync' in note) && (prop in note['_sync']) && note['_sync'][prop].synchronized;
   }
 
   /**

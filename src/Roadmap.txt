@@ -3,20 +3,20 @@
 SYNC REMAINING TODOS:
 
 Server:
-[-] Handle prop from client (SyncEvent.java)
-  [-] Save prop in DB (QUERY saveNote saveNoteProp)
-  [-] Relay to all active clients (QUERY noteVisibleToPersonFromEye)
-[-] Handle eye from client
-  [-] Save on in-memory client object (QUERY getPerson getClient) (Client.java)
-  [-] Send changed notes (QUERY changesUnderNoteForClientToken)
-[-] Send prop to client (SyncEvent.java)
-  [-] Save client seen prop (QUERY setPropSeenByClient)
+[X] Handle prop from client (SyncEvent.java)
+  [X] Save prop in DB (QUERY saveNote saveNoteProp)
+  [X] Relay to all active clients (QUERY noteVisibleToPersonFromEye)
+[X] Handle eye from client
+  [X] Save on in-memory client object (QUERY getPerson getClient) (Client.java)
+  [X] Send changed notes (QUERY changesUnderNoteForClientToken)
+[X] Send prop to client (SyncEvent.java)
+  [X] Save client seen prop (QUERY setPropSeenByClient)
 
 Client:
-[ ] Handle prop from server
-  [ ] Handle when client version is "synchronized"
-    [ ] Overwrite
-    [ ] Set synchronized
+[X] Handle prop from server
+  [X] Handle when client version is "synchronized"
+    [X] Overwrite
+    [X] Set synchronized
   [ ] Handle when client version is not "synchronized"
     [ ] Show conflict dialog
     [ ] Send resolution to server
@@ -34,6 +34,11 @@ Relationships:
 
 People:
 [ ] Save village person to server
+
+Rework:
+[ ] Auto connect to sync server
+[ ] Vlllage person is associated with client
+
 
 Next Todo:
 

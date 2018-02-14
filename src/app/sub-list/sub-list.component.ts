@@ -384,10 +384,6 @@ export class SubListComponent implements OnInit, OnChanges {
     }
   }
 
-  isSelectedNav(item: any) {
-    return this.api.contains(item.id, this.api.getShow());
-  }
-
   openList(dblclickEvent: Event) {
     dblclickEvent.stopPropagation();
     if (this.list.transient) {
@@ -455,7 +451,7 @@ export class SubListComponent implements OnInit, OnChanges {
     let c = this.countSubItems(item);
     let d = this.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0;
 
-    return c || d ? ' (' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') + ')' : null;
+    return c || d ? ' (' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') + ')' : '';
   }
 
   getBeforeText(item: any) {
