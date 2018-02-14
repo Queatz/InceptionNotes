@@ -46,12 +46,12 @@ export class SyncEvent implements ServerEvent {
 }
 
 export class IdentifyEvent {
-    me: string;
     client: string;
+    me: string;
 
-    constructor(me: string, client: string) {
-        this.me = me;
+    constructor(client: string, me: string) {
         this.client = client;
+        this.me = me;
     }
 }
 

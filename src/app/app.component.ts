@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from './api.service';
 import { UiService } from './ui.service';
 import { VillageService } from 'app/village.service';
+import { SyncService } from 'app/sync.service';
 
 @Component({
   selector: 'app-root',
@@ -17,12 +18,14 @@ export class AppComponent {
       public api: ApiService,
       public ui: UiService,
       public village: VillageService,
+      public sync: SyncService,
       public view: ViewContainerRef,
       public resolver: ComponentFactoryResolver,
       private location: Location,
       private route: ActivatedRoute
   ) {
     this.ui.registerAppComponent(this);
+    this.sync.start();
     this.village.check();
 
     route.params.subscribe(params => {

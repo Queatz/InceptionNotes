@@ -17,7 +17,7 @@ export class SyncService {
     this.ws.syncService = this;
 
     this.ws.onBeforeOpen.subscribe(() => {
-      this.send(new IdentifyEvent(this.me, this.clientKey()));
+      this.send(new IdentifyEvent(this.clientKey(), this.me));
       
       if (this.api.getShow()) {
         this.send(new ShowEvent(this.api.getShow().id));
@@ -43,9 +43,7 @@ export class SyncService {
   /**
    * Start syncing
    */
-  public start(me: string) {
-    this.me = me;
-
+  public start() {
     this.ws.reconnect();
 
     let syncAllEvent = new SyncEvent([]);
@@ -88,6 +86,13 @@ export class SyncService {
     this.api.onViewChangedObservable.subscribe(view => {
       this.send(new ShowEvent(view.show.id));
     });
+  }
+
+  /**
+   * Identify person
+   */
+  setPerson(me: any) {
+    this.me = me;
   }
 
   /**
@@ -150,8 +155,10 @@ export class SyncService {
     }
 
     let v = this.api.unfreezeProp(note, prop, value);
-    if (this.api.isSynced(note, prop)) {
+    if (note.transient || this.api.isSynced(note, prop)) {
       note[prop] = v;
+      this.api.setSynced(note.id, prop);
+    } else if(this.valEquals(note[prop], v)) {
       this.api.setSynced(note.id, prop);
     } else {
       this.ui.dialog({
@@ -162,5 +169,20 @@ export class SyncService {
         }
       });
     }
+  }
+
+  /**
+   * valEquals
+   */
+  public valEquals(a: any, b: any): boolean {
+    if (a === b) {
+      return true;
+    }
+
+    if (Array.isArray(a) && Array.isArray(b)) {
+      return a.every((v, i) => a[i].id === b[i].id);
+    }
+
+    return false;
   }
 }

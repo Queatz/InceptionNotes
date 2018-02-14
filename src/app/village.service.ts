@@ -77,7 +77,7 @@ export class VillageService {
 
   private onMeAvailable(me: string) {
     this.meId = me;
-    this.syncService.start(me);
+    this.syncService.setPerson(me);
   }
 
   public nuke() {
