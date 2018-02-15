@@ -185,7 +185,6 @@ export class ApiService {
       items: items,
       ref: ref,
       people: people,
-      transient: a.transient,
       backgroundUrl: a.backgroundUrl,
       collapsed: a.collapsed,
       estimate: a.estimate,
@@ -211,7 +210,7 @@ export class ApiService {
 
       if (!n) {
         console.log('unfreeze error: missing note \'' + id + '\'');
-        n = this.newBlankNote(id);
+        n = this.newBlankNote(true, id);
       }
 
       items.push(n);
@@ -228,7 +227,7 @@ export class ApiService {
 
         if (!n) {
           console.log('unfreeze error: missing note \'' + id + '\'');
-          n = this.newBlankNote(id);
+          n = this.newBlankNote(true, id);
         }
 
         ref.push(n);
@@ -270,7 +269,7 @@ export class ApiService {
         let n = this.search(id);
 
         if (!n) {
-          n = this.newBlankNote(id);
+          n = this.newBlankNote(true, id);
           if (note) {
             n.color = note.color;
           }
@@ -284,7 +283,7 @@ export class ApiService {
         }
       }
 
-      if (prop === 'items' && (!a.length || !a[a.length - 1].transient)) {
+      if (prop === 'items' && (!a.length || !a[a.length - 1].name)) {
         let n = this.newBlankList(note);
         if (note) {
           n.color = note.color;
@@ -489,9 +488,6 @@ export class ApiService {
 
   public getSubItemEstimates(item: any, exclude: any[] = null): Array<number> {
     let result: Array<number> = [];
-     if (item.transient) {
-         return result;
-     }
 
     if (!exclude) {
       exclude = [];
@@ -528,7 +524,7 @@ export class ApiService {
     exclude.push(item);
 
     for (let subItem of item.items) {
-      if (subItem.transient) {
+      if (!subItem.name) {
         continue;
       }
 
@@ -630,7 +626,7 @@ export class ApiService {
   /**
    * Set all props synced
    */
-  public setAllSynced(note: any) {
+  public setAllPropsSynced(note: any) {
     Object.keys(note).forEach(prop => {
       if (prop === 'id') return;
       this.setPropSynced(note, prop);
@@ -719,11 +715,6 @@ export class ApiService {
       return;
     }
 
-    if (list.transient) {
-      list.transient = false;
-      this.modified(list, 'transient');
-    }
-
     let listParents = this.parents(list);
     let toListParents = this.parents(toList);
 
@@ -780,7 +771,7 @@ export class ApiService {
   }
 
 
-  public newBlankNote(id?: string): any {
+  public newBlankNote(fromServer?: boolean, id?: string): any {
     if (!id) id = this.newId();
     
     let note = {
@@ -788,12 +779,15 @@ export class ApiService {
       name: '',
       description: '',
       color: '#ffffff',
-      items: [],
-      transient: true
+      items: []
     };
 
     if (this.notes) {
       this.notes[note.id] = note;
+    }
+
+    if (fromServer) {
+      this.setAllPropsSynced(note);
     }
 
     return note;
@@ -866,8 +860,10 @@ export class ApiService {
   }
 
   private intro() {
-    this.notes = this.unfreeze({"9ecal36r08qsegt2q7ruar":{"id":"9ecal36r08qsegt2q7ruar","name":"My Notes","description":"Take notes here...","color":"#80d8ff","items":["ezyw5zl0s7k5ky66oz7368","tprx0gv41gepcofy7yia","tpot361b974p1mn3jxbr4","7fv55sy73d7epp5kqnguul"],"ref":[]},"ezyw5zl0s7k5ky66oz7368":{"id":"ezyw5zl0s7k5ky66oz7368","name":"Welcome to Inception Notes!","description":"","color":"#ff80ab","items":["3ooxxyu6ko97smbzcigvza","7llyfbgu4eb9rae6kb074l","s3flakxhf2mb8pixx0w1l","isqms385v5batkjoztpn15"],"ref":[]},"3ooxxyu6ko97smbzcigvza":{"id":"3ooxxyu6ko97smbzcigvza","name":"<b>Right-click</b> on the background to get help","description":"","color":"#ff8a80","items":["r8um73em8ikjy1847ituem"],"ref":[]},"r8um73em8ikjy1847ituem":{"id":"r8um73em8ikjy1847ituem","name":"","color":"#ffffff","items":["do7uegwh31lf6qu8lxpye"],"ref":[],"transient":true},"do7uegwh31lf6qu8lxpye":{"id":"do7uegwh31lf6qu8lxpye","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"s3flakxhf2mb8pixx0w1l":{"id":"s3flakxhf2mb8pixx0w1l","name":"Have fun!","description":"","color":"#ea80fc","items":["rjq9391912ae63xb2e8y"],"ref":[]},"rjq9391912ae63xb2e8y":{"id":"rjq9391912ae63xb2e8y","name":"","color":"#ffffff","items":["rgmgxz8fabchssd0j75acb"],"ref":[],"transient":true},"rgmgxz8fabchssd0j75acb":{"id":"rgmgxz8fabchssd0j75acb","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"isqms385v5batkjoztpn15":{"id":"isqms385v5batkjoztpn15","name":"","color":"#ffffff","items":["w0ok2ypdxqugorshz54l"],"ref":[],"transient":true},"w0ok2ypdxqugorshz54l":{"id":"w0ok2ypdxqugorshz54l","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"tprx0gv41gepcofy7yia":{"id":"tprx0gv41gepcofy7yia","name":"Main Projects","description":"","color":"#ffd180","items":["bxw7hfpcmytcq0738o31ef","rbcx2x3og4b2ty3efm4aux","whfs7lj4i5gzrdyifbt4td","7oknreb5imgufsn1ohxcib","ialkx35n6mo697qcqaulvl"],"ref":[]},"bxw7hfpcmytcq0738o31ef":{"id":"bxw7hfpcmytcq0738o31ef","name":"My First Project","description":"","color":"#E6E3D7","items":["di8colqbb8lyyvf5gidqqj"],"ref":[]},"di8colqbb8lyyvf5gidqqj":{"id":"di8colqbb8lyyvf5gidqqj","name":"","color":"#ffffff","items":["t6tdhnfx3ydzbvul20lti"],"ref":[],"transient":true},"t6tdhnfx3ydzbvul20lti":{"id":"t6tdhnfx3ydzbvul20lti","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"rbcx2x3og4b2ty3efm4aux":{"id":"rbcx2x3og4b2ty3efm4aux","name":"My Other Project","description":"","color":"#E6E3D7","items":["pl7mhv8mjxqs48qw1n3ku"],"ref":[]},"pl7mhv8mjxqs48qw1n3ku":{"id":"pl7mhv8mjxqs48qw1n3ku","name":"","color":"#ffffff","items":["yvnljwa9yhhqk3pqztuwh"],"ref":[],"transient":true},"yvnljwa9yhhqk3pqztuwh":{"id":"yvnljwa9yhhqk3pqztuwh","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"whfs7lj4i5gzrdyifbt4td":{"id":"whfs7lj4i5gzrdyifbt4td","name":"Big project!","color":"#ff80ab","items":["0xbh8qf3zrnfjfl0ibldk1","eeg9e8s76diffzstgsuch","ci0zuqdnygdbqbcw7g74tp","ftard0ob3qvu6yeinge5hr","977zrwrwinb41yjrncg0et"],"ref":[]},"0xbh8qf3zrnfjfl0ibldk1":{"id":"0xbh8qf3zrnfjfl0ibldk1","name":"First task","color":"#ffffff","items":["ycwwxs46gwnzama41koc"],"ref":[],"estimate":2},"tpot361b974p1mn3jxbr4":{"id":"tpot361b974p1mn3jxbr4","name":"My Reminders","description":"","color":"#b9f6ca ","items":["uc54p4plm19f9sgnnwux3i","isfiozt8g5ppt4y4u9hni","2b05yurzcc6z0au55zknfc"],"ref":[]},"uc54p4plm19f9sgnnwux3i":{"id":"uc54p4plm19f9sgnnwux3i","name":"Clean room","description":"","color":"#D7E6D9","items":["1pxfcxl9yxpop7cu9nnu2e"],"ref":[]},"1pxfcxl9yxpop7cu9nnu2e":{"id":"1pxfcxl9yxpop7cu9nnu2e","name":"","color":"#ffffff","items":["tut1poxh5ejbn9429bc9"],"ref":[],"transient":true},"tut1poxh5ejbn9429bc9":{"id":"tut1poxh5ejbn9429bc9","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"isfiozt8g5ppt4y4u9hni":{"id":"isfiozt8g5ppt4y4u9hni","name":"Go for a run","description":"","color":"#D7E6D9","items":["mhnttcm1ca3hd7cnvxg8a"],"ref":[]},"mhnttcm1ca3hd7cnvxg8a":{"id":"mhnttcm1ca3hd7cnvxg8a","name":"","color":"#ffffff","items":["zuo967kb1dsecaunq3eszq"],"ref":[],"transient":true},"zuo967kb1dsecaunq3eszq":{"id":"zuo967kb1dsecaunq3eszq","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"2b05yurzcc6z0au55zknfc":{"id":"2b05yurzcc6z0au55zknfc","name":"","color":"#ffffff","items":["qc12atkaitmosp34yv95c"],"ref":[],"transient":true},"qc12atkaitmosp34yv95c":{"id":"qc12atkaitmosp34yv95c","name":"","color":"#ffffff","items":[],"ref":[],"transient":true},"7oknreb5imgufsn1ohxcib":{"id":"7oknreb5imgufsn1ohxcib","name":"My Categories","color":"#ffffff","items":["9vk9ywmx4szziub8qxqo","ez1lvoo3dwkwmhdrh9s77","9ywa2zu4zgtbqz8v7sa2j"],"ref":[],"transient":false},"9vk9ywmx4szziub8qxqo":{"id":"9vk9ywmx4szziub8qxqo","name":"🐊 Fun","color":"#80d8ff","items":["34606nw061xmm5vbsi9r6c"],"ref":["7llyfbgu4eb9rae6kb074l"]},"jugi69kmkhdq0k459wehn":{"id":"jugi69kmkhdq0k459wehn","name":"","description":"","color":"#ffd180","items":["ym01shouprrrrfsnxmzh"],"ref":[],"transient":true},"ym01shouprrrrfsnxmzh":{"id":"ym01shouprrrrfsnxmzh","name":"","description":"","color":"#ffd180","items":[],"ref":[],"transient":true},"ftard0ob3qvu6yeinge5hr":{"id":"ftard0ob3qvu6yeinge5hr","name":"Bonus task!","description":"","color":"#ff80ab","items":["4a07xdt072df7qw4tzvrjt"],"ref":[],"estimate":1},"eeg9e8s76diffzstgsuch":{"id":"eeg9e8s76diffzstgsuch","name":"Second task","description":"","color":"#ff80ab","items":["8o3pww4qn1xq2luyz717c"],"ref":[],"estimate":2},"ci0zuqdnygdbqbcw7g74tp":{"id":"ci0zuqdnygdbqbcw7g74tp","name":"Third task","description":"","color":"#ff80ab","items":["yyuay36cjzf57s18hg0d5t"],"ref":[],"estimate":4},"163j3kckevih3kmtfqkstf9":{"id":"163j3kckevih3kmtfqkstf9","name":"<br>","description":"","color":"#80d8ff","items":["djzte0aqmudbb88jo448qe"],"ref":[]},"977zrwrwinb41yjrncg0et":{"id":"977zrwrwinb41yjrncg0et","name":"","description":"","color":"#ff80ab","items":["bmdf45dmf5jfz96rxkq10h"],"ref":[],"transient":true},"ycwwxs46gwnzama41koc":{"id":"ycwwxs46gwnzama41koc","name":"","description":"","color":"#ffffff","items":[],"ref":[],"transient":true},"8o3pww4qn1xq2luyz717c":{"id":"8o3pww4qn1xq2luyz717c","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"yyuay36cjzf57s18hg0d5t":{"id":"yyuay36cjzf57s18hg0d5t","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"4a07xdt072df7qw4tzvrjt":{"id":"4a07xdt072df7qw4tzvrjt","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"djzte0aqmudbb88jo448qe":{"id":"djzte0aqmudbb88jo448qe","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"bmdf45dmf5jfz96rxkq10h":{"id":"bmdf45dmf5jfz96rxkq10h","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"7llyfbgu4eb9rae6kb074l":{"id":"7llyfbgu4eb9rae6kb074l","name":"I'm a task with links!","description":"","color":"#ff80ab","items":["jc0m3uxidpb1krerkvh3v2"],"ref":["9vk9ywmx4szziub8qxqo","ez1lvoo3dwkwmhdrh9s77"]},"7fv55sy73d7epp5kqnguul":{"id":"7fv55sy73d7epp5kqnguul","name":"","description":"","color":"#80d8ff","items":["v52993i59eby59317v6ejc"],"ref":[],"transient":true},"v52993i59eby59317v6ejc":{"id":"v52993i59eby59317v6ejc","name":"","description":"","color":"#80d8ff","items":[],"ref":[],"transient":true},"9ywa2zu4zgtbqz8v7sa2j":{"id":"9ywa2zu4zgtbqz8v7sa2j","name":"","description":"","color":"#ffffff","items":["7khopamf94pri5sb56dtwr"],"ref":[],"transient":true},"ez1lvoo3dwkwmhdrh9s77":{"id":"ez1lvoo3dwkwmhdrh9s77","name":"🐟 Easy","description":"","color":"#ffd180","items":["nmhbxh86d9gpf3zgxcv0e"],"ref":["7llyfbgu4eb9rae6kb074l"]},"34606nw061xmm5vbsi9r6c":{"id":"34606nw061xmm5vbsi9r6c","name":"","description":"","color":"#ffffff","items":[],"ref":[],"transient":true},"nmhbxh86d9gpf3zgxcv0e":{"id":"nmhbxh86d9gpf3zgxcv0e","name":"","description":"","color":"#ffffff","items":[],"ref":[],"transient":true},"7khopamf94pri5sb56dtwr":{"id":"7khopamf94pri5sb56dtwr","name":"","description":"","color":"#ffffff","items":[],"ref":[],"transient":true},"jc0m3uxidpb1krerkvh3v2":{"id":"jc0m3uxidpb1krerkvh3v2","name":"","description":"","color":"#ff80ab","items":["uw92fsodzs8scqpxraedd"],"ref":[],"transient":true},"uw92fsodzs8scqpxraedd":{"id":"uw92fsodzs8scqpxraedd","name":"","description":"","color":"#ff80ab","items":[],"ref":[],"transient":true},"ialkx35n6mo697qcqaulvl":{"id":"ialkx35n6mo697qcqaulvl","name":"","description":"","color":"#ffd180","items":["jb9zpt8uecbm04vlm2hg2h"],"ref":[],"transient":true},"jb9zpt8uecbm04vlm2hg2h":{"id":"jb9zpt8uecbm04vlm2hg2h","name":"","description":"","color":"#ffd180","items":[],"ref":[],"transient":true}});
+    this.notes = this.unfreeze({"9ecal36r08qsegt2q7ruar":{"id":"9ecal36r08qsegt2q7ruar","name":"My Notes","description":"Take notes here...","color":"#80d8ff","items":["ezyw5zl0s7k5ky66oz7368","tprx0gv41gepcofy7yia","tpot361b974p1mn3jxbr4","7fv55sy73d7epp5kqnguul"],"ref":[]},"ezyw5zl0s7k5ky66oz7368":{"id":"ezyw5zl0s7k5ky66oz7368","name":"Welcome to Inception Notes!","description":"","color":"#ff80ab","items":["3ooxxyu6ko97smbzcigvza","7llyfbgu4eb9rae6kb074l","s3flakxhf2mb8pixx0w1l","isqms385v5batkjoztpn15"],"ref":[]},"3ooxxyu6ko97smbzcigvza":{"id":"3ooxxyu6ko97smbzcigvza","name":"<b>Right-click</b> on the background to get help","description":"","color":"#ff8a80","items":["r8um73em8ikjy1847ituem"],"ref":[]},"r8um73em8ikjy1847ituem":{"id":"r8um73em8ikjy1847ituem","name":"","color":"#ffffff","items":["do7uegwh31lf6qu8lxpye"],"ref":[]},"do7uegwh31lf6qu8lxpye":{"id":"do7uegwh31lf6qu8lxpye","name":"","color":"#ffffff","items":[],"ref":[]},"s3flakxhf2mb8pixx0w1l":{"id":"s3flakxhf2mb8pixx0w1l","name":"Have fun!","description":"","color":"#ea80fc","items":["rjq9391912ae63xb2e8y"],"ref":[]},"rjq9391912ae63xb2e8y":{"id":"rjq9391912ae63xb2e8y","name":"","color":"#ffffff","items":["rgmgxz8fabchssd0j75acb"],"ref":[]},"rgmgxz8fabchssd0j75acb":{"id":"rgmgxz8fabchssd0j75acb","name":"","color":"#ffffff","items":[],"ref":[]},"isqms385v5batkjoztpn15":{"id":"isqms385v5batkjoztpn15","name":"","color":"#ffffff","items":["w0ok2ypdxqugorshz54l"],"ref":[]},"w0ok2ypdxqugorshz54l":{"id":"w0ok2ypdxqugorshz54l","name":"","color":"#ffffff","items":[],"ref":[]},"tprx0gv41gepcofy7yia":{"id":"tprx0gv41gepcofy7yia","name":"Main Projects","description":"","color":"#ffd180","items":["bxw7hfpcmytcq0738o31ef","rbcx2x3og4b2ty3efm4aux","whfs7lj4i5gzrdyifbt4td","7oknreb5imgufsn1ohxcib","ialkx35n6mo697qcqaulvl"],"ref":[]},"bxw7hfpcmytcq0738o31ef":{"id":"bxw7hfpcmytcq0738o31ef","name":"My First Project","description":"","color":"#E6E3D7","items":["di8colqbb8lyyvf5gidqqj"],"ref":[]},"di8colqbb8lyyvf5gidqqj":{"id":"di8colqbb8lyyvf5gidqqj","name":"","color":"#ffffff","items":["t6tdhnfx3ydzbvul20lti"],"ref":[]},"t6tdhnfx3ydzbvul20lti":{"id":"t6tdhnfx3ydzbvul20lti","name":"","color":"#ffffff","items":[],"ref":[]},"rbcx2x3og4b2ty3efm4aux":{"id":"rbcx2x3og4b2ty3efm4aux","name":"My Other Project","description":"","color":"#E6E3D7","items":["pl7mhv8mjxqs48qw1n3ku"],"ref":[]},"pl7mhv8mjxqs48qw1n3ku":{"id":"pl7mhv8mjxqs48qw1n3ku","name":"","color":"#ffffff","items":["yvnljwa9yhhqk3pqztuwh"],"ref":[]},"yvnljwa9yhhqk3pqztuwh":{"id":"yvnljwa9yhhqk3pqztuwh","name":"","color":"#ffffff","items":[],"ref":[]},"whfs7lj4i5gzrdyifbt4td":{"id":"whfs7lj4i5gzrdyifbt4td","name":"Big project!","color":"#ff80ab","items":["0xbh8qf3zrnfjfl0ibldk1","eeg9e8s76diffzstgsuch","ci0zuqdnygdbqbcw7g74tp","ftard0ob3qvu6yeinge5hr","977zrwrwinb41yjrncg0et"],"ref":[]},"0xbh8qf3zrnfjfl0ibldk1":{"id":"0xbh8qf3zrnfjfl0ibldk1","name":"First task","color":"#ffffff","items":["ycwwxs46gwnzama41koc"],"ref":[],"estimate":2},"tpot361b974p1mn3jxbr4":{"id":"tpot361b974p1mn3jxbr4","name":"My Reminders","description":"","color":"#b9f6ca ","items":["uc54p4plm19f9sgnnwux3i","isfiozt8g5ppt4y4u9hni","2b05yurzcc6z0au55zknfc"],"ref":[]},"uc54p4plm19f9sgnnwux3i":{"id":"uc54p4plm19f9sgnnwux3i","name":"Clean room","description":"","color":"#D7E6D9","items":["1pxfcxl9yxpop7cu9nnu2e"],"ref":[]},"1pxfcxl9yxpop7cu9nnu2e":{"id":"1pxfcxl9yxpop7cu9nnu2e","name":"","color":"#ffffff","items":["tut1poxh5ejbn9429bc9"],"ref":[]},"tut1poxh5ejbn9429bc9":{"id":"tut1poxh5ejbn9429bc9","name":"","color":"#ffffff","items":[],"ref":[]},"isfiozt8g5ppt4y4u9hni":{"id":"isfiozt8g5ppt4y4u9hni","name":"Go for a run","description":"","color":"#D7E6D9","items":["mhnttcm1ca3hd7cnvxg8a"],"ref":[]},"mhnttcm1ca3hd7cnvxg8a":{"id":"mhnttcm1ca3hd7cnvxg8a","name":"","color":"#ffffff","items":["zuo967kb1dsecaunq3eszq"],"ref":[]},"zuo967kb1dsecaunq3eszq":{"id":"zuo967kb1dsecaunq3eszq","name":"","color":"#ffffff","items":[],"ref":[]},"2b05yurzcc6z0au55zknfc":{"id":"2b05yurzcc6z0au55zknfc","name":"","color":"#ffffff","items":["qc12atkaitmosp34yv95c"],"ref":[]},"qc12atkaitmosp34yv95c":{"id":"qc12atkaitmosp34yv95c","name":"","color":"#ffffff","items":[],"ref":[]},"7oknreb5imgufsn1ohxcib":{"id":"7oknreb5imgufsn1ohxcib","name":"My Categories","color":"#ffffff","items":["9vk9ywmx4szziub8qxqo","ez1lvoo3dwkwmhdrh9s77","9ywa2zu4zgtbqz8v7sa2j"],"ref":[]},"9vk9ywmx4szziub8qxqo":{"id":"9vk9ywmx4szziub8qxqo","name":"🐊 Fun","color":"#80d8ff","items":["34606nw061xmm5vbsi9r6c"],"ref":["7llyfbgu4eb9rae6kb074l"]},"jugi69kmkhdq0k459wehn":{"id":"jugi69kmkhdq0k459wehn","name":"","description":"","color":"#ffd180","items":["ym01shouprrrrfsnxmzh"],"ref":[]},"ym01shouprrrrfsnxmzh":{"id":"ym01shouprrrrfsnxmzh","name":"","description":"","color":"#ffd180","items":[],"ref":[]},"ftard0ob3qvu6yeinge5hr":{"id":"ftard0ob3qvu6yeinge5hr","name":"Bonus task!","description":"","color":"#ff80ab","items":["4a07xdt072df7qw4tzvrjt"],"ref":[],"estimate":1},"eeg9e8s76diffzstgsuch":{"id":"eeg9e8s76diffzstgsuch","name":"Second task","description":"","color":"#ff80ab","items":["8o3pww4qn1xq2luyz717c"],"ref":[],"estimate":2},"ci0zuqdnygdbqbcw7g74tp":{"id":"ci0zuqdnygdbqbcw7g74tp","name":"Third task","description":"","color":"#ff80ab","items":["yyuay36cjzf57s18hg0d5t"],"ref":[],"estimate":4},"163j3kckevih3kmtfqkstf9":{"id":"163j3kckevih3kmtfqkstf9","name":"<br>","description":"","color":"#80d8ff","items":["djzte0aqmudbb88jo448qe"],"ref":[]},"977zrwrwinb41yjrncg0et":{"id":"977zrwrwinb41yjrncg0et","name":"","description":"","color":"#ff80ab","items":["bmdf45dmf5jfz96rxkq10h"],"ref":[]},"ycwwxs46gwnzama41koc":{"id":"ycwwxs46gwnzama41koc","name":"","description":"","color":"#ffffff","items":[],"ref":[]},"8o3pww4qn1xq2luyz717c":{"id":"8o3pww4qn1xq2luyz717c","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"yyuay36cjzf57s18hg0d5t":{"id":"yyuay36cjzf57s18hg0d5t","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"4a07xdt072df7qw4tzvrjt":{"id":"4a07xdt072df7qw4tzvrjt","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"djzte0aqmudbb88jo448qe":{"id":"djzte0aqmudbb88jo448qe","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"bmdf45dmf5jfz96rxkq10h":{"id":"bmdf45dmf5jfz96rxkq10h","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"7llyfbgu4eb9rae6kb074l":{"id":"7llyfbgu4eb9rae6kb074l","name":"I'm a task with links!","description":"","color":"#ff80ab","items":["jc0m3uxidpb1krerkvh3v2"],"ref":["9vk9ywmx4szziub8qxqo","ez1lvoo3dwkwmhdrh9s77"]},"7fv55sy73d7epp5kqnguul":{"id":"7fv55sy73d7epp5kqnguul","name":"","description":"","color":"#80d8ff","items":["v52993i59eby59317v6ejc"],"ref":[]},"v52993i59eby59317v6ejc":{"id":"v52993i59eby59317v6ejc","name":"","description":"","color":"#80d8ff","items":[],"ref":[]},"9ywa2zu4zgtbqz8v7sa2j":{"id":"9ywa2zu4zgtbqz8v7sa2j","name":"","description":"","color":"#ffffff","items":["7khopamf94pri5sb56dtwr"],"ref":[]},"ez1lvoo3dwkwmhdrh9s77":{"id":"ez1lvoo3dwkwmhdrh9s77","name":"🐟 Easy","description":"","color":"#ffd180","items":["nmhbxh86d9gpf3zgxcv0e"],"ref":["7llyfbgu4eb9rae6kb074l"]},"34606nw061xmm5vbsi9r6c":{"id":"34606nw061xmm5vbsi9r6c","name":"","description":"","color":"#ffffff","items":[],"ref":[]},"nmhbxh86d9gpf3zgxcv0e":{"id":"nmhbxh86d9gpf3zgxcv0e","name":"","description":"","color":"#ffffff","items":[],"ref":[]},"7khopamf94pri5sb56dtwr":{"id":"7khopamf94pri5sb56dtwr","name":"","description":"","color":"#ffffff","items":[],"ref":[]},"jc0m3uxidpb1krerkvh3v2":{"id":"jc0m3uxidpb1krerkvh3v2","name":"","description":"","color":"#ff80ab","items":["uw92fsodzs8scqpxraedd"],"ref":[]},"uw92fsodzs8scqpxraedd":{"id":"uw92fsodzs8scqpxraedd","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"ialkx35n6mo697qcqaulvl":{"id":"ialkx35n6mo697qcqaulvl","name":"","description":"","color":"#ffd180","items":["jb9zpt8uecbm04vlm2hg2h"],"ref":[]},"jb9zpt8uecbm04vlm2hg2h":{"id":"jb9zpt8uecbm04vlm2hg2h","name":"","description":"","color":"#ffd180","items":[],"ref":[]}});
     this.top = this.notes['9ecal36r08qsegt2q7ruar'];
+    let localify = this.rawNewId();
+    (<any>Object).values(this.notes).forEach(n => n.id = n.id + localify);
     this.saveAll();
   }
 

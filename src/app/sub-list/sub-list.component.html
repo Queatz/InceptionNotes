@@ -18,7 +18,7 @@
     <div *ngFor="let item of list.items" class="sub-list-item-container" (contextmenu)="showSubitemOptions($event, item)">
       <div class="item-name">
         <div [contentEditable]="!useAsNavigation"
-          [hidden]="useAsNavigation && item.transient"
+          [hidden]="useAsNavigation && isEmpty(item)"
           #element
           [(contenteditableModel)]="item.name"
           (contenteditableModelChange)="onItemChange(item)"
@@ -53,7 +53,7 @@
   <div *ngIf="useAsNavigation">
     <sub-sub-list-item
       *ngFor="let item of list.items"
-      [hidden]="item.transient"
+      [hidden]="isEmpty(item)"
       (click)="showItem($event, item)"
       (dblclick)="openItem($event, item)"
       [item]="item"

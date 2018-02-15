@@ -32,11 +32,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
   }
 
   onItemModified(item: any) {
-    if (item.transient) {
-      item.transient = false;
-      this.api.modified(item, 'transient');
-      this.initNext();
-    }
+    this.initNext();
   }
 
   onItemRemoved(item: any) {
@@ -250,7 +246,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
   private initNext() {
     let items = this.getLists();
 
-    if (items.length && items[items.length - 1].transient) {
+    if (items.length && !this.list.items[items.length - 1].name) {
       return;
     }
 

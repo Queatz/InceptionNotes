@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class Config {
 
-  beta: boolean = true;
-betaVlllage: boolean = false;
+  beta: boolean = false;
+  betaVlllage: boolean = false;
 
   constructor() { }
 

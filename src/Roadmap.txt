@@ -1,5 +1,29 @@
 
 
+SYNC SCENARIOS
+==============
+
+Single Client
+
+  Create
+    -> sync
+
+  Modify
+    -> sync
+
+  Sync
+    Local version unmodified
+      -> overwrite
+    Local version modified
+      -> merge changes
+
+Multiple Clients
+
+
+SPECIAL CASES
+Merge lists differently
+
+
 SYNC REMAINING TODOS:
 
 Server:
@@ -17,15 +41,15 @@ Client:
   [X] Handle when client version is "synchronized"
     [X] Overwrite
     [X] Set synchronized
-  [ ] Handle when client version is not "synchronized"
-    [ ] Show conflict dialog
-    [ ] Send resolution to server
-      [ ] Server sends to client
+  [X] Handle when client version is not "synchronized"
+    [X] Show conflict dialog
+    [X] Send resolution to server
+      [X] Server sends to client
 [X] Send eye to server on every eye change
 [X] Router: Change URL on eye change
   [X] Load from local
   [X] Load from server (see: "Send eye on every eye change")
-  [X] Create transient blank note if not found
+  [X] Create blank note if not found
 [ ] Handle conflict from save to localStorage (two open tabs case)
 
 Relationships:
@@ -34,10 +58,11 @@ Relationships:
 
 People:
 [ ] Save village person to server
+[ ] Sync Server talks to Vlllage
 
 Rework:
-[ ] Auto connect to sync server
-[ ] Vlllage person is associated with client
+[X] Auto connect to sync server
+[X] Vlllage person is associated with client
 
 
 Next Todo:

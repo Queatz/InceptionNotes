@@ -89,12 +89,12 @@ export class SubSubListItemComponent implements OnInit {
     return this.api.getSubItemNames(item).length;
   }
 
+  isEmpty(item: any) {
+    return !item.name && !item.items.length;
+  }
+
   openItem(dblclickEvent: Event, subItem: any) {
     dblclickEvent.stopPropagation();
-    if (this.item.transient) {
-      return;
-    }
-
     this.api.setEye(subItem);
 
     return false;
@@ -102,10 +102,6 @@ export class SubSubListItemComponent implements OnInit {
 
   showItem(dblclickEvent: Event, subItem: any) {
     dblclickEvent.stopPropagation();
-    if (this.item.transient) {
-      return;
-    }
-
     this.api.setShow(subItem);
 
     return false;

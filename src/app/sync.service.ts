@@ -155,8 +155,7 @@ export class SyncService {
     let note = this.api.search(noteId);
 
     if (!note) {
-      note = this.api.newBlankNote(noteId);
-      this.api.setAllSynced(note);
+      note = this.api.newBlankNote(true, noteId);
     }
     
     if (note.trainsent) {
@@ -164,7 +163,7 @@ export class SyncService {
     }
 
     let v = this.api.unfreezeProp(note, prop, value);
-    if (note[prop] === undefined || note.transient || this.api.isSynced(note, prop)) {
+    if (note[prop] === undefined || this.api.isSynced(note, prop)) {
       this.setProp(note, prop, v);
       this.api.setSynced(note.id, prop);
     } else if(this.valEquals(note[prop], v)) {

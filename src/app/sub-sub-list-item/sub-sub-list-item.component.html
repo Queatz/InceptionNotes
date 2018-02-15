@@ -8,7 +8,7 @@
     class="sub-sub-sup">
   <div class="sub-item sub-sub"
     *ngFor="let subItem of item.items"
-    [hidden]="subItem.transient"
+    [hidden]="isEmpty(subItem)"
     (click)="showItem($event, subItem)"
     (dblclick)="openItem($event, subItem)"
     [ngClass]="{'is-selected': isExactSelectedNav(subItem)}"

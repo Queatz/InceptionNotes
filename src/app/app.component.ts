@@ -36,7 +36,7 @@ export class AppComponent {
       let note = this.api.search(params['id']);
 
       if (!note) {
-        note = this.api.newBlankNote(params['id']);
+        note = this.api.newBlankNote(true, params['id']);
       }
 
       if (!this.api.getShow() || note.id !== this.api.getShow().id) {

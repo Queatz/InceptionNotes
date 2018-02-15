@@ -350,7 +350,6 @@ export class SubListComponent implements OnInit, OnChanges {
 
       if (text) {
         let l = this.newBlankList();
-        l.transient = false;
         l.name = text;
         this.api.modified(l);
       }
@@ -386,10 +385,6 @@ export class SubListComponent implements OnInit, OnChanges {
 
   openList(dblclickEvent: Event) {
     dblclickEvent.stopPropagation();
-    if (this.list.transient) {
-      return;
-    }
-
     this.api.setEye(this.list);
 
     return false;
@@ -397,10 +392,6 @@ export class SubListComponent implements OnInit, OnChanges {
 
   openItem(dblclickEvent: Event, item: any) {
     dblclickEvent.stopPropagation();
-    if (this.list.transient) {
-      return;
-    }
-
     this.api.setEye(item);
 
     return false;
@@ -408,10 +399,6 @@ export class SubListComponent implements OnInit, OnChanges {
 
   showItem(dblclickEvent: Event, item: any) {
     dblclickEvent.stopPropagation();
-    if (this.list.transient) {
-      return;
-    }
-
     this.api.setShow(item);
 
     return false;
@@ -423,6 +410,10 @@ export class SubListComponent implements OnInit, OnChanges {
     if (this.list.name) {
       this.modified.emit(this.list);
     }
+  }
+
+  isEmpty(item: any) {
+    return !item.name && !item.items.length;
   }
 
   private isEmptyName(name: string) {
@@ -480,9 +471,7 @@ export class SubListComponent implements OnInit, OnChanges {
   onItemChange(item: any) {
     this.api.modified(item, 'name');
 
-    if (item.transient && item.name) {
-      item.transient = false;
-      this.api.modified(item, 'transient');
+    if (item.name) {
       this.initNext();
       this.modified.emit(item);
     }
@@ -539,8 +528,6 @@ export class SubListComponent implements OnInit, OnChanges {
         n.children[0].focus();
       }
     } else {
-      item.transient = false;
-      this.api.modified(item, 'transient');
       this.initNext();
       setTimeout(() => element.parentNode && element.parentNode.parentNode.nextSibling && element.parentNode.parentNode.nextSibling.children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0].focus());
     }
@@ -626,16 +613,11 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   private initNext() {
-    // Heal notes without ids
-    if (!this.list.id) {
-      this.list.id = this.api.newId();
-    }
-
     if (this.useAsNavigation) {
       return;
     }
 
-    if (this.list.items.length && this.list.items[this.list.items.length - 1].transient) {
+    if (this.list.items.length && !this.list.items[this.list.items.length - 1].name) {
       return;
     }
 
