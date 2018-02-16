@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { UiService } from './ui.service';
 import { Subject } from 'rxjs';
 import Util from 'app/util';
+import { Config } from 'app/config.service';
 
 export class NoteChanges {
   public note: any;
@@ -36,7 +37,7 @@ export class ApiService {
   public onNoteChangedObservable: Subject<NoteChanges> = new Subject<NoteChanges>();
   public onViewChangedObservable: Subject<ViewConfig> = new Subject<ViewConfig>();
 
-  constructor(private ui: UiService, private router: Router) {
+  constructor(private ui: UiService, private config: Config, private router: Router) {
     this.people = new Map();
     this.load();
   }
@@ -210,7 +211,9 @@ export class ApiService {
       let n = fossil[id];
 
       if (!n) {
-        console.log('unfreeze error: missing note \'' + id + '\'');
+        if (this.config.beta) {
+          console.log('unfreeze error: missing note \'' + id + '\'');
+        }
         n = this.newBlankNote(true, id);
       }
 
@@ -227,7 +230,9 @@ export class ApiService {
         let n = fossil[id];
 
         if (!n) {
-          console.log('unfreeze error: missing note \'' + id + '\'');
+          if (this.config.beta) {
+            console.log('unfreeze error: missing note \'' + id + '\'');
+          }
           n = this.newBlankNote(true, id);
         }
 
@@ -603,7 +608,9 @@ export class ApiService {
     let note = this.search(id);
 
     if (!note) {
-      console.log('Cannot set note as synced: ' + id);
+      if (this.config.beta) {
+        console.log('Cannot set note as synced: ' + id);
+      }
       return;
     }
 

@@ -1,5 +1,5 @@
 <div [ngClass]="{'is-navigation': useAsNavigation}" (dblclick)="dontPropagate($event)">
-  <div class="item-name" [ngClass]="{ 'spaced': !list.collapsed }" [attr.data-after]="list.collapsed ? getAfterText(list).substring(1) : undefined">
+  <div class="item-name" [ngClass]="{ 'spaced': !list.collapsed }" [attr.data-after]="!useAsNavigation && list.collapsed ? getAfterText(list).substring(1) : undefined">
     <div [contentEditable]="true"
         #element
         [(contenteditableModel)]="list.name"

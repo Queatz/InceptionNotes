@@ -1,5 +1,5 @@
-[ ] Active collaborators vsibile
-[ ] Collapsed note as eye has error
+[ ] Active collaborators visible
+[X] Collapsed note as eye has error
 [X] Change title to note name
 
 SYNC SCENARIOS
@@ -74,7 +74,7 @@ Next Todo:
 [ ] Visibility
 [ ] Set visible to me on save server-side
 [ ] Conflict resolution
-[ ] Send client notes updated since last checkin
+[X] Send client notes updated since last checkin
 [ ] Email
 
 
