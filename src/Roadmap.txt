@@ -1,5 +1,6 @@
 [ ] Active collaborators vsibile
 [ ] Collapsed note as eye has error
+[X] Change title to note name
 
 SYNC SCENARIOS
 ==============
