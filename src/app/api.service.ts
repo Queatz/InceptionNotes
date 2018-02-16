@@ -752,7 +752,11 @@ export class ApiService {
         list.items.splice(position, 0, note);
       }
 
+      let synced = this.isSynced(list, 'items');
       this.modified(list, 'items');
+      if (synced) {
+        this.setPropSynced(list, 'items');
+      }
     }
 
     return note;

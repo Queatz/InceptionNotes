@@ -1,4 +1,5 @@
-
+[ ] Active collaborators vsibile
+[ ] Collapsed note as eye has error
 
 SYNC SCENARIOS
 ==============

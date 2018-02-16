@@ -158,10 +158,6 @@ export class SyncService {
     if (!note) {
       note = this.api.newBlankNote(true, noteId);
     }
-    
-    if (note.trainsent) {
-      note.trainsent = false;
-    }
 
     let v = this.api.unfreezeProp(note, prop, value);
     if (note[prop] === undefined || this.api.isSynced(note, prop)) {
@@ -222,21 +218,9 @@ export class SyncService {
    */
   public present(value: any) {
     if (Array.isArray(value)) {
-      return '\n * ' + value.map(item => item.name + ' (' + this.getItemLinkText(item) + ')').join('\n * ') + '\n';
+      return '\n * ' + value.map(item => item.name).join('\n * ') + '\n';
     }
 
     return value;
-  }
-
-  getItemLinkText(item: any) {
-    let t = '';
-    let p = item.parent;
-
-    for(let i = 0; i < 3 && p; i++) {
-      t += ' → ' + p.name;
-      p = p.parent;
-    }
-
-    return Util.htmlToText(t);
   }
 }
