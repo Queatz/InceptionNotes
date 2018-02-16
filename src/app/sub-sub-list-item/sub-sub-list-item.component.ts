@@ -3,6 +3,8 @@ import { Component, OnInit, Input, HostListener } from '@angular/core';
 import { ApiService } from '../api.service';
 import { UiService } from '../ui.service';
 
+import Util from '../util';
+
 @Component({
   selector: 'sub-sub-list-item',
   templateUrl: './sub-sub-list-item.component.html',
@@ -90,7 +92,7 @@ export class SubSubListItemComponent implements OnInit {
   }
 
   isEmpty(item: any) {
-    return !item.name && !item.items.length;
+    return Util.isEmptyStr(item.name);
   }
 
   openItem(dblclickEvent: Event, subItem: any) {

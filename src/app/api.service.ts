@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { UiService } from './ui.service';
 import { Subject } from 'rxjs';
+import Util from 'app/util';
 
 export class NoteChanges {
   public note: any;
@@ -256,12 +257,7 @@ export class ApiService {
   unfreezeProp(note: any, prop: string, value: any) {
     if (['people', 'ref', 'items'].indexOf(prop) !== -1) {
       if (!value) {
-        let n = this.newBlankList(note);
-        if (note) {
-          n.color = note.color;
-        }
-        this.modified(n);
-        return [n];
+        return [];
       }
   
       let a = [];
@@ -273,7 +269,7 @@ export class ApiService {
           if (note) {
             n.color = note.color;
           }
-          this.modified(n);
+          this.saveNote(n);
         }
   
         a.push(n);
@@ -282,15 +278,7 @@ export class ApiService {
           n.parent = note;
         }
       }
-
-      if (prop === 'items' && (!a.length || !a[a.length - 1].name)) {
-        let n = this.newBlankList(note);
-        if (note) {
-          n.color = note.color;
-        }
-        a.push(n);
-      }
-
+      
       return a;
     }
 

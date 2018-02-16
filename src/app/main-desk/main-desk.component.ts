@@ -6,6 +6,7 @@ import { OpComponent } from '../op/op.component';
 import { SearchComponent } from '../search/search.component';
 import { DialogConfig } from 'app/dialog/dialog.component';
 import { AddPeopleComponent } from 'app/add-people/add-people.component';
+import Util from 'app/util';
 
 @Component({
   selector: 'main-desk',
@@ -246,12 +247,14 @@ export class MainDeskComponent implements OnInit, OnChanges {
   private initNext() {
     let items = this.getLists();
 
-    if (items.length && !this.list.items[items.length - 1].name) {
+    if (items.length && Util.isEmptyStr(this.list.items[items.length - 1].name)) {
       return;
     }
 
     let l = this.api.newBlankList(this.list);
     l.color = this.getShow().color;
+    this.api.modified(l);
+    this.api.setAllPropsSynced(l);
   }
 
   up() {

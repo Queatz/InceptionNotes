@@ -413,11 +413,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   isEmpty(item: any) {
-    return !item.name && !item.items.length;
-  }
-
-  private isEmptyName(name: string) {
-    return !name.replace(/<(?:.|\n)*?>/gm, '').trim();
+    return Util.isEmptyStr(item.name);
   }
 
   getSubitemText(item: any) {
@@ -450,7 +446,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   onNameBackspacePressed() {
-    if (this.isEmptyName(this.list.name)) {
+    if (Util.isEmptyStr(this.list.name)) {
       this.removed.emit();
     }
   }
@@ -528,7 +524,7 @@ export class SubListComponent implements OnInit, OnChanges {
         n.children[0].focus();
       }
     } else {
-      this.initNext();
+      this.initNext(true);
       setTimeout(() => element.parentNode && element.parentNode.parentNode.nextSibling && element.parentNode.parentNode.nextSibling.children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0].focus());
     }
 
@@ -536,7 +532,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   onItemBackspacePressed(element: any, item: any) {
-    if (this.isEmptyName(item.name) && this.list.items.length > 1) {
+    if (Util.isEmptyStr(item.name) && this.list.items.length > 1) {
       let c = this.api.getSubItemNames(item);
 
       if (c.length) {
@@ -612,12 +608,12 @@ export class SubListComponent implements OnInit, OnChanges {
     }
   }
 
-  private initNext() {
+  private initNext(force?: boolean) {
     if (this.useAsNavigation) {
       return;
     }
 
-    if (this.list.items.length && !this.list.items[this.list.items.length - 1].name) {
+    if (!force && this.list.items.length && Util.isEmptyStr(this.list.items[this.list.items.length - 1].name)) {
       return;
     }
 
@@ -627,6 +623,8 @@ export class SubListComponent implements OnInit, OnChanges {
   private newBlankList(position: number = null) {
     let l = this.api.newBlankList(this.list, position);
     l.color = this.list.color;
+    this.api.modified(l);
+    this.api.setAllPropsSynced(l);
     return l;
   }
 }

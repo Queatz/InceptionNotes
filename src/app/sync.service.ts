@@ -5,6 +5,7 @@ import { Event, SyncEvent, IdentifyEvent, ServerEvent, ShowEvent } from 'app/syn
 import { ApiService } from 'app/api.service';
 import util from 'app/util';
 import { UiService } from 'app/ui.service';
+import Util from 'app/util';
 
 @Injectable()
 export class SyncService {
@@ -203,10 +204,17 @@ export class SyncService {
     }
 
     if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
-      return a.every((v, i) => a[i].id === b[i].id);
+      return a.every((v, i) => this.isSameOrTransient(a[i], b[i]));
     }
 
     return false;
+  }
+
+  /**
+   * Determine if a note prop is safe to overwrite
+   */
+  isSameOrTransient(a: any, b: any) {
+    return a.id === b.id || ((!a.items || !a.items.length) && (!a.ref || !a.ref.length) && (!a.people || !a.people.length));
   }
 
   /**
@@ -214,9 +222,21 @@ export class SyncService {
    */
   public present(value: any) {
     if (Array.isArray(value)) {
-      return '\n * ' + value.map(item => item.name).join('\n * ');
+      return '\n * ' + value.map(item => item.name + ' (' + this.getItemLinkText(item) + ')').join('\n * ') + '\n';
     }
 
     return value;
+  }
+
+  getItemLinkText(item: any) {
+    let t = '';
+    let p = item.parent;
+
+    for(let i = 0; i < 3 && p; i++) {
+      t += ' → ' + p.name;
+      p = p.parent;
+    }
+
+    return Util.htmlToText(t);
   }
 }
