@@ -1,3 +1,6 @@
+
+[ ] Sync server version omnidirectional Inception Notes it's the only way
+
 [ ] Active collaborators visible
 [X] Collapsed note as eye has error
 [X] Change title to note name

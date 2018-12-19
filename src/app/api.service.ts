@@ -568,7 +568,7 @@ export class ApiService {
     dlAnchorElem.onchange = () => {
       let fr = new FileReader();
       fr.onloadend = () => {
-        this.loadFrozenNotes(fr.result);
+        this.loadFrozenNotes(fr.result as string);
       };
       fr.readAsText(dlAnchorElem.files[0]);
     }

@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 export class Config {
 
   beta: boolean = true;
+  logWs: boolean = true;
   betaVlllage: boolean = false;
 
   constructor() { }

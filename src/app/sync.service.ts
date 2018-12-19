@@ -67,6 +67,11 @@ export class SyncService {
       } else {
         syncAllEvent.notes.push(this.api.freezeNote(n));
       }
+
+      if (syncAllEvent.notes.length >= 100) {
+        this.send(syncAllEvent);
+        syncAllEvent = new SyncEvent([]);
+      }
     }
 
     if (syncAllEvent.notes.length) {
@@ -104,7 +109,7 @@ export class SyncService {
    * Send
    */
   public send(event: any) {
-    if (this.config.beta) {
+    if (this.config.logWs) {
       console.log('send', event);
     }
     this.ws.send([[this.event.types.get(event.constructor), event]]);
@@ -115,7 +120,7 @@ export class SyncService {
    */
   public got(events: any[]) {
     events.forEach((event: any[]) => {
-      if (this.config.beta) {
+      if (this.config.logWs) {
         console.log('got', event);
       }  
       let t = this.event.actions.get(event[0]);
@@ -128,7 +133,7 @@ export class SyncService {
    * Called on close
    */
   public close() {
-    if (this.config.beta) {
+    if (this.config.logWs) {
       console.log('close()');
     }
   }
@@ -137,7 +142,7 @@ export class SyncService {
    * Called on open
    */
   public open() {
-    if (this.config.beta) {
+    if (this.config.logWs) {
       console.log('open()');
     }
   }
@@ -159,17 +164,17 @@ export class SyncService {
       note = this.api.newBlankNote(true, noteId);
     }
 
-    let v = this.api.unfreezeProp(note, prop, value);
+    let localProp = this.api.unfreezeProp(note, prop, value);
     if (note[prop] === undefined || this.api.isSynced(note, prop)) {
-      this.setProp(note, prop, v);
+      this.setProp(note, prop, localProp);
       this.api.setSynced(note.id, prop);
-    } else if(this.valEquals(note[prop], v)) {
+    } else if(this.valEquals(note[prop], localProp)) {
       this.api.setSynced(note.id, prop);
     } else {
       this.ui.dialog({
-        message: 'Overwrite ' + prop + ' "' + this.present(note[prop]) + '" with "' + this.present(v) + '"',
+        message: 'Overwrite ' + prop + ' "' + this.present(note[prop]) + '" with "' + this.present(localProp) + '"',
         ok: () => {
-          this.setProp(note, prop, v);
+          this.setProp(note, prop, localProp);
           this.api.setSynced(note.id, prop);
         },
         cancel: () => {

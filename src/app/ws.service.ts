@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Config } from 'app/config.service';
 import { SyncService } from 'app/sync.service';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class WsService {

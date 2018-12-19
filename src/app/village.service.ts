@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers, Response, RequestOptions } from '@angular/http';
-import { Observable, Subject } from 'rxjs';
-import 'rxjs/add/operator/map'
+import { Observable, Subject, of } from 'rxjs';
+import { map, first } from 'rxjs/operators';
 
 import { ApiService } from './api.service';
 import { UiService } from './ui.service';
@@ -186,10 +186,10 @@ export class VillageService {
 
     if (this.backers) {
       let backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1);
-      return Observable.of(backs);
+      return of(backs);
     } else {
       this.http.get(this.config.vlllageFriends(this.me().id, this.me().token), this.options())
-          .map((res: Response) => res.json()).subscribe(person => {
+          .pipe(map((res: Response) => res.json())).subscribe(person => {
             this.backers = person.backs.map(back => back.source);
             this.update(this.backers);
             let backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1);
@@ -197,7 +197,7 @@ export class VillageService {
           });
     }
 
-    return this.friendsObservable.first();
+    return this.friendsObservable.pipe(first());
   }
 
   private update(people: any[]) {
@@ -206,12 +206,12 @@ export class VillageService {
 
   private put(k: string, v: any) {
     return this.http.post(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), v, this.options())
-        .map((res: Response) => res.json());
+        .pipe(map((res: Response) => res.json()));
   }
 
   private get(k: string) {
     return this.http.get(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), this.options())
-        .map((res: Response) => res.json());
+        .pipe(map((res: Response) => res.json()));
   }
 
   private options() {
