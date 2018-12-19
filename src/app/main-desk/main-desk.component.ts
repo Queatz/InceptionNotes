@@ -224,6 +224,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
       },
       ok: result => {
           if (result.results && result.results.length) {
+              this.api.addRecent('search', result.results[0].id);
               this.api.setEye(result.results[0]);
           }
       }

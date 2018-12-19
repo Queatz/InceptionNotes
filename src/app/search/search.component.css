@@ -1,4 +1,7 @@
 .search-results {
+  max-height: 14rem;
+  overflow-y: auto;
+  overflow-x: visible;
 }
 
 .result {

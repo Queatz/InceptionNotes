@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { UiService } from './ui.service';
 import { Subject } from 'rxjs';
-import Util from 'app/util';
 import { Config } from 'app/config.service';
 
 export class NoteChanges {
@@ -846,6 +845,25 @@ export class ApiService {
     }
   }
 
+  /* Recents */
+
+  public getRecent(which: string): any[] {
+    let recent = localStorage.getItem('recent::' + which);
+
+    if (!recent) {
+      return [];
+    }
+
+    return recent.split(',').map(noteId => this.search(noteId)).filter(note => !!note)
+  }
+
+  public addRecent(which: string, noteId: string) {
+    let recents = (localStorage.getItem('recent::' + which) || '').split(',').filter(n => n !== noteId);
+    recents.unshift(noteId);
+    if (recents.length > 3) recents.length = 3;
+    localStorage.setItem('recent::' + which, recents.join(','));
+  }
+  
   /* Util */
 
   public newId() {

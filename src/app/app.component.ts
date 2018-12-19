@@ -6,6 +6,7 @@ import { UiService } from './ui.service';
 import { VillageService } from 'app/village.service';
 import { SyncService } from 'app/sync.service';
 import { Title } from '@angular/platform-browser';
+import Util from 'app/util';
 
 @Component({
   selector: 'app-root',
@@ -41,7 +42,7 @@ export class AppComponent {
         note = this.api.newBlankNote(true, params['id']);
       }
 
-      this.title.setTitle(note.name || 'Inception Notes');
+      this.title.setTitle(Util.htmlToText(note.name) || 'Inception Notes');
 
       if (!this.api.getShow() || note.id !== this.api.getShow().id) {
         this.api.setEye(note);

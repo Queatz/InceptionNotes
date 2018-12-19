@@ -182,6 +182,7 @@ export class SubListComponent implements OnInit, OnChanges {
           },
           ok: result => {
               if (result.results && result.results.length) {
+                  this.api.addRecent('search', result.results[0].id);
                   this.api.addRef(item, result.results[0]);
                   if (!this.getEnv().showLinks) {
                     this.getEnv().showLinks = true;
@@ -212,6 +213,7 @@ export class SubListComponent implements OnInit, OnChanges {
           },
           ok: result => {
               if (result.results && result.results.length) {
+                  this.api.addRecent('search', result.results[0].id);
                   this.api.moveList(item.id, result.results[0].id);
               }
           }

@@ -19,6 +19,7 @@ export class SearchComponent implements OnInit, OnChanges {
     constructor(private api: ApiService) { }
 
     ngOnInit() {
+        this.api.getRecent('search').forEach(n => this.results.push(n));
         this.resultsChanged.next(this.results);
     }
 
@@ -52,16 +53,13 @@ export class SearchComponent implements OnInit, OnChanges {
         let s = this.searchString.trim().toLowerCase();
         this.results = (<any>Object).values(all).filter(n => n.name.toLowerCase().indexOf(s) !== -1);
 
-        if (this.results.length > 10) {
-            this.results.length = 10;
-        }
-
         this.resultsHistory = [];
 
         this.resultsChanged.next(this.results);
     }
 
     click(note: any) {
+        this.api.addRecent('search', note.id);
         this.onSelection.next(note);
     }
 }
