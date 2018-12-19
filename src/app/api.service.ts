@@ -746,6 +746,17 @@ export class ApiService {
     list.parent = toList;
   }
 
+  public removeListFromParent(list: any) {
+    if (list.parent) {
+      let pos = list.parent.items.indexOf(list);
+      if (pos >= 0) {
+        list.parent.items.splice(pos, 1);
+        this.modified(list.parent, 'items');
+        list.parent = null;
+      }
+    }
+  }
+
   public newBlankList(list: any = null, position: number = null) {
     let note: any = this.newBlankNote();
 

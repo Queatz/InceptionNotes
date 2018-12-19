@@ -113,6 +113,7 @@ export class SubListComponent implements OnInit, OnChanges {
       'Link...',
       'Move...',
       'Estimate...',
+      'Done',
     ], { x: event.clientX, y: event.clientY },
     choose => {
       switch (choose) {
@@ -132,6 +133,9 @@ export class SubListComponent implements OnInit, OnChanges {
               this.api.modified(item, 'estimate');
             }
           });
+          break;
+        case 3:
+          this.api.removeListFromParent(item);
           break;
       }
     });
