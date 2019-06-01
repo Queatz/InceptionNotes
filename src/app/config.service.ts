@@ -31,9 +31,9 @@ export class Config {
 
   public vlllageFriends(id: string, auth: string) {
     if (this.betaVlllage) {
-      return 'http://localhost:8080/api/earth/' + id + '?select=backs(source(firstName,lastName,imageUrl))';
+      return 'http://localhost:8080/api/earth/' + id + '?select=backs(source(firstName,lastName,imageUrl,googleUrl)';
     }
 
-    return 'https://vlllage.com:8443/api/earth/' + id + '?select=backs(source(firstName,lastName,imageUrl))';
+    return 'https://vlllage.com:8443/api/earth/' + id + '?select=backs(source(firstName,lastName,imageUrl,googleUrl))';
   }
 }
