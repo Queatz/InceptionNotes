@@ -42,7 +42,7 @@ export class OpComponent implements OnInit {
   }
 
   villageUrl() {
-    return this.config.vlllageUrl() + (this.village.me() && this.village.me().url);
+    return this.config.vlllageUrl() + (this.village.me() && this.village.me().googleUrl);
   }
 
   backup() {

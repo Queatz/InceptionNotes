@@ -102,7 +102,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   villageUrl(person: any) {
-    return this.config.vlllageUrl() + person.url;
+    return this.config.vlllageUrl() + person.googleUrl;
   }
 
   showSubitemOptions(event: MouseEvent, item: any) {
