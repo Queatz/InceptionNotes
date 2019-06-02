@@ -33,6 +33,7 @@
     display: block;
     word-wrap: break-word;
     cursor: text;
+    word-break: break-word;
 }
 
 .sub-list-item-container {
