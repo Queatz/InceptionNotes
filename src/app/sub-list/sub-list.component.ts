@@ -418,6 +418,11 @@ export class SubListComponent implements OnInit, OnChanges {
     }
   }
 
+  onItemChecked(item: any) {
+    item.checked = !item.checked;
+    this.api.modified(item, 'checked');    
+  }
+
   isEmpty(item: any) {
     return Util.isEmptyStr(item.name);
   }
@@ -445,10 +450,6 @@ export class SubListComponent implements OnInit, OnChanges {
     let d = this.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0;
 
     return c || d ? ' (' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') + ')' : '';
-  }
-
-  getBeforeText(item: any) {
-    return  '•';
   }
 
   onNameBackspacePressed() {

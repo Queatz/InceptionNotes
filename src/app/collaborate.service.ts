@@ -63,7 +63,8 @@ export class CollaborateService {
   constructor(private ui: UiService, private api: ApiService) {
     this.collaborativeJson = new CollaborativeJson(_sync);
     this.collaborativeJson.addRule('name', new CollaborativeJsonString());
-    this.collaborativeJson.addRule('description', new CollaborativeJsonString());
+    this.collaborativeJson.addRule('description', new CollaborativeJsonAtom());
+    this.collaborativeJson.addRule('checked', new CollaborativeJsonString());
     this.collaborativeJson.addRule('color', new CollaborativeJsonAtom());
     this.collaborativeJson.addRule('estimate', new CollaborativeJsonAtom());
     this.collaborativeJson.addRule('collapsed', new CollaborativeJsonAtom());

@@ -182,6 +182,7 @@ export class ApiService {
       id: a.id,
       name: a.name,
       description: a.description,
+      checked: a.checked,
       color: a.color,
       items: items,
       ref: ref,
