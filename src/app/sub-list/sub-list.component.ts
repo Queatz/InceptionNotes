@@ -462,10 +462,7 @@ export class SubListComponent implements OnInit, OnChanges {
     this.newBlankList(0);
 
     setTimeout(() => {
-      let n = element.parentNode.nextElementSibling.children[0].children[0].children[0];
-      if (n && n.focus) {
-        n.focus();
-      }
+      this.focusItem(0);
     });
 
     return false;
@@ -511,29 +508,18 @@ export class SubListComponent implements OnInit, OnChanges {
       this.api.modified(this.list, 'items');
     }
 
-    setTimeout(() => this.elementRef.nativeElement.querySelectorAll('.sub-list-item')[(location + move)].focus());
+    setTimeout(() => this.focusItem(location + move));
   }
 
   onItemEnterPressed(element: any, item: any) {
-    let n = element.parentNode.parentNode.nextSibling;
+    let i = this.list.items.indexOf(item);
 
-    if (n && n.children && n.children.length) {
-      n = n.children[0].children[0];
+    if (i === -1) {
+      return false;
     }
 
-    if (n && n.focus) {
-      let i = this.list.items.indexOf(item);
-
-      if (i !== -1) {
-        this.newBlankList(i + 1);
-        setTimeout(() => element.parentNode && element.parentNode.parentNode.nextSibling && element.parentNode.parentNode.nextSibling.children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0].focus());
-      } else {
-        n.children[0].focus();
-      }
-    } else {
-      this.initNext(true);
-      setTimeout(() => element.parentNode && element.parentNode.parentNode.nextSibling && element.parentNode.parentNode.nextSibling.children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0] && element.parentNode.parentNode.nextSibling.children[0].children[0].focus());
-    }
+    this.newBlankList(i + 1);
+    setTimeout(() => this.focusItem(i + 1));
 
     return false;
   }
@@ -572,23 +558,14 @@ export class SubListComponent implements OnInit, OnChanges {
   public onArrowUpDown(event: Event, item: any, move: number) {
     event.preventDefault();
 
-    if (move === 1) {
-      let e = (event.target as any).parentNode.parentNode.nextElementSibling;
+    let i = this.list.items.indexOf(item);
 
-      if (e && e.children[0].children[0] && e.children[0].focus) {
-        e.children[0].children[0].focus();
-        event.preventDefault();
-      }
-    } else if (move === -1) {
-      let e = (event.target as any).parentNode.parentNode.previousElementSibling;
+    if (i === -1) {
+      return;
+    }
 
-      event.preventDefault();
-
-      if (e && e.children[0].children[0] && e.children[0].focus) {
-        e.children[0].children[0].focus();
-      } else {
-        this.focusName();
-      }
+    if (!this.focusItem(i + move)) {
+      this.focusName();
     }
   }
   
@@ -597,21 +574,28 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   public focusItem(index: number) {
+    if (index < 0 || index >= this.list.items.length) {
+      return false;
+    }
+
     this.itemsElement
         .nativeElement
         .children[index]
         .querySelector('[contenteditable]')
         .focus();
+
+    return true;
   }
 
   private deleteItem(element: any, item: any) {
-    this.list.items.splice(this.list.items.indexOf(item), 1);
+    let i = this.list.items.indexOf(item);
+    this.list.items.splice(i, 1);
     this.api.modified(this.list, 'items');
 
-    let e = element.parentNode.parentNode.previousElementSibling;
-
-    if (e && e.children[0].children[0] && e.children[0].focus) {
-      e.children[0].children[0].focus();
+    if (i === 0) {
+      this.focusName();
+    } else {
+      this.focusItem(i - 1);
     }
   }
 
