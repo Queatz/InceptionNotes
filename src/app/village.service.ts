@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, Subject, of } from 'rxjs';
 import { map, first } from 'rxjs/operators';
 
@@ -25,7 +25,7 @@ export class VillageService {
   private friendsObservable: Subject<any[]>;
   private backers: any[];
 
-  constructor(private http: Http,
+  constructor(private http: HttpClient,
       private config: Config,
       private api: ApiService,
       private ui: UiService,
@@ -53,7 +53,7 @@ export class VillageService {
   }
 
   public sync() {
-    this.get(VillageService.VLLLAGE_ME_KEY).subscribe(me => me ? this.onMeAvailable(me) : this.setup(), err => {
+    this.get(VillageService.VLLLAGE_ME_KEY).subscribe((me: string) => me ? this.onMeAvailable(me) : this.setup(), err => {
       if (err.status === 404) {
         this.setup();
       } else {
@@ -188,8 +188,7 @@ export class VillageService {
       let backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1);
       return of(backs);
     } else {
-      this.http.get(this.config.vlllageFriends(this.me().id, this.me().token), this.options())
-          .pipe(map((res: Response) => res.json())).subscribe(person => {
+      this.http.get(this.config.vlllageFriends(this.me().id, this.me().token), this.options()).subscribe((person: any) => {
             this.backers = person.backs.map(back => back.source);
             this.update(this.backers);
             let backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1);
@@ -205,19 +204,18 @@ export class VillageService {
   }
 
   private put(k: string, v: any) {
-    return this.http.post(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), v, this.options())
-        .pipe(map((res: Response) => res.json()));
+    return this.http.post(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), v, this.options());
   }
 
   private get(k: string) {
-    return this.http.get(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), this.options())
-        .pipe(map((res: Response) => res.json()));
+    return this.http.get(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), this.options());
   }
 
   private options() {
-    return new RequestOptions({ headers: new Headers({
-      'Authorization': this.data.token,
-      'Content-Type': 'application/json'
-    }) });
+    return { headers: new HttpHeaders({
+        'Authorization': this.data.token,
+        'Content-Type': 'application/json'
+      })
+    };
   }
 }
