@@ -33,7 +33,7 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() clickout: any;
   @Input() environment: any;
 
-  @ViewChild('custom', { read: ViewContainerRef })
+  @ViewChild('custom', { read: ViewContainerRef, static: false })
   private custom: ViewContainerRef;
   private component: any;
 
