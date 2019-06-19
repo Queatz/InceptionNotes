@@ -17,6 +17,14 @@ export class Config {
     }
   }
 
+  public getHttpUrl() {
+    if (this.beta) {
+      return 'http://localhost:8080/sync/http';
+    } else {
+      return 'https://sync.inceptionnotes.com/http';
+    }
+  }
+
   public vlllageAuthenticateUrl() {
     return this.betaVlllage ? 'http://localhost:3000/authenticate' : 'https://vlllage.com/authenticate';
   }

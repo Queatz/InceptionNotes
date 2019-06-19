@@ -28,8 +28,8 @@ export class SubListComponent implements OnInit, OnChanges {
 	@Output('modified') modified = new EventEmitter();
   @Output('removed') removed = new EventEmitter();
   
-  @ViewChild('element', { static: false }) nameElement: ElementRef;
-  @ViewChild('items', { static: false }) itemsElement: ElementRef;
+  @ViewChild('element', { static: true }) nameElement: ElementRef;
+  @ViewChild('items', { static: true }) itemsElement: ElementRef;
 
   private isDraggingList: boolean;
   private isDroppingList: boolean;

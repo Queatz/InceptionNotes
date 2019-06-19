@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Config } from 'app/config.service';
 import { SyncService } from 'app/sync.service';
 import { Subject } from 'rxjs';
@@ -16,8 +17,7 @@ export class WsService {
   // Events
   public onBeforeOpen: Subject<any> = new Subject();
 
-  constructor(private config: Config) {
-  }
+  constructor(private config: Config, private http: HttpClient) {}
 
   public active() {
     return this.websocket && this.websocket.readyState === WebSocket.OPEN;
@@ -48,7 +48,7 @@ export class WsService {
     }
   }
 
-  public send(events: any): boolean {
+  public send(events: any, forceHttp = false): boolean {
     if (!this.websocket || this.websocket.readyState === WebSocket.CLOSED) {
       this.reconnect();
     }
@@ -59,8 +59,22 @@ export class WsService {
       return false;
     }
 
-    this.websocket.send(JSON.stringify(events));
-    
+    const message = JSON.stringify(events);
+
+    if (message.length < 1000 && !forceHttp) {
+      this.websocket.send(message);
+    } else {
+      this.http.post(this.config.getHttpUrl(), message, {
+        headers: {
+          Authorization: this.syncService.clientKey()
+        }
+      }).subscribe((message: any) => {
+        this.syncService.got(message);
+      }, error => {
+        console.log(error);
+      });
+    }
+
     return true;
   }
 

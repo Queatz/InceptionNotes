@@ -13,6 +13,7 @@ export class Event {
         this.types.set(IdentifyEvent, 'identify');
         this.types.set(BasicMessageEvent, 'message');
         this.types.set(ShowEvent, 'show');
+        this.types.set(ServerRequestEvent, 'server');
         
         this.types.forEach((v, k) => this.actions.set(v, k));
     }
@@ -68,5 +69,19 @@ export class BasicMessageEvent implements ServerEvent {
 
     public got(sync: SyncService) {
         window.alert(this.message);
+    }
+}
+
+export class ServerRequestEvent implements ServerEvent {
+    name: string;
+
+    constructor(name: string) {
+        this.name = name;
+    }
+
+    public got(sync: SyncService) {
+        switch (this.name) {
+            case 'fetch': sync.fetch();
+        }
     }
 }

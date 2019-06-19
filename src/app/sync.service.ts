@@ -28,7 +28,7 @@ export class SyncService {
     this.event = new Event();
   }
 
-  private clientKey() {
+  clientKey() {
     if (!this._clientKey) {
       this._clientKey = localStorage.getItem('client-key');
 
@@ -66,11 +66,6 @@ export class SyncService {
         }
       } else {
         syncAllEvent.notes.push(this.api.freezeNote(n));
-      }
-
-      if (syncAllEvent.notes.length >= 100) {
-        this.send(syncAllEvent);
-        syncAllEvent = new SyncEvent([]);
       }
     }
 
@@ -127,6 +122,13 @@ export class SyncService {
       event[1].__proto__ = t.prototype;
       event[1].got(this);
     });
+  }
+
+  /**
+   * Fetch events via HTTP
+   */
+  public fetch() {
+    this.ws.send([], true);
   }
 
   /**
