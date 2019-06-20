@@ -10,6 +10,8 @@ export class WsService {
   private websocket: WebSocket;
   private pending: any[] = [];
   private lastReconnectAttempt: number;
+  private isInActiveHttpSync = false;
+  private shouldHttpSyncAgain = false;
 
   // Injections
   public syncService: SyncService;
@@ -29,7 +31,7 @@ export class WsService {
     }
 
     this.lastReconnectAttempt = new Date().getTime();
-    
+
     if (this.websocket) {
       if (this.websocket.readyState === WebSocket.OPEN || this.websocket.readyState === WebSocket.CONNECTING) {
         return;
@@ -64,15 +66,30 @@ export class WsService {
     if (message.length < 1000 && !forceHttp) {
       this.websocket.send(message);
     } else {
-      this.http.post(this.config.getHttpUrl(), message, {
-        headers: {
-          Authorization: this.syncService.clientKey()
-        }
-      }).subscribe((message: any) => {
-        this.syncService.got(message);
-      }, error => {
-        console.log(error);
-      });
+      if (this.isInActiveHttpSync) {
+        this.shouldHttpSyncAgain = true;
+      } else {
+        this.isInActiveHttpSync = true;
+        this.shouldHttpSyncAgain = false;
+        this.http.post(this.config.getHttpUrl(), message, {
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            Authorization: this.syncService.clientKey()
+          }
+        }).subscribe((message: any) => {
+          this.isInActiveHttpSync = false;
+          if (this.shouldHttpSyncAgain) {
+            this.send([], true);
+          }
+          this.syncService.got(message);
+        }, error => {
+          this.isInActiveHttpSync = false;
+          if (this.shouldHttpSyncAgain) {
+            this.send([], true);
+          }
+          console.log(error);
+        });
+      }
     }
 
     return true;
