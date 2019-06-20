@@ -52,4 +52,16 @@ export class OpComponent implements OnInit {
   unbackup() {
     this.api.unbackup();
   }
+
+  syncAll() {
+    this.ui.dialog({
+      message: 'Sync all notes?\n\nThis operation is potentially dangerous, however if you\'re having trouble getting notes to sync, click OK.',
+      ok: () => {
+        this.api.setAllNotesUnsynced();
+        this.ui.dialog({
+          message: 'All notes marked as unsynced.'
+        });
+      }
+    });
+  }
 }

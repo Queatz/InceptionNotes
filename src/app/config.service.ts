@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../environments/environment';
 
 @Injectable()
 export class Config {
 
-  beta: boolean = true;
-  logWs: boolean = true;
+  beta: boolean = !environment.production;
+  logWs: boolean = !environment.production;
   betaVlllage: boolean = false;
 
   constructor() { }

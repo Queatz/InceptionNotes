@@ -10,3 +10,12 @@
 .green.dark {
   color: greenyellow;
 }
+
+.button-wrap {
+  line-height: 2rem;
+  display: flex;
+}
+
+.button-wrap > button + button {
+  margin-left: .25rem;
+}

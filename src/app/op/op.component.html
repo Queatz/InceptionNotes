@@ -21,7 +21,10 @@
   <button (click)="nukeVillage()">Delete notes</button>
   <br /><br />
 </span>
-<button (click)="backup()">Download notes</button>
-<button (click)="unbackup()">Upload notes</button>
+<div class="button-wrap">
+  <button (click)="backup()">Download notes</button>
+  <button (click)="unbackup()">Upload notes</button>
+  <button (click)="syncAll()">Sync all notes</button>
+</div>
 <br />
 <span class="last-backup-date">{{ env.lastBackup ? 'Last downloaded on ' + env.lastBackup : '' }}</span>
