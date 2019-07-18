@@ -81,7 +81,8 @@ export class ServerRequestEvent implements ServerEvent {
 
     public got(sync: SyncService) {
         switch (this.name) {
-            case 'fetch': sync.fetch();
+            case 'fetch': sync.fetch(); break;
+            case 'fetch': sync.identified(); break;
         }
     }
 }

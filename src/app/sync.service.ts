@@ -5,7 +5,6 @@ import { Event, SyncEvent, IdentifyEvent, ServerEvent, ShowEvent } from 'app/syn
 import { ApiService } from 'app/api.service';
 import util from 'app/util';
 import { UiService } from 'app/ui.service';
-import Util from 'app/util';
 
 @Injectable()
 export class SyncService {
@@ -129,6 +128,12 @@ export class SyncService {
    */
   public fetch() {
     this.ws.send([], true);
+  }
+
+  /**
+   * Successful identification from server
+   */
+  public identified() {
   }
 
   /**
