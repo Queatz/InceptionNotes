@@ -570,7 +570,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
     return recents.length ? recents.filter(x => x !== exclude).map(recent => {
       return {
-        title: recent.name + (recent.parent ? `<span class="note-parent"> → ${ recent.parent.name }</span>` : ''),
+        title: Util.htmlToText(recent.name) + (recent.parent ? `<span class="note-parent"> → ${ Util.htmlToText(recent.parent.name) }</span>` : ''),
         callback: () => {
           callback(recent);
         }

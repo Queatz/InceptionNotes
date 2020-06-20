@@ -10,6 +10,7 @@
   border-radius: 8px;
   user-select: none;
   min-width: 8rem;
+  max-width: 16rem;
 }
 
 .menu-option {
@@ -18,6 +19,13 @@
   padding: 1rem;
   cursor: default;
   transition: background-color .125s;
+}
+
+.menu-option-title {
+  overflow: hidden;
+  display: inline-block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .menu-shortcut {
@@ -36,4 +44,5 @@
   display: flex;
   justify-content: space-between;
   flex-grow: 1;
+  overflow: hidden;
 }

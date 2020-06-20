@@ -6,7 +6,7 @@
     (click)="clicked($event, option)"
     (mouseenter)="hovered($event, option)">
   <span class="space-between">
-    <span [innerHTML]="option.title"></span>
+    <span class="menu-option-title" [innerHTML]="option.title"></span>
     <span *ngIf="option.shortcut" class="menu-shortcut">{{ option.shortcut }}</span>
   </span>
 </div>
