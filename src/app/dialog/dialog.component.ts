@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, Input, EventEmitter, ElementRef, ViewChild, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, Input, EventEmitter, ElementRef, ViewChild, ComponentFactoryResolver, ViewContainerRef, ComponentRef } from '@angular/core';
 
 import { Subject } from 'rxjs';
 
@@ -35,7 +35,7 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('custom', { read: ViewContainerRef, static: true })
   private custom: ViewContainerRef;
-  private component: any;
+  private component: ComponentRef<any>;
 
   private model: DialogModel = {
     choice: null,
@@ -64,6 +64,8 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.model.choice === null && this.config.cancel) {
       this.config.cancel();
     }
+
+    this.component?.destroy();
   }
 
   ngAfterViewInit() {

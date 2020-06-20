@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, HostListener, ElementRef, ViewContainerRef, AfterViewInit, HostBinding } from '@angular/core';
+import { UiService, MenuOption } from 'app/ui.service';
 
 @Component({
   selector: 'app-menu',
@@ -11,15 +12,15 @@ import { Component, OnInit, Input, HostListener, ElementRef, ViewContainerRef, A
 })
 export class MenuComponent implements OnInit, AfterViewInit {
 
-  @Input() options: any;
+  @Input() options: Array<MenuOption>;
   @Input() clickout: any;
-  @Input() position: any;
+  @Input() position: { x: number, y: number };
   @Input() environment: any;
   @Input() choose: any;
   
   private showing: boolean = false;
 
-  constructor(private view: ViewContainerRef, private elementRef: ElementRef) { }
+  constructor(private view: ViewContainerRef, private elementRef: ElementRef, private ui: UiService) { }
 
   ngOnInit() {
   }
@@ -79,6 +80,13 @@ export class MenuComponent implements OnInit, AfterViewInit {
 
   hovered(event: Event, option: number) {
     (event.target as HTMLElement).focus();
+
+    // if (true) {
+    //   this.ui.menu(['Move to bonez', 'Move to skull', 'Move to rib cages'], {
+    //     x: this.position.x + this.elementRef.nativeElement.clientWidth,
+    //     y: this.position.y + (event.target as HTMLElement).offsetTop
+    //   }, () => {}, true)
+    // }
   }
   
   clicked(event: Event, option: number) {

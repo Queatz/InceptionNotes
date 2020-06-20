@@ -3,7 +3,7 @@
   <div *ngIf="config.input" class="dialogbox-form">
     <input type="text" [(ngModel)]="model.input" (ngModelChange)="onChanges($event)" />
   </div>
-  <div #custom></div>
+  <ng-container #custom></ng-container>
   <footer class="dialogbox-actions">
     <button (click)="clickOk()">Ok</button>
   </footer>

@@ -77,11 +77,11 @@ export class UiService {
     (dialog.instance as DialogComponent).clickout = () => this.back();
   }
 
-  public menu(options: Array<string>, position: any, onChooseCallback: any) {
+  public menu(options: Array<MenuOption>, position: { x: number, y: number }, onChooseCallback: (choose: number) => void, isChildMenu = false) {
     let menu = this.appComponent.view
         .createComponent(this.resolver.resolveComponentFactory(MenuComponent));
 
-    if (this.lastMenu) {
+    if (this.lastMenu && !isChildMenu) {
       this.lastMenu.clickout();
     }
 
@@ -114,3 +114,5 @@ export class UiService {
     return this.dialogs.length > 0;
   }
 }
+
+export type MenuOption = string | [ string, string ]
