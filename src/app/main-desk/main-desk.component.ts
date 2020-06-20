@@ -1,6 +1,6 @@
 import { Component, OnInit, OnChanges, SimpleChanges, ElementRef, Input, HostListener } from '@angular/core';
 import { ApiService } from '../api.service';
-import { UiService } from '../ui.service';
+import { UiService, MenuOption } from '../ui.service';
 import { VillageService } from '../village.service';
 import { OpComponent } from '../op/op.component';
 import { SearchComponent } from '../search/search.component';
@@ -137,38 +137,26 @@ export class MainDeskComponent implements OnInit, OnChanges {
   menu(event: MouseEvent) {
     event.preventDefault();
 
-    let opts;
+    let opts: Array<MenuOption>;
     let v = !!this.village.me();
 
     if (!v) {
       opts = [
-        ['Search...', 'ALT + S'],
-        'Change background...',
-        'Connect with Village...',
-        ['Options...', 'ALT + O']
+        { title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null) },
+        { title: 'Change background...', callback: () => this.changeBackground() },
+        { title: 'Connect with Village...', callback: () => this.village.connect() },
+        { title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null) }
       ];
     } else {
       opts = [
-        'Search...',
-        'Change background...',
-        'Add people...',
-        'Options...'
+        { title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null) },
+        { title: 'Change background...', callback: () => this.changeBackground() },
+        { title: 'Add people...', callback: () => this.addPeople(this.list) },
+        { title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null) },
       ];
     }
 
-    let acts = v ? [
-      () => this.showSearch(null),
-      () => this.changeBackground(),
-      () => this.addPeople(this.list),
-      () => this.showOptions(null)
-    ] : [
-      () => this.showSearch(null),
-      () => this.changeBackground(),
-      () => this.village.connect(),
-      () => this.showOptions(null)
-    ];
-
-    this.ui.menu(opts, { x: event.clientX, y: event.clientY }, choice => acts[choice]());
+    this.ui.menu(opts, { x: event.clientX, y: event.clientY });
   }
 
   @HostListener('window:keydown.alt.o', ['$event'])

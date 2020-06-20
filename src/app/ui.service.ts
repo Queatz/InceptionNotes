@@ -18,7 +18,7 @@ export class UiService {
     this.load();
   }
 
-  private env: any;
+  private env: Env;
 
   public back() {
     if (!this.dialogs.length) {
@@ -77,7 +77,7 @@ export class UiService {
     (dialog.instance as DialogComponent).clickout = () => this.back();
   }
 
-  public menu(options: Array<MenuOption>, position: { x: number, y: number }, onChooseCallback: (choose: number) => void, isChildMenu = false) {
+  public menu(options: Array<MenuOption>, position: { x: number, y: number }, isChildMenu = false) {
     let menu = this.appComponent.view
         .createComponent(this.resolver.resolveComponentFactory(MenuComponent));
 
@@ -90,7 +90,6 @@ export class UiService {
     this.lastMenu.options = options;
     this.lastMenu.position = position;
     this.lastMenu.environment = this.env;
-    this.lastMenu.choose = onChooseCallback;
     this.lastMenu.clickout = () => menu.hostView.destroy();
   }
 
@@ -115,4 +114,22 @@ export class UiService {
   }
 }
 
-export type MenuOption = string | [ string, string ]
+export type Env = {
+  sidepane: boolean,
+  dblClickToOpen: boolean,
+  lastBackup: string,
+  showDescriptions: boolean,
+  useDarkTheme: boolean,
+  showAsPriorityList: boolean,
+  showSublistPreviews: boolean,
+  showLinks: boolean,
+  showEstimates: boolean,
+  recentColors: Array<string>
+}
+
+export type MenuOption = {
+  title: string,
+  callback: () => void,
+  shortcut?: string,
+  menu?: Array<MenuOption>
+}

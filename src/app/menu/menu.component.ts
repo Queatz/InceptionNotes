@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, HostListener, ElementRef, ViewContainerRef, AfterViewInit, HostBinding } from '@angular/core';
-import { UiService, MenuOption } from 'app/ui.service';
+import { Component, OnInit, Input, HostListener, ElementRef, AfterViewInit, HostBinding } from '@angular/core';
+import { UiService, MenuOption, Env } from 'app/ui.service';
 
 @Component({
   selector: 'app-menu',
@@ -13,14 +13,13 @@ import { UiService, MenuOption } from 'app/ui.service';
 export class MenuComponent implements OnInit, AfterViewInit {
 
   @Input() options: Array<MenuOption>;
-  @Input() clickout: any;
+  @Input() clickout: () => void;
   @Input() position: { x: number, y: number };
-  @Input() environment: any;
-  @Input() choose: any;
+  @Input() environment: Env;
   
   private showing: boolean = false;
 
-  constructor(private view: ViewContainerRef, private elementRef: ElementRef, private ui: UiService) { }
+  constructor(private elementRef: ElementRef, private ui: UiService) { }
 
   ngOnInit() {
   }
@@ -89,13 +88,11 @@ export class MenuComponent implements OnInit, AfterViewInit {
     // }
   }
   
-  clicked(event: Event, option: number) {
+  clicked(event: Event, option: MenuOption) {
     event.stopPropagation();
 
-    if (this.choose) {
-      this.choose(option);
-    }
-    
+    option.callback();
+  
     this.clickout();
   }
 }

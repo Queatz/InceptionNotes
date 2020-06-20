@@ -1,7 +1,7 @@
-<div class="menu-option" *ngFor="let option of options; let i = index" tabindex="0" (keydown.enter)="clicked($event, i)" (click)="clicked($event, i)" (mouseenter)="hovered($event, i)">
-  <span *ngIf="!option.push">{{ option }}</span>
-  <span *ngIf="option.push" class="space-between">
-    <span>{{ option[0] }}</span>
-    <span class="menu-shortcut">{{ option[1] }}</span>
+<div class="menu-option" *ngFor="let option of options; let i = index" tabindex="0" (keydown.enter)="clicked($event, option)" (click)="clicked($event, option)" (mouseenter)="hovered($event, i)">
+  <span *ngIf="!option.shortcut">{{ option.title }}</span>
+  <span *ngIf="option.shortcut" class="space-between">
+    <span>{{ option.title }}</span>
+    <span class="menu-shortcut">{{ option.shortcut }}</span>
   </span>
 </div>

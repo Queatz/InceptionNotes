@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, Input, EventEmitter, ElementRef, ViewChild, ComponentFactoryResolver, ViewContainerRef, ComponentRef } from '@angular/core';
 
 import { Subject } from 'rxjs';
+import { Env } from 'app/ui.service';
 
 export class DialogModel {
   choice: string;
@@ -30,8 +31,8 @@ export class DialogConfig {
 export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @Input() config: DialogConfig;
-  @Input() clickout: any;
-  @Input() environment: any;
+  @Input() clickout: () => void;
+  @Input() environment: Env;
 
   @ViewChild('custom', { read: ViewContainerRef, static: true })
   private custom: ViewContainerRef;

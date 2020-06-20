@@ -53,34 +53,30 @@ export class SubListComponent implements OnInit, OnChanges {
     event.preventDefault();
     event.stopPropagation();
 
-    let menu = {
-      options: this.village.me() ? [
-        'Link...',
-        'Move...',
-        'Add people...',
-        'Change color...',
-        this.list.collapsed ? 'Un-collapse' : 'Collapse'
-      ] : [
-        'Link...',
-        'Move...',
-        'Change color...',
-        this.list.collapsed ? 'Un-collapse' : 'Collapse'
-      ],
-      actions: this.village.me() ? [
-        () => this.addToNote(this.list),
-        () => this.moveToNote(this.list),
-        () => this.addPeople(this.list),
-        () => this.changeColor(),
-        () => this.toggleCollapse()
-      ] : [
-        () => this.addToNote(this.list),
-        () => this.moveToNote(this.list),
-        () => this.changeColor(),
-        () => this.toggleCollapse()
-      ]
-    };
+    let options = [
+      {
+        title: 'Link...',
+        callback: () => this.addToNote(this.list),
+      },
+      {
+        title: 'Move...',
+        callback: () => this.moveToNote(this.list),
+      },
+      ...(this.village.me() ? [ {
+        title: 'Add people...',
+        callback: () => this.addPeople(this.list),
+      }] : []),
+      {
+        title: 'Change color...',
+        callback: () => this.changeColor(),
+      },
+      {
+        title: this.list.collapsed ? 'Un-collapse' : 'Collapse',
+        callback: () => this.toggleCollapse(),
+      }
+    ];
 
-    this.ui.menu(menu.options, { x: event.clientX, y: event.clientY }, choice => menu.actions[choice]());
+    this.ui.menu(options, { x: event.clientX, y: event.clientY });
   }
 
   addPeople(list: any) {
@@ -110,35 +106,19 @@ export class SubListComponent implements OnInit, OnChanges {
     event.stopPropagation();
 
     this.ui.menu([
-      'Link...',
-      'Move...',
-      'Estimate...',
-      'Done',
-    ], { x: event.clientX, y: event.clientY },
-    choose => {
-      switch (choose) {
-        case 0:
-          this.addToNote(item);
-          break;
-        case 1:
-          this.moveToNote(item);
-          break;
-        case 2:
-          this.ui.dialog({
-            message: 'Estimate (in days)',
-            prefill: item.estimate,
-            input: true,
-            ok: r => {
-              item.estimate = Number(r.input);
-              this.api.modified(item, 'estimate');
-            }
-          });
-          break;
-        case 3:
-          this.api.removeListFromParent(item);
-          break;
-      }
-    });
+      { title: 'Link...', callback: () => this.addToNote(item) },
+      { title: 'Move...', callback: () => this.moveToNote(item) },
+      { title: 'Estimate...', callback: () => this.ui.dialog({
+        message: 'Estimate (in days)',
+        prefill: item.estimate,
+        input: true,
+        ok: r => {
+          item.estimate = Number(r.input);
+          this.api.modified(item, 'estimate');
+        }
+      }) },
+      { title: 'Delete', callback: () => this.api.removeListFromParent(item) },
+    ], { x: event.clientX, y: event.clientY });
   }
 
   showRefOptions(event: MouseEvent, item: any, refItem: any) {
@@ -146,15 +126,11 @@ export class SubListComponent implements OnInit, OnChanges {
     event.stopPropagation();
 
     this.ui.menu([
-      'Unlink',
-    ], { x: event.clientX, y: event.clientY },
-    choose => {
-      switch (choose) {
-        case 0:
-          this.api.removeRef(item, refItem);
-          break;
+      {
+        title: 'Unlink',
+        callback: () => this.api.removeRef(item, refItem)
       }
-    });
+    ], { x: event.clientX, y: event.clientY });
   }
 
   private toggleCollapse() {
