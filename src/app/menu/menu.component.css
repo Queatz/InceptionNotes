@@ -9,6 +9,7 @@
   padding: .5rem 0;
   border-radius: 8px;
   user-select: none;
+  min-width: 8rem;
 }
 
 .menu-option {
@@ -26,7 +27,7 @@
   font-weight: 500;
 }
 
-.menu-option:focus {
+.menu-option:focus, .menu-open {
   background-color: rgba(0, 0, 0, .1);
   outline: none;
 }

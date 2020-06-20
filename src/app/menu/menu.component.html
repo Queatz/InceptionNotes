@@ -1,7 +1,12 @@
-<div class="menu-option" *ngFor="let option of options; let i = index" tabindex="0" (keydown.enter)="clicked($event, option)" (click)="clicked($event, option)" (mouseenter)="hovered($event, i)">
-  <span *ngIf="!option.shortcut">{{ option.title }}</span>
-  <span *ngIf="option.shortcut" class="space-between">
-    <span>{{ option.title }}</span>
-    <span class="menu-shortcut">{{ option.shortcut }}</span>
+<div class="menu-option"
+    *ngFor="let option of options"
+    tabindex="0"
+    [class.menu-open]="option.isOpen"
+    (keydown.enter)="clicked($event, option)"
+    (click)="clicked($event, option)"
+    (mouseenter)="hovered($event, option)">
+  <span class="space-between">
+    <span [innerHTML]="option.title"></span>
+    <span *ngIf="option.shortcut" class="menu-shortcut">{{ option.shortcut }}</span>
   </span>
 </div>

@@ -3,7 +3,7 @@
        [style.background-color]="note.color"
        (click)="click(note)">
     <span [innerHtml]="note.name"></span>
-    <span class="note-parent" *ngIf="note.parent">→</span>
+    <span class="note-parent" *ngIf="note.parent"> → </span>
     <span class="note-parent" *ngIf="note.parent" [innerHtml]="note.parent.name"></span>
   </div>
 </div>

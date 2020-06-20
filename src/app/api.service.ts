@@ -700,6 +700,10 @@ export class ApiService {
 
   public moveListToPosition(listId: string, toListId: string, position: number) {
     if (listId === toListId) {
+      this.ui.dialog({
+        message: 'List cannot be moved into itself.'
+      });
+     
       return;
     }
 
@@ -707,6 +711,10 @@ export class ApiService {
     let toList = this.search(toListId);
 
     if (!list || !toList) {
+      this.ui.dialog({
+        message: 'List could not be found.'
+      });
+      
       return;
     }
 
@@ -718,6 +726,10 @@ export class ApiService {
     if (listParent !== toList) {
       for (let parent of toListParents) {
         if (parent.id === listId) {
+          this.ui.dialog({
+            message: 'List cannot be moved into a child of itself.'
+          });
+
           return;
         }
       }

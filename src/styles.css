@@ -14,3 +14,7 @@ textarea, input {
   background: none;
   color: inherit;
 }
+
+.note-parent {
+  opacity: .33;
+}

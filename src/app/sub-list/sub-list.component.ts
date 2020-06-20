@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, OnChanges, Input, Output, EventEmitter, 
 
 import Util from '../util';
 import { ApiService } from '../api.service';
-import { UiService } from '../ui.service';
+import { UiService, MenuOption } from '../ui.service';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { SearchComponent } from '../search/search.component';
 import { VillageService } from 'app/village.service';
@@ -53,14 +53,16 @@ export class SubListComponent implements OnInit, OnChanges {
     event.preventDefault();
     event.stopPropagation();
 
-    let options = [
+    let options: Array<MenuOption> = [
       {
         title: 'Link...',
         callback: () => this.addToNote(this.list),
+        menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.addRef(this.list, recent); }, this.list) 
       },
       {
         title: 'Move...',
         callback: () => this.moveToNote(this.list),
+        menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.moveList(this.list.id, recent.id); }, this.list)
       },
       ...(this.village.me() ? [ {
         title: 'Add people...',
@@ -106,9 +108,9 @@ export class SubListComponent implements OnInit, OnChanges {
     event.stopPropagation();
 
     this.ui.menu([
-      { title: 'Link...', callback: () => this.addToNote(item) },
-      { title: 'Move...', callback: () => this.moveToNote(item) },
-      { title: 'Estimate...', callback: () => this.ui.dialog({
+      { title: 'Link...', callback: () => this.addToNote(item), menu: this.getRecentsSubmenu(recent => this.api.addRef(item, recent), item) },
+      { title: 'Move...', callback: () => this.moveToNote(item), menu: this.getRecentsSubmenu(recent => this.api.moveList(item.id, recent.id), item) },
+      ...(this.ui.getEnv().showEstimates ? [ { title: 'Estimate...', callback: () => this.ui.dialog({
         message: 'Estimate (in days)',
         prefill: item.estimate,
         input: true,
@@ -116,7 +118,7 @@ export class SubListComponent implements OnInit, OnChanges {
           item.estimate = Number(r.input);
           this.api.modified(item, 'estimate');
         }
-      }) },
+      }) }, ] : []),
       { title: 'Delete', callback: () => this.api.removeListFromParent(item) },
     ], { x: event.clientX, y: event.clientY });
   }
@@ -184,8 +186,8 @@ export class SubListComponent implements OnInit, OnChanges {
                   dialog.component.instance.ngOnChanges(null);
               });
               dialog.component.instance.onSelection.subscribe(note => {
-                  this.api.moveList(item.id, note.id);
                   dialog.back();
+                  this.api.moveList(item.id, note.id);
               });
               dialog.component.instance.resultsChanged.subscribe(results => {
                   dialog.model.results = results;
@@ -561,6 +563,19 @@ export class SubListComponent implements OnInit, OnChanges {
         .focus();
 
     return true;
+  }
+
+  private getRecentsSubmenu(callback: (recent: any) => void, exclude: any): Array<MenuOption> | null {
+    const recents = this.api.getRecent('search');
+
+    return recents.length ? recents.filter(x => x !== exclude).map(recent => {
+      return {
+        title: recent.name + (recent.parent ? `<span class="note-parent"> → ${ recent.parent.name }</span>` : ''),
+        callback: () => {
+          callback(recent);
+        }
+      } as MenuOption;
+    }) : null;
   }
 
   private deleteItem(element: any, item: any) {

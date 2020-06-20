@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, HostListener, ElementRef, AfterViewInit, HostBinding } from '@angular/core';
 import { UiService, MenuOption, Env } from 'app/ui.service';
+import Util from 'app/util';
 
 @Component({
   selector: 'app-menu',
@@ -77,22 +78,23 @@ export class MenuComponent implements OnInit, AfterViewInit {
     }
   }
 
-  hovered(event: Event, option: number) {
+  hovered(event: Event, option: MenuOption) {
     (event.target as HTMLElement).focus();
 
-    // if (true) {
-    //   this.ui.menu(['Move to bonez', 'Move to skull', 'Move to rib cages'], {
-    //     x: this.position.x + this.elementRef.nativeElement.clientWidth,
-    //     y: this.position.y + (event.target as HTMLElement).offsetTop
-    //   }, () => {}, true)
-    // }
+    if (option.menu) {
+      this.ui.menu(option.menu, {
+        x: this.position.x + this.elementRef.nativeElement.clientWidth,
+        y: this.position.y + (event.target as HTMLElement).offsetTop - Util.convertRemToPixels(.5)
+      }, option)
+    } else {
+      this.ui.clearMenus(option);
+    }
   }
   
   clicked(event: Event, option: MenuOption) {
     event.stopPropagation();
-
     option.callback();
-  
     this.clickout();
+    this.ui.clearMenus();
   }
 }

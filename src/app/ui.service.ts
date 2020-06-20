@@ -9,7 +9,7 @@ export class UiService {
 
   private appComponent: AppComponent;
   private dialogs = [];
-  private lastMenu: MenuComponent;
+  private lastMenu: Array<MenuStackEntry> = [];
 
   constructor(private resolver: ComponentFactoryResolver) { }
 
@@ -77,20 +77,50 @@ export class UiService {
     (dialog.instance as DialogComponent).clickout = () => this.back();
   }
 
-  public menu(options: Array<MenuOption>, position: { x: number, y: number }, isChildMenu = false) {
+  public clearMenus(menuOption?: MenuOption): void {
+    const depth = menuOption ? this.lastMenu.findIndex(x => {
+      return x.component.options.indexOf(menuOption) !== -1
+    }) : -2;
+
+    if (depth === -1) {
+      return;
+    }
+
+    while (this.lastMenu.length > depth + 1 && !!this.lastMenu.length) {
+      const option = this.lastMenu.pop();
+      option.component.clickout();
+      if (option.parent) option.parent.isOpen = false;
+    }
+  }
+
+  public menu(options: Array<MenuOption>, position: { x: number, y: number }, parentMenuOption?: MenuOption) {
+    if (parentMenuOption?.isOpen) {
+      return;
+    }
+
     let menu = this.appComponent.view
         .createComponent(this.resolver.resolveComponentFactory(MenuComponent));
 
-    if (this.lastMenu && !isChildMenu) {
-      this.lastMenu.clickout();
+    if (this.lastMenu.length && !parentMenuOption) {
+      this.lastMenu.pop().component.clickout();
+    } else if (parentMenuOption) {
+      parentMenuOption.isOpen = true;
     }
 
-    this.lastMenu = (menu.instance as MenuComponent);
+    if (parentMenuOption) this.clearMenus(parentMenuOption);
 
-    this.lastMenu.options = options;
-    this.lastMenu.position = position;
-    this.lastMenu.environment = this.env;
-    this.lastMenu.clickout = () => menu.hostView.destroy();
+    const component = menu.instance as MenuComponent;
+
+    this.lastMenu.push({
+      component,
+      parent: parentMenuOption,
+      depth: this.lastMenu.length
+    } as MenuStackEntry);
+
+    component.options = options;
+    component.position = position;
+    component.environment = this.env;
+    component.clickout = () => menu.hostView.destroy();
   }
 
   public addRecentColor(color: string) {
@@ -131,5 +161,13 @@ export type MenuOption = {
   title: string,
   callback: () => void,
   shortcut?: string,
-  menu?: Array<MenuOption>
+  menu?: Array<MenuOption>,
+
+  isOpen?: boolean;
+}
+
+type MenuStackEntry = {
+  depth: number,
+  parent: MenuOption,
+  component: MenuComponent
 }
