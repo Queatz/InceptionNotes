@@ -700,10 +700,6 @@ export class ApiService {
 
   public moveListToPosition(listId: string, toListId: string, position: number) {
     if (listId === toListId) {
-      this.ui.dialog({
-        message: 'List cannot be moved into itself.'
-      });
-     
       return;
     }
 
@@ -864,6 +860,28 @@ export class ApiService {
 
       if (idx !== -1) {
         list.ref.splice(idx, 1);
+        this.modified(list, 'ref');
+      }
+    }
+  }
+
+  public orderRef(list: any, toList: any, position: number) {
+    if (list === toList) {
+      return;
+    }
+
+    if (list.ref) {
+      let idx = list.ref.indexOf(toList);
+
+      if (idx !== -1) {
+        list.ref.splice(idx, 1);
+        
+        if (position < 0) {
+          list.ref.splice(list.ref.length - position, 0, toList);
+        } else {
+          list.ref.splice(position, 0, toList);
+        }
+
         this.modified(list, 'ref');
       }
     }

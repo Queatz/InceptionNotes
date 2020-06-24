@@ -108,8 +108,8 @@ export class SubListComponent implements OnInit, OnChanges {
     event.stopPropagation();
 
     this.ui.menu([
-      { title: 'Link...', callback: () => this.addToNote(item), menu: this.getRecentsSubmenu(recent => this.api.addRef(item, recent), item) },
-      { title: 'Move...', callback: () => this.moveToNote(item), menu: this.getRecentsSubmenu(recent => this.api.moveList(item.id, recent.id), item) },
+      { title: 'Link...', callback: () => this.addToNote(item), menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.addRef(item, recent); }, item) },
+      { title: 'Move...', callback: () => this.moveToNote(item), menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.moveList(item.id, recent.id); }, item) },
       ...(this.ui.getEnv().showEstimates ? [ { title: 'Estimate...', callback: () => this.ui.dialog({
         message: 'Estimate (in days)',
         prefill: item.estimate,
@@ -131,6 +131,20 @@ export class SubListComponent implements OnInit, OnChanges {
       {
         title: 'Unlink',
         callback: () => this.api.removeRef(item, refItem)
+      },
+      {
+        title: 'Order',
+        shortcut: '⯈',
+        callback: () => {},
+        menu: [
+          {
+            title: 'First',
+            callback: () => this.api.orderRef(item, refItem, 0)
+          }, {
+            title: 'Last',
+            callback: () => this.api.orderRef(item, refItem, -1)
+          },
+        ]
       }
     ], { x: event.clientX, y: event.clientY });
   }
