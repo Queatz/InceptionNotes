@@ -3,18 +3,19 @@
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-  overflow-y: auto;
-  
-  transition: left ease-out .25s;
+  padding-left: 0rem;
+  justify-self: stretch;
+  align-self: stretch;
+  box-sizing: border-box;
+  min-height: 100vh;
+
+  transition: padding-left ease-out .25s;
 }
 
-main-list.is-showing+:host {
-  left: 16rem;
+@media screen and (min-width: 601px) {
+  main-list.is-showing+:host {
+    padding-left: 16rem;
+  }
 }
 
 .description {
@@ -59,5 +60,15 @@ main-list.is-showing+:host {
 @media screen and (max-width: 600px) {
   main-list.is-showing+:host {
     left: 0;
+  }
+}
+
+@media print {
+  :host {
+    background: unset;
+  }
+
+  .go-up {
+    display: none;
   }
 }

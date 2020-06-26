@@ -63,6 +63,10 @@
   display: none;
 }
 
+.is-navigation .item-links {
+  padding: .5rem .5rem 0 1rem;
+}
+
 .sneak-peek {
   opacity: .5;
   font-size: 75%;
