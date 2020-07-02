@@ -117,6 +117,10 @@ export class UiService {
       depth: this.lastMenu.length
     } as MenuStackEntry);
 
+    if (!parentMenuOption) {
+      position.y += window.scrollY;
+    }
+
     component.options = options;
     component.position = position;
     component.environment = this.env;

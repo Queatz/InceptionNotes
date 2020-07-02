@@ -37,7 +37,7 @@ export class MenuComponent implements OnInit, AfterViewInit {
     let invert = 0;
     
     if (document.documentElement) {
-      if (this.position.y + this.elementRef.nativeElement.clientHeight > document.documentElement.clientHeight) {
+      if (this.position.y + this.elementRef.nativeElement.offsetHeight > document.documentElement.offsetHeight) {
         invert = this.elementRef.nativeElement.clientHeight;
       }
     }
@@ -50,8 +50,8 @@ export class MenuComponent implements OnInit, AfterViewInit {
     let invert = 0;
     
     if (document.documentElement) {
-      if (this.position.x + this.elementRef.nativeElement.clientWidth > document.documentElement.clientWidth) {
-        invert = this.elementRef.nativeElement.clientWidth;
+      if (this.position.x + this.elementRef.nativeElement.offsetWidth > document.documentElement.offsetWidth) {
+        invert = this.elementRef.nativeElement.offsetWidth;
       }
     }
     
