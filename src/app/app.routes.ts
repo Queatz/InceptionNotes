@@ -5,15 +5,15 @@ import { AppComponent } from './app.component';
 @NgModule({
   imports: [
     RouterModule.forRoot([
-        {
-            path: 'n/:id',
-            component: AppComponent
-        },
-        {
-            path: '**',
-            component: AppComponent
-        }
-     ])
+    {
+        path: 'n/:id',
+        component: AppComponent
+    },
+    {
+        path: '**',
+        component: AppComponent
+    }
+], { relativeLinkResolution: 'legacy' })
   ],
   exports: [
     RouterModule

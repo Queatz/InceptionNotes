@@ -42,9 +42,12 @@
           <div *ngFor="let i of item.ref" class="item-link" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name"></div>
         </div>
         <div class="sneak-peek" *ngIf="getEnv().showSublistPreviews">
-          <div class="sneak-peek-item" *ngFor="let i of item.items"
-            [innerHTML]="i.name"
-            [attr.data-after]="getAfterText(i)"></div>
+          <div *ngFor="let i of item.items" class="sneak-peek-item-container">
+            <div *ngIf="i.checked" class="item-checkbox item-checkbox-checked"></div>
+            <div class="sneak-peek-item" 
+              [innerHTML]="i.name"
+              [attr.data-after]="getAfterText(i)"></div>
+          </div>
         </div>
       </div>
     </div>

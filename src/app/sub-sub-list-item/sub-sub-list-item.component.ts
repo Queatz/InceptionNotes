@@ -48,7 +48,7 @@ export class SubSubListItemComponent implements OnInit {
   }
 
   @HostListener('dragover', ['$event'])
-  nothing() {
+  nothing(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
   };

@@ -76,8 +76,14 @@
   flex-direction: column;
 }
 
-.sneak-peek-item {
+.sneak-peek-item-container {
+  display: flex;
+  align-items: center;
+}
 
+.sneak-peek-item-container .item-checkbox {
+  margin-right: .25rem;
+  scale: 0.75;
 }
 
 .drop-right {
