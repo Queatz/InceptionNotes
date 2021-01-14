@@ -1,7 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, enableProdMode } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
@@ -24,9 +23,9 @@ import { SyncService } from 'app/sync.service';
 import { WsService } from 'app/ws.service';
 import { Config } from 'app/config.service';
 import { AddPeopleComponent } from './add-people/add-people.component';
-
 import { AppRoutingModule } from './app.routes';
 import { WindowComponent } from './window/window.component';
+import { FilterService } from './filter.service'
 
 enableProdMode();
 
@@ -63,6 +62,7 @@ enableProdMode();
   ],
   providers: [
     ApiService,
+    FilterService,
     UiService,
     VillageService,
     CollaborateService,

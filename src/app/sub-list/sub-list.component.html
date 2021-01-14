@@ -1,5 +1,5 @@
 <div [ngClass]="{'is-navigation': useAsNavigation}" (dblclick)="dontPropagate($event)">
-  <div class="item-name" [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref && !list.collapsed) }" [attr.data-after]="!useAsNavigation && list.collapsed ? getAfterText(list).substring(1) : undefined">
+  <div class="item-name" [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length && !list.collapsed) }" [attr.data-after]="!useAsNavigation && list.collapsed ? getAfterText(list).substring(1) : undefined">
     <div [contentEditable]="true"
         #element
         [(contenteditableModel)]="list.name"
@@ -15,42 +15,47 @@
     </div>
   </div>
   <div *ngIf="!useAsNavigation && !list.collapsed" #items>
-    <div *ngFor="let item of list.items; index as i" class="sub-list-item-container item-entry" (contextmenu)="showSubitemOptions($event, item)">
-      <div class="item-status">
-        <div (click)="onItemChecked(item)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': item.checked}"></div>
-        <div [hidden]="i === list.items.length - 1" class="item-relation"></div>
-      </div>
-      <div class="item-name">
-        <div [contentEditable]="!useAsNavigation"
-          [hidden]="useAsNavigation && isEmpty(item)"
-          #element
-          [(contenteditableModel)]="item.name"
-          (contenteditableModelChange)="onItemChange(item)"
-          (click)="useAsNavigation ? showItem($event, item) : undefined"
-          (dblclick)="getEnv().dblClickToOpen ? openItem($event, item) : dontPropagate($event)"
-          (keydown.enter)="onItemEnterPressed(element, item)"
-          (keydown.backspace)="onItemBackspacePressed(element, item)"
-          (keydown.control.arrowup)="moveItem($event, item, -1)"
-          (keydown.control.arrowdown)="moveItem($event, item, 1)"
-          (keydown.arrowup)="onArrowUpDown($event, item, -1)"
-          (keydown.arrowdown)="onArrowUpDown($event, item, 1)"
-          [title]="getSubitemText(item)"
-          [attr.data-after]="getAfterText(item)"
-          class="sub-list-item"
-          [ngClass]="{'item-name-checked': item.checked}"></div>
-        <div *ngIf="!useAsNavigation && getEnv().showLinks && item.ref" class="item-links">
-          <div *ngFor="let i of item.ref" class="item-link" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name"></div>
+    <ng-container *ngFor="let item of list.items; index as i">
+      <div *ngIf="!hideItem(item)" class="sub-list-item-container item-entry" (contextmenu)="showSubitemOptions($event, item)">
+        <div class="item-status">
+          <div (click)="onItemChecked(item)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': item.checked}"></div>
+          <div class="item-relation"></div>
         </div>
-        <div class="sneak-peek" *ngIf="getEnv().showSublistPreviews">
-          <div *ngFor="let i of item.items" class="sneak-peek-item-container">
-            <div *ngIf="i.checked" class="item-checkbox item-checkbox-checked"></div>
-            <div class="sneak-peek-item" 
-              [innerHTML]="i.name"
-              [attr.data-after]="getAfterText(i)"></div>
+        <div class="item-name">
+          <div [contentEditable]="!useAsNavigation"
+            [hidden]="useAsNavigation && isEmpty(item)"
+            #element
+            [(contenteditableModel)]="item.name"
+            (contenteditableModelChange)="onItemChange(item)"
+            (click)="useAsNavigation ? showItem($event, item) : undefined"
+            (dblclick)="getEnv().dblClickToOpen ? openItem($event, item) : dontPropagate($event)"
+            (keydown.enter)="onItemEnterPressed(element, item)"
+            (keydown.backspace)="onItemBackspacePressed(element, item)"
+            (keydown.control.arrowup)="moveItem($event, item, -1)"
+            (keydown.control.arrowdown)="moveItem($event, item, 1)"
+            (keydown.arrowup)="onArrowUpDown($event, item, -1)"
+            (keydown.arrowdown)="onArrowUpDown($event, item, 1)"
+            [title]="getSubitemText(item)"
+            [attr.data-after]="getAfterText(item)"
+            class="sub-list-item"
+            [ngClass]="{'item-name-checked': item.checked}"></div>
+          <div *ngIf="!useAsNavigation && getEnv().showLinks && item.ref" class="item-links">
+            <div *ngFor="let i of item.ref" class="item-link" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name"></div>
+          </div>
+          <div class="sneak-peek" *ngIf="getEnv().showSublistPreviews">
+            <div *ngFor="let i of item.items" class="sneak-peek-item-container">
+              <div *ngIf="i.checked" class="item-checkbox item-checkbox-checked"></div>
+              <div class="sneak-peek-item" 
+                [innerHTML]="i.name"
+                [attr.data-after]="getAfterText(i)"></div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </ng-container>
+  </div>
+  <div *ngIf="!useAsNavigation && !list.collapsed && numberHidden(list) > 0" class="item-hidden-count">
+    {{ numberHidden(list) }} hidden
   </div>
   <div *ngIf="!useAsNavigation && list.people && list.people.length">
     <a class="person-link" *ngFor="let person of list.people" [href]="villageUrl(person)" target="_blank">

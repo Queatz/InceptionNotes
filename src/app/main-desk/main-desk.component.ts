@@ -4,9 +4,9 @@ import { UiService, MenuOption } from '../ui.service';
 import { VillageService } from '../village.service';
 import { OpComponent } from '../op/op.component';
 import { SearchComponent } from '../search/search.component';
-import { DialogConfig } from 'app/dialog/dialog.component';
 import { AddPeopleComponent } from 'app/add-people/add-people.component';
 import Util from 'app/util';
+import { FilterService } from 'app/filter.service'
 
 @Component({
   selector: 'main-desk',
@@ -21,9 +21,9 @@ export class MainDeskComponent implements OnInit, OnChanges {
 
   @Input() list: any;
 
-  constructor(public api: ApiService, public village: VillageService, public ui: UiService, private elementRef: ElementRef) {
+  constructor(public api: ApiService, public filter: FilterService, public village: VillageService, public ui: UiService, private elementRef: ElementRef) {
   }
-
+  
   ngOnInit() {
   	this.initNext();
   }
@@ -143,6 +143,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
     if (!v) {
       opts = [
         { title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null) },
+        { title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null) },
         { title: 'Change background...', callback: () => this.changeBackground() },
         { title: 'Connect with Village...', callback: () => this.village.connect() },
         { title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null) }
@@ -150,6 +151,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
     } else {
       opts = [
         { title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null) },
+        { title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null) },
         { title: 'Change background...', callback: () => this.changeBackground() },
         { title: 'Add people...', callback: () => this.addPeople(this.list) },
         { title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null) },
@@ -195,6 +197,7 @@ export class MainDeskComponent implements OnInit, OnChanges {
               dialog.component.instance.ngOnChanges(null);
           });
           dialog.component.instance.onSelection.subscribe(note => {
+              this.api.addRecent('search', note.id);
               this.api.setEye(note);
               dialog.back();
           });
@@ -206,6 +209,45 @@ export class MainDeskComponent implements OnInit, OnChanges {
           if (result.results && result.results.length) {
               this.api.addRecent('search', result.results[0].id);
               this.api.setEye(result.results[0]);
+          }
+      }
+    });
+  }
+
+  @HostListener('window:keydown.alt.f', ['$event'])
+  showFilter(event: Event) {
+    if (this.ui.isAnyDialogOpened()) {
+      return;
+    }
+
+    if (event) {
+      event.preventDefault();
+    }
+
+    this.ui.dialog({
+      message: 'Filter by links',
+      input: true,
+      view: SearchComponent,
+      init: dialog => {
+          dialog.component.instance.recentWhich = 'filter';
+
+          dialog.changes.subscribe(val => {
+            dialog.component.instance.searchString = val;
+              dialog.component.instance.ngOnChanges(null);
+          });
+          dialog.component.instance.onSelection.subscribe(note => {
+            this.api.addRecent('filter', note.id);
+              this.filter.toggleRef(note);
+              dialog.back();
+          });
+          dialog.component.instance.resultsChanged.subscribe(results => {
+              dialog.model.results = results;
+          });
+      },
+      ok: result => {
+          if (result.results && result.results.length) {
+              this.api.addRecent('filter', result.results[0].id);
+              this.filter.toggleRef(result.results[0]);
           }
       }
     });
@@ -223,6 +265,37 @@ export class MainDeskComponent implements OnInit, OnChanges {
     this.dontPropagate(event);
     this.ui.getEnv().sidepane = !this.ui.getEnv().sidepane;
     this.ui.save();
+  }
+
+  getItemLinkText(item: any) {
+    let t = '';
+    let p = item.parent;
+
+    for(let i = 0; i < 3 && p; i++) {
+      t += ' → ' + p.name;
+      p = p.parent;
+    }
+
+    return Util.htmlToText(t);
+  }
+
+  removeFilter(event: Event, item: any) {
+    event.stopPropagation();
+    this.filter.toggleRef(item);
+
+    return false;
+  }
+
+  showFilterOptions(event: MouseEvent, item: any) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.ui.menu([
+      {
+        title: 'Remove filter',
+        callback: () => this.filter.toggleRef(item)
+      }
+    ], { x: event.clientX, y: event.clientY });
   }
 
   private initNext() {

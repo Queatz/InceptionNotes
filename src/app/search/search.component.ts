@@ -10,6 +10,7 @@ import { Subject } from 'rxjs';
 export class SearchComponent implements OnInit, OnChanges {
 
     @Input() searchString: string;
+    @Input() recentWhich = 'search';
     onSelection: Subject<any> = new Subject();
     resultsChanged: Subject<any[]> = new Subject();
 
@@ -19,7 +20,7 @@ export class SearchComponent implements OnInit, OnChanges {
     constructor(private api: ApiService) { }
 
     ngOnInit() {
-        this.api.getRecent('search').forEach(n => this.results.push(n));
+        this.api.getRecent(this.recentWhich).forEach(n => this.results.push(n));
         this.resultsChanged.next(this.results);
     }
 
@@ -61,7 +62,7 @@ export class SearchComponent implements OnInit, OnChanges {
     }
 
     click(note: any) {
-        this.api.addRecent('search', note.id);
+        this.api.addRecent(this.recentWhich, note.id);
         this.onSelection.next(note);
     }
 }

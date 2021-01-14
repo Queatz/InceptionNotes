@@ -8,6 +8,7 @@ import { SearchComponent } from '../search/search.component';
 import { VillageService } from 'app/village.service';
 import { AddPeopleComponent } from 'app/add-people/add-people.component';
 import { Config } from 'app/config.service';
+import { FilterService } from 'app/filter.service'
 
 @Component({
   selector: 'sub-list',
@@ -38,7 +39,7 @@ export class SubListComponent implements OnInit, OnChanges {
   private dragCounter: number = 0;
   private mouseDownHack: boolean;
 
-  constructor(private ui: UiService, private api: ApiService, private elementRef: ElementRef, private village: VillageService, private config: Config) { }
+  constructor(private ui: UiService, private api: ApiService, private filter: FilterService, private elementRef: ElementRef, private village: VillageService, private config: Config) { }
 
   ngOnInit() {
     this.initNext();
@@ -531,6 +532,18 @@ export class SubListComponent implements OnInit, OnChanges {
         this.deleteItem(element, item);
       }
     }
+  }
+
+  hideItem(item: any, includeEmpty = true) {
+    return this.filter.byRef?.length && (item.name || includeEmpty) && !item.ref?.find(x => this.filter.byRef.indexOf(x) !== -1);
+  }
+
+  numberHidden(list: any) {
+    if (this.filter.byRef?.length < 1) {
+      return 0;
+    }
+
+    return list.items.filter(x => this.hideItem(x, false)).length;
   }
 
   countSubItems(item: any) {
