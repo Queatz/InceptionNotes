@@ -15,7 +15,7 @@ export class MenuComponent implements OnInit, AfterViewInit {
 
   @Input() options: Array<MenuOption>;
   @Input() clickout: () => void;
-  @Input() position: { x: number, y: number };
+  @Input() position: { x: number, y: number, w?: number };
   @Input() environment: Env;
   
   private showing: boolean = false;
@@ -51,7 +51,7 @@ export class MenuComponent implements OnInit, AfterViewInit {
     
     if (document.documentElement) {
       if (this.position.x + this.elementRef.nativeElement.offsetWidth > document.documentElement.offsetWidth) {
-        invert = this.elementRef.nativeElement.offsetWidth;
+        invert = this.elementRef.nativeElement.offsetWidth + (this.position.w || 0);
       }
     }
     
@@ -84,7 +84,8 @@ export class MenuComponent implements OnInit, AfterViewInit {
     if (option.menu) {
       this.ui.menu(option.menu, {
         x: this.position.x + this.elementRef.nativeElement.clientWidth,
-        y: this.position.y + (event.target as HTMLElement).offsetTop - Util.convertRemToPixels(.5)
+        y: this.position.y + (event.target as HTMLElement).offsetTop - Util.convertRemToPixels(.5),
+        w: this.elementRef.nativeElement.clientWidth
       }, option)
     } else {
       this.ui.clearMenus(option);

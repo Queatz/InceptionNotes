@@ -93,7 +93,7 @@ export class UiService {
     }
   }
 
-  public menu(options: Array<MenuOption>, position: { x: number, y: number }, parentMenuOption?: MenuOption) {
+  public menu(options: Array<MenuOption>, position: { x: number, y: number, w?: number }, parentMenuOption?: MenuOption) {
     if (parentMenuOption?.isOpen) {
       return;
     }

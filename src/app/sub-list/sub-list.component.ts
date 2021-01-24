@@ -65,6 +65,66 @@ export class SubListComponent implements OnInit, OnChanges {
         callback: () => this.moveToNote(this.list),
         menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.moveList(this.list.id, recent.id); }, this.list)
       },
+      {
+        title: 'Sort',
+        shortcut: '⯈',
+        callback: () => {},
+        menu: [
+          {
+            title: 'By links',
+            shortcut: '⯈',
+            callback: () => {},
+            menu: [
+              ...(this.list.items as Array<any>)
+                  .map(item => item.ref || [])
+                  .flat()
+                  .map(ref => ref.parent)
+                  .filter(list => !!list)
+                  .filter((v, i, a) => a.indexOf(v) === i)
+                  .map(refParent => {
+                return {
+                  title: refParent.name,
+                  callback: () => {
+                    this.list.items.sort((a: any, b: any) => {
+                      const aRef = a.ref?.find(ref => ref.parent === refParent);
+                      const bRef = b.ref?.find(ref => ref.parent === refParent);
+
+                      // Notes without refs to the refParent don't get sorted
+                      if (!aRef && !bRef) {
+                        return 0;
+                      }
+
+                      // Notes without refs to the refParent get moved down
+                      if (!aRef !== !bRef) {
+                        return !aRef ? 1 : -1;
+                      }
+
+                      const aPos = refParent.items.indexOf(aRef);
+                      const bPos = refParent.items.indexOf(bRef);
+
+                      return aPos === bPos ? 0 : aPos > bPos ? 1 : -1;
+                    });
+                    this.api.modified(this.list, 'items');
+                  }
+                };
+              })
+            ]
+          },
+          {
+            title: 'Done to bottom',
+            callback: () => {
+              this.list.items.sort((a: any, b: any) => { 
+                if (!a.name !== !b.name) {
+                  return !a.name ? 1 : -1;
+                }
+
+                return a.checked === b.checked ? 0 : a.checked ? 1 : -1;
+               });
+              this.api.modified(this.list, 'items');
+            }
+          }
+        ]
+      },
       ...(this.village.me() ? [ {
         title: 'Add people...',
         callback: () => this.addPeople(this.list),
