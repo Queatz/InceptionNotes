@@ -82,14 +82,19 @@
   flex-direction: column;
 }
 
+.sneak-peek.interactable {
+  opacity: .75;
+  margin-top: .25rem;
+}
+
 .sneak-peek-item-container {
   display: flex;
-  align-items: center;
 }
 
 .sneak-peek-item-container .item-checkbox {
-  margin-right: .25rem;
+  margin-right: .125rem;
   scale: 0.75;
+  transform: translateY(-.125rem);
 }
 
 .drop-right {

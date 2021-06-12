@@ -502,7 +502,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   getAfterText(item: any) {
-    let c = this.countSubItems(item);
+    let c = !this.getEnv().showSublistPreviews ? this.countSubItems(item) : 0;
     let d = this.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0;
 
     return c || d ? ' (' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') + ')' : '';

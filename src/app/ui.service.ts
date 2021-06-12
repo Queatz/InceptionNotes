@@ -60,6 +60,7 @@ export class UiService {
       useDarkTheme: false,
       showAsPriorityList: false,
       showSublistPreviews: true,
+      showSublistCheckboxes: true,
       showLinks: true,
       showEstimates: true,
       recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff']
@@ -156,6 +157,7 @@ export type Env = {
   useDarkTheme: boolean,
   showAsPriorityList: boolean,
   showSublistPreviews: boolean,
+  showSublistCheckboxes: boolean,
   showLinks: boolean,
   showEstimates: boolean,
   recentColors: Array<string>
