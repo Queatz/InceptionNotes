@@ -60,11 +60,14 @@ export class SubListComponent implements OnInit, OnChanges {
         callback: () => this.addToNote(this.list),
         menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.addRef(this.list, recent); }, this.list) 
       },
-      {
-        title: 'Move...',
-        callback: () => this.moveToNote(this.list),
-        menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.moveList(this.list.id, recent.id); }, this.list)
-      },
+      ...(this.list.parent ? [ {
+          title: 'Move...',
+          callback: () => this.moveToNote(this.list),
+          menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.moveList(this.list.id, recent.id); }, this.list)
+        }, {
+        title: 'Duplicate',
+        callback: () => this.api.duplicateList(this.list)
+      } ] : []),
       {
         title: 'Sort',
         shortcut: '⯈',
@@ -133,10 +136,10 @@ export class SubListComponent implements OnInit, OnChanges {
         title: 'Change color...',
         callback: () => this.changeColor(),
       },
-      {
+      ...(this.list.parent ? [ {
         title: this.list.collapsed ? 'Un-collapse' : 'Collapse',
         callback: () => this.toggleCollapse(),
-      }
+      } ] : [])
     ];
 
     this.ui.menu(options, { x: event.clientX, y: event.clientY });

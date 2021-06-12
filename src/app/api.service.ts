@@ -766,6 +766,46 @@ export class ApiService {
     }
   }
 
+  public duplicateList(list: any) {
+    if (!list.parent) {
+      return;
+    }
+
+    const newList = this.newBlankList(list.parent, list.parent.items.indexOf(list) + 1);
+
+    this.copyFromNote(newList, list, true);
+  
+    this.modified(list.parent, 'items');
+    this.modified(newList);
+
+    return newList;
+  }
+
+  public copyFromNote(note: any, referenceNote: any, includeItems = false) {
+    note.name = referenceNote.name;
+    note.description = referenceNote.description;
+    note.color = referenceNote.color;
+    note.estimate = referenceNote.estimate;
+    note.checked = referenceNote.checked;
+    note.backgroundUrl = referenceNote.backgroundUrl;
+    note.collapsed = referenceNote.collapsed;
+
+    if (referenceNote.ref?.length) {
+      referenceNote.ref.forEach(ref => {
+        this.addRef(note, ref);
+      });
+    }
+
+    if (includeItems) {
+      referenceNote.items.forEach(item => {
+        const newItem = this.newBlankList(note);
+        this.copyFromNote(newItem, item, includeItems);
+      });
+    }
+
+    this.modified(note);
+  }
+
   public newBlankList(list: any = null, position: number = null) {
     let note: any = this.newBlankNote();
 
