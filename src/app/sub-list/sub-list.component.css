@@ -25,6 +25,21 @@
     word-break: break-all;
 }
 
+.sub-list-title-container {
+  display: flex;
+}
+
+.sub-list-title-container .item-checkbox {
+  margin-right: .5rem;
+  transform: translateY(0.1rem);
+  border-width: 2px;
+}
+
+.sub-list-title-container .item-checkbox-checked:after {
+  border-width: 2px;
+  transform: translateY(-1px) rotate(-45deg);
+}
+
 .sub-list-item {
     border: none;
     padding: 0;

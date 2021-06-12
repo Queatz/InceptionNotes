@@ -1,15 +1,18 @@
 <div [ngClass]="{'is-navigation': useAsNavigation}" (dblclick)="dontPropagate($event)">
   <div class="item-name" [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length && !list.collapsed) }" [attr.data-after]="!useAsNavigation && list.collapsed ? getAfterText(list).substring(1) : undefined">
-    <div [contentEditable]="true"
-        #element
-        [(contenteditableModel)]="list.name"
-        (contenteditableModelChange)="onNameChange()"
-        (dblclick)="getEnv().dblClickToOpen && !useAsNavigation ? openList($event) : dontPropagate($event)"
-        (click)="useAsNavigation ? openList($event) : undefined"
-        (keydown.backspace)="onNameBackspacePressed()"
-        (keydown.enter)="onNameEnterPressed(element)"
-        (keydown.arrowdown)="focusItem(0)"
-        class="sub-list-title"></div>
+    <div class="sub-list-title-container">
+      <div *ngIf="!useAsNavigation && getEnv().showListCheckboxes" (click)="onItemChecked(list)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': list.checked}"></div>
+      <div [contentEditable]="true"
+          #element
+          [(contenteditableModel)]="list.name"
+          (contenteditableModelChange)="onNameChange()"
+          (dblclick)="getEnv().dblClickToOpen && !useAsNavigation ? openList($event) : dontPropagate($event)"
+          (click)="useAsNavigation ? openList($event) : undefined"
+          (keydown.backspace)="onNameBackspacePressed()"
+          (keydown.enter)="onNameEnterPressed(element)"
+          (keydown.arrowdown)="focusItem(0)"
+          class="sub-list-title"></div>
+        </div>
     <div class="item-links" *ngIf="getEnv().showLinks && list.ref && !list.collapsed">
       <div *ngFor="let i of list.ref" class="item-link lg" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name"></div>
     </div>
@@ -42,7 +45,7 @@
           <div *ngIf="!useAsNavigation && getEnv().showLinks && item.ref" class="item-links">
             <div *ngFor="let i of item.ref" class="item-link" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name"></div>
           </div>
-          <div class="sneak-peek" [ngClass]="{'interactable': getEnv().showSublistCheckboxes}" *ngIf="getEnv().showSublistPreviews">
+          <div class="sneak-peek" [ngClass]="{'interactable': getEnv().showSublistCheckboxes}" *ngIf="getEnv().showSublistPreviews && item.items.length">
             <div *ngFor="let i of item.items" class="sneak-peek-item-container">
               <div *ngIf="(getEnv().showSublistCheckboxes || i.checked) && i.name" (click)="onItemChecked(i)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': i.checked}"></div>
               <div class="sneak-peek-item" 
