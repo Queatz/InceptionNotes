@@ -1,5 +1,5 @@
 <div [ngClass]="{'is-navigation': useAsNavigation}" (dblclick)="dontPropagate($event)">
-  <div class="item-name" [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length && !list.collapsed) }" [attr.data-after]="!useAsNavigation && list.collapsed ? getAfterText(list).substring(1) : undefined">
+  <div class="item-name" [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length && !list.collapsed) }" [attr.data-after]="!useAsNavigation && list.collapsed ? getAfterText(list, true).substring(1) : undefined">
     <div class="sub-list-title-container">
       <div *ngIf="!useAsNavigation && getEnv().showListCheckboxes" (click)="onItemChecked(list)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': list.checked}"></div>
       <div [contentEditable]="true"
@@ -49,6 +49,7 @@
             <div *ngFor="let i of item.items" class="sneak-peek-item-container">
               <div *ngIf="(getEnv().showSublistCheckboxes || i.checked) && i.name" (click)="onItemChecked(i)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': i.checked}"></div>
               <div class="sneak-peek-item" 
+                [ngClass]="{ 'item-name-checked': i.checked }"
                 [innerHTML]="i.name"
                 [attr.data-after]="getAfterText(i)"></div>
             </div>
