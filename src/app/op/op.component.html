@@ -10,13 +10,17 @@
   <br /><br />
   <label><input type="checkbox" name="showListCheckboxes" [(ngModel)]="env.showListCheckboxes" (ngModelChange)="update()" /> Show list checkboxes</label>
   <br /><br />
-  <label><input type="checkbox" name="showSublistPreviews" [(ngModel)]="env.showSublistPreviews" (ngModelChange)="update()" /> Show sublist previews</label>
-  <br /><br />
   <label><input type="checkbox" name="showSublistCheckboxes" [(ngModel)]="env.showSublistCheckboxes" (ngModelChange)="update()" /> Show sublist checkboxes</label>
+  <br /><br />
+  <label><input type="checkbox" name="showSublistPreviews" [(ngModel)]="env.showSublistPreviews" (ngModelChange)="update()" /> Show sublist previews</label>
   <br /><br />
   <label><input type="checkbox" name="showLinks" [(ngModel)]="env.showLinks" (ngModelChange)="update()" /> Show links</label>
   <br /><br />
   <label><input type="checkbox" name="showEstimates" [(ngModel)]="env.showEstimates" (ngModelChange)="update()" /> Show estimates</label>
+  <br /><br />
+  <label><input type="checkbox" name="unlinkOnDelete" [(ngModel)]="env.unlinkOnDelete" (ngModelChange)="update()" /> Unlink links on delete</label>
+  <br /><br />
+  <label><input type="checkbox" name="hideDoneItems" [(ngModel)]="env.hideDoneItems" (ngModelChange)="update()" /> Hide done items</label>
 </form>
 <br />
 <span *ngIf="isVillageConnected()">

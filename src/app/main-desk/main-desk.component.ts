@@ -15,8 +15,8 @@ import { takeUntil } from 'rxjs/operators'
   templateUrl: './main-desk.component.html',
   styleUrls: ['./main-desk.component.css'],
   host: {
-    '[style.background-color]': 'list.backgroundUrl && list.backgroundUrl[0] === \'#\' ? list.backgroundUrl : (getEnv().useDarkTheme ? \'#404040\' : undefined)',
-    '[style.background-image]': 'list.backgroundUrl ? (\'url(\' + list.backgroundUrl + \')\') : undefined'
+    '[style.background-color]': 'list.backgroundUrl && list.backgroundUrl.indexOf(\'//\') === -1 ? list.backgroundUrl : (getEnv().useDarkTheme ? \'#404040\' : undefined)',
+    '[style.background-image]': 'list.backgroundUrl.indexOf(\'//\') !== -1 ? (\'url(\' + list.backgroundUrl + \')\') : undefined'
   }
 })
 export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
@@ -94,7 +94,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
   changeBackground() {
     this.ui.dialog({
-      message: 'Change background image url',
+      message: 'Change background image url or color',
       input: true,
       prefill: this.list.backgroundUrl || '',
       ok: result => {
@@ -170,7 +170,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
         { title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null) },
         { title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null) },
         { title: 'Change background...', callback: () => this.changeBackground() },
-        { title: 'Connect with Village...', callback: () => this.village.connect() },
+        //{ title: 'Connect with Village...', callback: () => this.village.connect() },
         { title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null) }
       ];
     } else {
@@ -178,7 +178,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
         { title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null) },
         { title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null) },
         { title: 'Change background...', callback: () => this.changeBackground() },
-        { title: 'Add people...', callback: () => this.addPeople(this.list) },
+        //{ title: 'Add people...', callback: () => this.addPeople(this.list) },
         { title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null) },
       ];
     }
@@ -197,7 +197,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.ui.dialog({
-      message: 'How to use Inception Notes\n\n1. Press F11 to make this act as your desktop\n2. Right-click on a note to change it\'s color\n3. Double-click on a note to focus\n4. Press escape to go to the previous note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to easily move items\n7. Use Ctrl+Down to "snip" off the last item of a list\n8. Use ALT+S to search',
+      message: 'How to use Inception Notes\n\n1. Right-click on a note to change it\'s color\n3. Double-click on a note to enter that note\n4. Press escape to go to the parent note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to move items\n7. Use Ctrl+Down to "snip" off the last item of a list\n8. Use ALT+S to search\n9. Use ALT+F to filter by links',
       view: OpComponent
     });
   }

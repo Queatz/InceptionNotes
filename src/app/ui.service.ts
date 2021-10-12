@@ -67,6 +67,8 @@ export class UiService {
       showListCheckboxes: false,
       showLinks: true,
       showEstimates: true,
+      unlinkOnDelete: false,
+      hideDoneItems: false,
       recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff']
     };
   }
@@ -165,6 +167,8 @@ export type Env = {
   showListCheckboxes: boolean,
   showLinks: boolean,
   showEstimates: boolean,
+  unlinkOnDelete: boolean,
+  hideDoneItems: boolean,
   recentColors: Array<string>
 }
 

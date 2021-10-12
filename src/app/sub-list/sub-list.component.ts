@@ -68,6 +68,12 @@ export class SubListComponent implements OnInit, OnChanges {
             const aRef = a.ref?.find(ref => ref.parent === refParent);
             const bRef = b.ref?.find(ref => ref.parent === refParent);
 
+
+            // Don't touch checked notes
+            if (a.checked || b.checked) {
+              return 0;
+            }
+
             // Notes without refs to the refParent don't get sorted
             if (!aRef && !bRef) {
               return 0;
@@ -94,11 +100,12 @@ export class SubListComponent implements OnInit, OnChanges {
         callback: () => this.addToNote(this.list),
         menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.addRef(this.list, recent); }, this.list) 
       },
+      {
+        title: 'Move...',
+        callback: () => this.moveToNote(this.list),
+        menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.moveList(this.list.id, recent.id); }, this.list)
+      },
       ...(this.list.parent ? [ {
-          title: 'Move...',
-          callback: () => this.moveToNote(this.list),
-          menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.moveList(this.list.id, recent.id); }, this.list)
-        }, {
         title: 'Duplicate',
         callback: () => this.api.duplicateList(this.list)
       } ] : []),
@@ -142,6 +149,15 @@ export class SubListComponent implements OnInit, OnChanges {
         title: 'Change color...',
         callback: () => this.changeColor(),
       },
+      { title: 'Delete', callback: () => {
+        if (this.ui.getEnv().unlinkOnDelete) {
+          while (this.list.ref?.length) {
+            this.api.removeRef(this.list, this.list.ref[0])
+          }
+        }
+
+        this.api.removeListFromParent(this.list);
+      } },
       ...(this.list.parent ? [ {
         title: this.list.collapsed ? 'Un-collapse' : 'Collapse',
         callback: () => this.toggleCollapse(),
@@ -189,7 +205,15 @@ export class SubListComponent implements OnInit, OnChanges {
           this.api.modified(item, 'estimate');
         }
       }) }, ] : []),
-      { title: 'Delete', callback: () => this.api.removeListFromParent(item) },
+      { title: 'Delete', callback: () => {
+        if (this.ui.getEnv().unlinkOnDelete) {
+          while (item.ref?.length) {
+            this.api.removeRef(item, item.ref[0])
+          }
+        }
+
+        this.api.removeListFromParent(item);
+      } },
     ], { x: event.clientX, y: event.clientY });
   }
 
@@ -604,11 +628,11 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   hideItem(item: any, includeEmpty = true) {
-    return this.filter.byRef?.length && (item.name || includeEmpty) && !item.ref?.find(x => this.filter.byRef.indexOf(x) !== -1);
+    return (item.checked && this.ui.getEnv().hideDoneItems) || this.filter.byRef?.length && (item.name || includeEmpty) && !item.ref?.find(x => this.filter.byRef.indexOf(x) !== -1);
   }
 
   numberHidden(list: any) {
-    if (this.filter.byRef?.length < 1) {
+    if (this.filter.byRef?.length < 1 && !this.ui.getEnv().hideDoneItems) {
       return 0;
     }
 
