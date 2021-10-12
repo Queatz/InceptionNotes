@@ -54,6 +54,40 @@ export class SubListComponent implements OnInit, OnChanges {
     event.preventDefault();
     event.stopPropagation();
 
+    const byLinksMenu = (this.list.items as Array<any>)
+    .map(item => item.ref || [])
+    .flat()
+    .map(ref => ref.parent)
+    .filter(list => !!list)
+    .filter((v, i, a) => a.indexOf(v) === i)
+    .map(refParent => {
+      return {
+        title: refParent.name,
+        callback: () => {
+          this.list.items.sort((a: any, b: any) => {
+            const aRef = a.ref?.find(ref => ref.parent === refParent);
+            const bRef = b.ref?.find(ref => ref.parent === refParent);
+
+            // Notes without refs to the refParent don't get sorted
+            if (!aRef && !bRef) {
+              return 0;
+            }
+
+            // Notes without refs to the refParent get moved down
+            if (!aRef !== !bRef) {
+              return !aRef ? 1 : -1;
+            }
+
+            const aPos = refParent.items.indexOf(aRef);
+            const bPos = refParent.items.indexOf(bRef);
+
+            return aPos === bPos ? 0 : aPos > bPos ? 1 : -1;
+          });
+          this.api.modified(this.list, 'items');
+        }
+      } as MenuOption;
+    });
+
     let options: Array<MenuOption> = [
       {
         title: 'Link...',
@@ -77,40 +111,12 @@ export class SubListComponent implements OnInit, OnChanges {
             title: 'By links',
             shortcut: '⯈',
             callback: () => {},
-            menu: [
-              ...(this.list.items as Array<any>)
-                  .map(item => item.ref || [])
-                  .flat()
-                  .map(ref => ref.parent)
-                  .filter(list => !!list)
-                  .filter((v, i, a) => a.indexOf(v) === i)
-                  .map(refParent => {
-                return {
-                  title: refParent.name,
-                  callback: () => {
-                    this.list.items.sort((a: any, b: any) => {
-                      const aRef = a.ref?.find(ref => ref.parent === refParent);
-                      const bRef = b.ref?.find(ref => ref.parent === refParent);
-
-                      // Notes without refs to the refParent don't get sorted
-                      if (!aRef && !bRef) {
-                        return 0;
-                      }
-
-                      // Notes without refs to the refParent get moved down
-                      if (!aRef !== !bRef) {
-                        return !aRef ? 1 : -1;
-                      }
-
-                      const aPos = refParent.items.indexOf(aRef);
-                      const bPos = refParent.items.indexOf(bRef);
-
-                      return aPos === bPos ? 0 : aPos > bPos ? 1 : -1;
-                    });
-                    this.api.modified(this.list, 'items');
-                  }
-                };
-              })
+            menu: byLinksMenu.length ? byLinksMenu : [
+              {
+                title: 'No links',
+                callback: (): void => {},
+                disabled: true
+              }
             ]
           },
           {

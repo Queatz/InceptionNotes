@@ -1,28 +1,28 @@
 :host {
-    position: relative;
-    display: inline-block;
-    width: 16rem;
-    padding: 1rem;
-    margin: 1rem;
-    border-radius: 2.5px;
-    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent);
-    background-color: #fff;
-    box-shadow: 3px 3px 9px rgba(0, 0, 0, .125);
-    vertical-align: top;
-    cursor: grab;
+  position: relative;
+  display: inline-block;
+  width: 16rem;
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 2.5px;
+  background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent);
+  background-color: #fff;
+  box-shadow: 3px 3px 9px rgba(0, 0, 0, .125);
+  vertical-align: top;
+  cursor: grab;
 }
 
 .sub-list-title {
-    font: inherit;
-    border: none;
-    padding: 0;
-    flex: 1;
-    outline: none;
-    font-weight: bold;
-    display: block;
-    cursor: text;
-    overflow: hidden;
-    word-break: break-all;
+  font: inherit;
+  border: none;
+  padding: 0;
+  flex: 1;
+  outline: none;
+  font-weight: bold;
+  display: block;
+  cursor: text;
+  overflow: hidden;
+  word-break: break-all;
 }
 
 .sub-list-title-container {
@@ -41,14 +41,14 @@
 }
 
 .sub-list-item {
-    border: none;
-    padding: 0;
-    outline: none;
-    flex: 1;
-    display: block;
-    word-wrap: break-word;
-    cursor: text;
-    word-break: break-word;
+  border: none;
+  padding: 0;
+  outline: none;
+  flex: 1;
+  display: block;
+  word-wrap: break-word;
+  cursor: text;
+  word-break: break-word;
 }
 
 .sub-list-item-container {
@@ -63,11 +63,9 @@
   display: block;
 }
 
-
-
 [data-after]:after {
-    content: attr(data-after);
-    color: rgba(0, 0, 0, .25);
+  content: attr(data-after);
+  color: rgba(0, 0, 0, .25);
 }
 
 .is-navigation .sub-list-title {

@@ -17,7 +17,7 @@ export class MenuComponent implements OnInit, AfterViewInit {
   @Input() clickout: () => void;
   @Input() position: { x: number, y: number, w?: number };
   @Input() environment: Env;
-  
+
   private showing: boolean = false;
 
   constructor(private elementRef: ElementRef, private ui: UiService) { }
@@ -37,7 +37,7 @@ export class MenuComponent implements OnInit, AfterViewInit {
     let invert = 0;
     
     if (document.documentElement) {
-      if (this.position.y + this.elementRef.nativeElement.offsetHeight > document.documentElement.offsetHeight) {
+      if (this.position.y + this.elementRef.nativeElement.offsetHeight - document.documentElement.scrollTop > window.innerHeight) {
         invert = this.elementRef.nativeElement.clientHeight;
       }
     }
@@ -83,8 +83,8 @@ export class MenuComponent implements OnInit, AfterViewInit {
 
     if (option.menu) {
       this.ui.menu(option.menu, {
-        x: this.position.x + this.elementRef.nativeElement.clientWidth,
-        y: this.position.y + (event.target as HTMLElement).offsetTop - Util.convertRemToPixels(.5),
+        x: this.elementRef.nativeElement.offsetLeft + this.elementRef.nativeElement.clientWidth,
+        y: this.elementRef.nativeElement.offsetTop + (event.target as HTMLElement).offsetTop - Util.convertRemToPixels(.5),
         w: this.elementRef.nativeElement.clientWidth
       }, option)
     } else {

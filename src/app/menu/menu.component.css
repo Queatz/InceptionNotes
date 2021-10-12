@@ -19,6 +19,12 @@
   padding: 1rem;
   cursor: default;
   transition: background-color .125s;
+  outline: none;
+}
+
+.menu-option-disabled {
+  opacity: .25;
+  background-color: none;
 }
 
 .menu-option-title {
@@ -35,9 +41,8 @@
   font-weight: 500;
 }
 
-.menu-option:focus, .menu-open {
+.menu-option:focus:not(.menu-option-disabled), .menu-open {
   background-color: rgba(0, 0, 0, .1);
-  outline: none;
 }
 
 .space-between {

@@ -2,6 +2,7 @@
     *ngFor="let option of options"
     tabindex="0"
     [class.menu-open]="option.isOpen"
+    [class.menu-option-disabled]="option.disabled"
     (keydown.enter)="clicked($event, option)"
     (click)="clicked($event, option)"
     (mouseenter)="hovered($event, option)">

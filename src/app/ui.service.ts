@@ -1,4 +1,4 @@
-import { Injectable, ComponentFactoryResolver, ViewContainerRef, ComponentFactory } from '@angular/core';
+import { Injectable, ComponentFactoryResolver } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { DialogComponent, DialogConfig } from './dialog/dialog.component';
@@ -167,6 +167,7 @@ export type Env = {
 
 export type MenuOption = {
   title: string,
+  disabled?: boolean,
   callback: () => void,
   shortcut?: string,
   menu?: Array<MenuOption>,
