@@ -251,3 +251,7 @@
   transform: translateY(-.5px) rotate(-45deg);
   width: 9px;
 }
+
+.navigate-to-note {
+  cursor: pointer;
+}

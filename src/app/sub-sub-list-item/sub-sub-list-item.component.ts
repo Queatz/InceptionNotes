@@ -109,4 +109,8 @@ export class SubSubListItemComponent implements OnInit {
     return false;
   }
 
+  scrollToNote(event: MouseEvent, item?: any) {
+    event.stopPropagation()
+    this.ui.locate.next(item ?? this.item)
+  }
 }

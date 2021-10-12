@@ -1,4 +1,5 @@
 import { Injectable, ComponentFactoryResolver } from '@angular/core';
+import { Subject } from 'rxjs'
 
 import { AppComponent } from './app.component';
 import { DialogComponent, DialogConfig } from './dialog/dialog.component';
@@ -6,6 +7,8 @@ import { MenuComponent } from './menu/menu.component';
 
 @Injectable()
 export class UiService {
+
+  readonly locate = new Subject<any>()
 
   private appComponent: AppComponent;
   private dialogs = [];

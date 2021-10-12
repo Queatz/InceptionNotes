@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, ElementRef, Input, HostListener } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, ElementRef, Input, HostListener, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import { ApiService } from '../api.service';
 import { UiService, MenuOption } from '../ui.service';
 import { VillageService } from '../village.service';
@@ -7,6 +7,8 @@ import { SearchComponent } from '../search/search.component';
 import { AddPeopleComponent } from 'app/add-people/add-people.component';
 import Util from 'app/util';
 import { FilterService } from 'app/filter.service'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
   selector: 'main-desk',
@@ -17,15 +19,38 @@ import { FilterService } from 'app/filter.service'
     '[style.background-image]': 'list.backgroundUrl ? (\'url(\' + list.backgroundUrl + \')\') : undefined'
   }
 })
-export class MainDeskComponent implements OnInit, OnChanges {
+export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() list: any;
+
+  @ViewChild('listsContainer', { read: ViewContainerRef }) listsContainer: ViewContainerRef;
+
+  private destroyed = new Subject<void>()
 
   constructor(public api: ApiService, public filter: FilterService, public village: VillageService, public ui: UiService, private elementRef: ElementRef) {
   }
   
   ngOnInit() {
   	this.initNext();
+
+    this.ui.locate.pipe(
+      takeUntil(this.destroyed)
+    ).subscribe(note => {
+      const idx = this.getLists().indexOf(note);
+
+      if (document.documentElement && idx !== -1) {
+        const y = ((this.listsContainer.element.nativeElement as HTMLDivElement).children[idx] as HTMLDivElement).offsetTop - Util.convertRemToPixels(1);
+        document.documentElement.scrollTo({
+          top: y,
+          behavior: 'smooth' 
+        })
+      }
+    })
+  }
+
+  ngOnDestroy() {
+    this.destroyed.next();
+    this.destroyed.complete();
   }
 
   ngOnChanges(changes: SimpleChanges) {

@@ -7,10 +7,16 @@
 <div [ngClass]="{ 'is-showing': filter.byRef?.length, 'dark-theme': getEnv().useDarkTheme }" class="filterbox">
   <div class="filterbox-title">Showing items with links</div>
   <div class="item-links">
-    <div *ngFor="let i of filter.byRef" class="item-link lg" [title]="getItemLinkText(i)" (click)="removeFilter($event, i)" (contextmenu)="showFilterOptions($event, i)" [style.background-color]="i.color" [innerHTML]="i.name"></div>
+    <div *ngFor="let i of filter.byRef"
+      class="item-link lg"
+      [title]="getItemLinkText(i)"
+      (click)="removeFilter($event, i)"
+      (contextmenu)="showFilterOptions($event, i)"
+      [style.background-color]="i.color"
+      [innerHTML]="i.name"></div>
   </div>
 </div>
-<div class="items" [ngClass]="{'priority-list': getEnv().showAsPriorityList}">
+<div class="items" [ngClass]="{'priority-list': getEnv().showAsPriorityList}" #listsContainer>
   <sub-list *ngFor="let list of getLists()"
     (modified)="onItemModified(list)"
     (removed)="onItemRemoved(list)"
