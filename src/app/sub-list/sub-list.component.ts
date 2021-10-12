@@ -631,6 +631,10 @@ export class SubListComponent implements OnInit, OnChanges {
     return (item.checked && this.ui.getEnv().hideDoneItems) || this.filter.byRef?.length && (item.name || includeEmpty) && !item.ref?.find(x => this.filter.byRef.indexOf(x) !== -1);
   }
 
+  hideSubItem(item: any) {
+    return this.isEmpty(item) || (item.checked && this.ui.getEnv().hideDoneItems)
+  }
+
   numberHidden(list: any) {
     if (this.filter.byRef?.length < 1 && !this.ui.getEnv().hideDoneItems) {
       return 0;

@@ -16,7 +16,7 @@ import { takeUntil } from 'rxjs/operators'
   styleUrls: ['./main-desk.component.css'],
   host: {
     '[style.background-color]': 'list.backgroundUrl && list.backgroundUrl.indexOf(\'//\') === -1 ? list.backgroundUrl : (getEnv().useDarkTheme ? \'#404040\' : undefined)',
-    '[style.background-image]': 'list.backgroundUrl.indexOf(\'//\') !== -1 ? (\'url(\' + list.backgroundUrl + \')\') : undefined'
+    '[style.background-image]': 'list.backgroundUrl && list.backgroundUrl.indexOf(\'//\') !== -1 ? (\'url(\' + list.backgroundUrl + \')\') : undefined'
   }
 })
 export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
