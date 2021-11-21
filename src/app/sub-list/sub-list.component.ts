@@ -127,6 +127,16 @@ export class SubListComponent implements OnInit, OnChanges {
             ]
           },
           {
+            title: 'Reverse',
+            callback: () => {
+              this.list.items.reverse();
+              if (this.list.items.length && this.isEmpty(this.list.items[0])) {
+                this.moveItemToLastPosition(this.list.items[0])
+              }
+              this.api.modified(this.list, 'items');
+            }
+          },
+          {
             title: 'Done to bottom',
             callback: () => {
               this.list.items.sort((a: any, b: any) => { 
@@ -735,6 +745,17 @@ export class SubListComponent implements OnInit, OnChanges {
     }
 
     this.newBlankList();
+  }
+
+  private moveItemToLastPosition(item: any) {
+    const location = this.list.items.indexOf(item);
+    
+    if (location === -1) {
+      return;
+    }
+    
+    this.list.items.splice(location, 1);
+    this.list.items.push(item);
   }
 
   private newBlankList(position: number = null) {
