@@ -567,10 +567,16 @@ export class SubListComponent implements OnInit, OnChanges {
     event.stopPropagation();
     event.preventDefault();
     
-    let location = this.list.items.indexOf(item);
+    const location = this.list.items.indexOf(item);
 
-    if (location === -1) {
+    if (location === -1 || move === 0) {
       return;
+    }
+
+    const dir = move < 0 ? -1 : 1;
+
+    while (location + move > 0 && location + move < this.list.items.length - 1 && this.hideItem(this.list.items[location + move])) {
+      move += dir;
     }
 
     if (move < 0 && location === 0) {
@@ -594,7 +600,7 @@ export class SubListComponent implements OnInit, OnChanges {
       this.api.modified(this.list, 'items');
     }
 
-    setTimeout(() => this.focusItem(location + move));
+    setTimeout(() => this.focusItem(this.visualIndex(item)));
   }
 
   onItemEnterPressed(element: any, item: any) {
@@ -604,8 +610,8 @@ export class SubListComponent implements OnInit, OnChanges {
       return false;
     }
 
-    this.newBlankList(i + 1);
-    setTimeout(() => this.focusItem(i + 1));
+    const l = this.newBlankList(i + 1);
+    setTimeout(() => this.focusItem(this.visualIndex(l)));
 
     return false;
   }
@@ -643,6 +649,10 @@ export class SubListComponent implements OnInit, OnChanges {
     return list.items.filter(x => this.hideItem(x, false)).length;
   }
 
+  visualIndex(item: any): number {
+    return this.list.items.filter(x => !this.hideItem(x)).indexOf(item);
+  }
+
   countSubItems(item: any) {
     return this.api.getSubItemNames(item).length;
   }
@@ -660,7 +670,7 @@ export class SubListComponent implements OnInit, OnChanges {
   public onArrowUpDown(event: Event, item: any, move: number) {
     event.preventDefault();
 
-    let i = this.list.items.indexOf(item);
+    let i = this.list.items.filter(x => !this.hideItem(x)).indexOf(item);
 
     if (i === -1) {
       return;
@@ -703,14 +713,15 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   private deleteItem(element: any, item: any) {
-    let i = this.list.items.indexOf(item);
+    const i = this.list.items.indexOf(item);
+    const vi = this.visualIndex(item);
     this.list.items.splice(i, 1);
     this.api.modified(this.list, 'items');
 
     if (i === 0) {
       this.focusName();
     } else {
-      this.focusItem(i - 1);
+      this.focusItem(vi - 1);
     }
   }
 
