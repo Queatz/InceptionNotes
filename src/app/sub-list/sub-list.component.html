@@ -10,7 +10,7 @@
           (click)="useAsNavigation ? openList($event) : undefined"
           (keydown.backspace)="onNameBackspacePressed()"
           (keydown.enter)="onNameEnterPressed(element)"
-          (keydown.arrowdown)="focusItem(0)"
+          (keydown.arrowDown)="focusItem(0)"
           class="sub-list-title"></div>
         </div>
     <div class="item-links" *ngIf="getEnv().showLinks && list.ref && !list.collapsed">
@@ -34,10 +34,10 @@
             (dblclick)="getEnv().dblClickToOpen ? openItem($event, item) : dontPropagate($event)"
             (keydown.enter)="onItemEnterPressed(element, item)"
             (keydown.backspace)="onItemBackspacePressed(element, item)"
-            (keydown.control.arrowup)="moveItem($event, item, -1)"
-            (keydown.control.arrowdown)="moveItem($event, item, 1)"
-            (keydown.arrowup)="onArrowUpDown($event, item, -1)"
-            (keydown.arrowdown)="onArrowUpDown($event, item, 1)"
+            (keydown.control.arrowUp)="moveItem($event, item, -1)"
+            (keydown.control.arrowDown)="moveItem($event, item, 1)"
+            (keydown.arrowUp)="onArrowUpDown($event, item, -1)"
+            (keydown.arrowDown)="onArrowUpDown($event, item, 1)"
             [title]="getSubitemText(item)"
             [attr.data-after]="getAfterText(item)"
             class="sub-list-item"
@@ -48,9 +48,12 @@
           <div class="sneak-peek" [ngClass]="{'interactable': getEnv().showSublistCheckboxes}" *ngIf="getEnv().showSublistPreviews && item.items.length">
             <div *ngFor="let i of item.items" class="sneak-peek-item-container" [hidden]="hideSubItem(i)">
               <div *ngIf="(getEnv().showSublistCheckboxes || i.checked) && i.name" (click)="onItemChecked(i)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': i.checked}"></div>
-              <div class="sneak-peek-item" 
+              <div class="sneak-peek-item"
+                (contextmenu)="showSubitemOptions($event, i)"
                 [ngClass]="{ 'item-name-checked': i.checked }"
-                [innerHTML]="i.name"
+                [contentEditable]="true"
+                [(contenteditableModel)]="i.name"
+                (contenteditableModelChange)="onItemChange(i)"
                 [attr.data-after]="getAfterText(i)"></div>
             </div>
           </div>

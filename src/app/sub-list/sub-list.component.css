@@ -100,6 +100,10 @@
   margin-top: .25rem;
 }
 
+.sneak-peek-item {
+  outline: none;
+}
+
 .sneak-peek-item-container {
   display: flex;
 }

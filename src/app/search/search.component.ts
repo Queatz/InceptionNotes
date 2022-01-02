@@ -25,7 +25,7 @@ export class SearchComponent implements OnInit, OnChanges {
     this.resultsChanged.next(this.results);
   }
 
-  @HostListener('window:keydown.arrowdown')
+  @HostListener('window:keydown.arrowDown')
   down() {
     if (this.results.length > 1) {
       this.resultsHistory.push(this.results.shift());
@@ -35,7 +35,7 @@ export class SearchComponent implements OnInit, OnChanges {
     return false;
   }
 
-  @HostListener('window:keydown.arrowup')
+  @HostListener('window:keydown.arrowUp')
   up() {
     if (this.resultsHistory.length) {
       this.results.unshift(this.resultsHistory.pop());
