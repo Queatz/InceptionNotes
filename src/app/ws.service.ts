@@ -76,18 +76,21 @@ export class WsService {
             'Content-Type': 'application/json;charset=utf-8',
             Authorization: this.syncService.clientKey()
           }
-        }).subscribe((message: any) => {
-          this.isInActiveHttpSync = false;
-          if (this.shouldHttpSyncAgain) {
-            this.send([], true);
-          }
-          this.syncService.got(message);
-        }, error => {
+        }).subscribe({
+          next: (m: any) => {
+            this.isInActiveHttpSync = false;
+            if (this.shouldHttpSyncAgain) {
+              this.send([], true);
+            }
+            this.syncService.got(m);
+          },
+          error: error => {
           this.isInActiveHttpSync = false;
           if (this.shouldHttpSyncAgain) {
             this.send([], true);
           }
           console.log(error);
+        }
         });
       }
     }
@@ -96,9 +99,9 @@ export class WsService {
   }
 
   private onOpen() {
-    this.onBeforeOpen.next();
+    this.onBeforeOpen.next(null);
 
-    while(this.pending.length) {
+    while (this.pending.length) {
       this.send(this.pending.shift());
     }
 

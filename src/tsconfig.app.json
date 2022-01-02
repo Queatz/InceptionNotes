@@ -2,9 +2,13 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "../out-tsc/app",
-    "target": "es5",
+    "target": "es6",
     "downlevelIteration": true,
-    "module": "es2015",
+    "module": "es2020",
+    "lib": [
+      "es2020",
+      "dom"
+    ],
     "baseUrl": "",
     "types": []
   },
