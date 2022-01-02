@@ -1,5 +1,6 @@
 export interface CollaborativeJsonNode {
   sync(prop: string, node: Object, foreign: Object): Object;
+
   set(prop: string, node: Object, foreign: Object);
 }
 
@@ -64,7 +65,7 @@ export class CollaborativeJson {
    * @returns true on success
    */
   public sync(node: Object, foreign: Object, resolver: ConflictResolver = null): Promise<boolean> {
-    let conflicts: Array<Conflict> = [];
+    const conflicts: Array<Conflict> = [];
 
     if (!(this.syncProperty in node)) {
       node[this.syncProperty] = {};
@@ -76,7 +77,7 @@ export class CollaborativeJson {
       return Promise.reject(false);
     }
 
-    for(let key in foreign) {
+    for (const key in foreign) {
       // Precondition: Rule exists
       if (!this.propertyRules[key]) {
         continue;
@@ -84,7 +85,7 @@ export class CollaborativeJson {
 
       // Precondition: Value changed
       if (node[key] === foreign[key]) {
-       continue;
+        continue;
       }
 
       // Precondition: foreign has sync property
@@ -106,8 +107,8 @@ export class CollaborativeJson {
         continue;
       }
 
-      let nodePropTime = node[this.syncProperty][key].time;
-      let foreignPropTime = foreign[this.syncProperty][key].time;
+      const nodePropTime = node[this.syncProperty][key].time;
+      const foreignPropTime = foreign[this.syncProperty][key].time;
 
       // Precondition: Foreign time exists
       if (!foreignPropTime) {
@@ -144,7 +145,7 @@ export class CollaborativeJson {
 
     if (resolver && conflicts.length) {
       return new Promise<boolean>((resolve, reject) => {
-        let next = () => resolver.resolve(conflicts.pop()).then((resolution: ConflictResolution) => {
+        const next = () => resolver.resolve(conflicts.pop()).then((resolution: ConflictResolution) => {
           if (resolution.resolved) {
             this.resolve(node, resolution.conflict.property);
           }

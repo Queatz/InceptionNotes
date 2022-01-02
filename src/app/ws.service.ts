@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Config } from 'app/config.service';
-import { SyncService } from 'app/sync.service';
-import { Subject } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Config} from 'app/config.service';
+import {SyncService} from 'app/sync.service';
+import {Subject} from 'rxjs';
 
 @Injectable()
 export class WsService {
@@ -19,7 +19,8 @@ export class WsService {
   // Events
   public onBeforeOpen: Subject<any> = new Subject();
 
-  constructor(private config: Config, private http: HttpClient) {}
+  constructor(private config: Config, private http: HttpClient) {
+  }
 
   public active() {
     return this.websocket && this.websocket.readyState === WebSocket.OPEN;
@@ -85,12 +86,12 @@ export class WsService {
             this.syncService.got(m);
           },
           error: error => {
-          this.isInActiveHttpSync = false;
-          if (this.shouldHttpSyncAgain) {
-            this.send([], true);
+            this.isInActiveHttpSync = false;
+            if (this.shouldHttpSyncAgain) {
+              this.send([], true);
+            }
+            console.log(error);
           }
-          console.log(error);
-        }
         });
       }
     }

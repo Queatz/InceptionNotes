@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { UiService } from './ui.service';
-import { Subject } from 'rxjs';
-import { Config } from 'app/config.service';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {UiService} from './ui.service';
+import {Subject} from 'rxjs';
+import {Config} from 'app/config.service';
 
 export class NoteChanges {
   public note: any;
@@ -48,7 +48,7 @@ export class ApiService {
   }
 
   public load() {
-    let version = +localStorage.getItem('version');
+    const version = +localStorage.getItem('version');
     let root = null;
 
     if (version < 1) {
@@ -64,19 +64,19 @@ export class ApiService {
         });
       }, 1000);
     }
-    
+
     if (version < 2) {
       localStorage.setItem('version', '2');
       this.notes = this.unfreeze(localStorage.getItem('notes'));
-      this.saveAll();      
+      this.saveAll();
     }
 
-    let localNotes = new Map<string, any>();
-    for (let n in localStorage) {
+    const localNotes = new Map<string, any>();
+    for (const n in localStorage) {
       if (n.substring(0, 5) === 'note:') {
-        let n2 = JSON.parse(localStorage.getItem(n));
+        const n2 = JSON.parse(localStorage.getItem(n));
         localNotes[n2.id] = n2;
-      } else if(n.substring(0, 7) === 'person:') {
+      } else if (n.substring(0, 7) === 'person:') {
         this.updatePerson(JSON.parse(localStorage.getItem(n)));
       }
     }
@@ -110,7 +110,7 @@ export class ApiService {
    * Load a single note.
    */
   public loadNote(note: string) {
-    
+
   }
 
   /**
@@ -125,9 +125,9 @@ export class ApiService {
       return null;
     }
 
-    let fossil = {};
+    const fossil = {};
 
-    for (let a of (<any>Object).values(animal)) {
+    for (const a of (<any>Object).values(animal)) {
       fossil[a.id] = this.freezeNote(a);
     }
 
@@ -135,15 +135,15 @@ export class ApiService {
   }
 
   public unfreeze(fossil: any) {
-    if (typeof(fossil) === 'string') {
+    if (typeof (fossil) === 'string') {
       fossil = JSON.parse(fossil);
     }
 
     if (!fossil) {
-        return null;
+      return null;
     }
 
-    for (let a of (<any>Object).values(fossil)) {
+    for (const a of (<any>Object).values(fossil)) {
       this.unfreezeNote(a, fossil);
     }
 
@@ -154,30 +154,30 @@ export class ApiService {
    * Semi-freeze a single note
    */
   public freezeNote(a: any): any {
-    let items = undefined;
+    let items;
     if (a.items) {
       items = [];
-      for (let item of a.items) {
+      for (const item of a.items) {
         items.push(item.id);
       }
     }
 
-    let ref = undefined;
+    let ref;
     if (a.ref) {
       ref = [];
-      for (let item of a.ref) {
+      for (const item of a.ref) {
         ref.push(item.id);
       }
     }
 
-    let people = undefined;
+    let people;
     if (a.people) {
       people = [];
-      for (let person of a.people) {
+      for (const person of a.people) {
         people.push(person.id);
       }
     }
-    
+
     return {
       id: a.id,
       name: a.name,
@@ -196,18 +196,18 @@ export class ApiService {
 
   /**
    * Unfreeze a note
-   * 
+   *
    * @param a The currently semi-frozen note
-   * @param fossil A pool of semi-frozen notes 
+   * @param fossil A pool of semi-frozen notes
    */
   public unfreezeNote(a: any, fossil: any) {
-    let items = [];
+    const items = [];
 
     if (!a.items) {
       a.items = [];
     }
 
-    for (let id of a.items) {
+    for (const id of a.items) {
       let n = fossil[id];
 
       if (!n) {
@@ -224,9 +224,9 @@ export class ApiService {
     a.items = items;
 
     if (a.ref) {
-      let ref = [];
+      const ref = [];
 
-      for (let id of a.ref) {
+      for (const id of a.ref) {
         let n = fossil[id];
 
         if (!n) {
@@ -243,10 +243,10 @@ export class ApiService {
     }
 
     if (a.people) {
-      let people = [];
+      const people = [];
 
-      for (let id of a.people) {
-        let n = this.person(id);
+      for (const id of a.people) {
+        const n = this.person(id);
         people.push(n)
       }
 
@@ -264,9 +264,9 @@ export class ApiService {
       if (!value) {
         return [];
       }
-  
-      let a = [];
-      for (let id of value) {
+
+      const a = [];
+      for (const id of value) {
         let n = this.search(id);
 
         if (!n) {
@@ -276,14 +276,14 @@ export class ApiService {
           }
           this.saveNote(n);
         }
-  
+
         a.push(n);
 
         if (prop === 'items') {
           n.parent = note;
         }
       }
-      
+
       return a;
     }
 
@@ -300,7 +300,7 @@ export class ApiService {
       return this.people.get(id);
     }
 
-    let p = { id: id };
+    const p = {id: id};
     this.people.set(id, p);
     return p;
   }
@@ -310,7 +310,7 @@ export class ApiService {
       return;
     }
 
-    let p = this.person(person.id);
+    const p = this.person(person.id);
     Object.assign(p, person);
     localStorage.setItem('person:' + person.id, JSON.stringify(p));
   }
@@ -334,7 +334,7 @@ export class ApiService {
 
   public up() {
     if (this.view.eye === this.view.show) {
-      let eye = this.search(this.view.show.id);
+      const eye = this.search(this.view.show.id);
 
       if (!eye || !this.parents(eye).length) {
         this.ui.dialog({
@@ -344,12 +344,12 @@ export class ApiService {
         return;
       }
 
-      let parents = this.parents(eye);
-      let show = parents[parents.length - 1];
+      const parents = this.parents(eye);
+      const show = parents[parents.length - 1];
       this.view.eye = show;
       this.view.show = show;
     } else {
-      let show = this.search(this.view.show.id);
+      const show = this.search(this.view.show.id);
 
       if (!show || !show.parent) {
         return;
@@ -362,12 +362,12 @@ export class ApiService {
   }
 
   resetView() {
-    let top = localStorage.getItem('top');
+    const top = localStorage.getItem('top');
 
     if (top) {
       this.top = this.notes[top];
     } else {
-      for (let note of (<any>Object).values(this.notes)) {
+      for (const note of (<any>Object).values(this.notes)) {
         this.top = note;
         break;
       }
@@ -407,7 +407,7 @@ export class ApiService {
   }
 
   private saveView() {
-    this.router.navigate(['n', this.view.show.id]);        
+    this.router.navigate(['n', this.view.show.id]);
     localStorage.setItem('view', this.view.eye.id);
     localStorage.setItem('view-show', this.view.show.id);
 
@@ -437,7 +437,7 @@ export class ApiService {
   }
 
   private parents(note: any) {
-    let list = [];
+    const list = [];
 
     if (!note) {
       return list;
@@ -470,7 +470,7 @@ export class ApiService {
 
     exclude.push(note);
 
-    for (let subItem of note.items) {
+    for (const subItem of note.items) {
       if (this.contains(id, subItem, exclude)) {
         return true;
       }
@@ -491,12 +491,12 @@ export class ApiService {
     }
 
     if (item.estimate) {
-        result.push(item.estimate);
+      result.push(item.estimate);
     }
 
     exclude.push(item);
 
-    for (let subItem of item.items) {
+    for (const subItem of item.items) {
       result = result.concat(this.getSubItemEstimates(subItem, exclude));
     }
 
@@ -516,7 +516,7 @@ export class ApiService {
 
     exclude.push(item);
 
-    for (let subItem of item.items) {
+    for (const subItem of item.items) {
       if (!subItem.name) {
         continue;
       }
@@ -531,10 +531,10 @@ export class ApiService {
   /* Synchronization */
 
   public loadFrozenNotes(notes: string) {
-    let n = this.unfreeze(notes);
+    const n = this.unfreeze(notes);
 
-    for(let note in n) {
-      let nn = n[note];
+    for (const note in n) {
+      const nn = n[note];
       this.notes[note] = nn;
 
       if (nn.name.replace(/<(?:.|\n)*?>/gm, '').trim().length && !nn.parent) {
@@ -563,10 +563,10 @@ export class ApiService {
   }
 
   private performUnbackup() {
-    let dlAnchorElem = (document.createElement('INPUT') as HTMLInputElement);
+    const dlAnchorElem = (document.createElement('INPUT') as HTMLInputElement);
     dlAnchorElem.type = 'file';
     dlAnchorElem.onchange = () => {
-      let fr = new FileReader();
+      const fr = new FileReader();
       fr.onloadend = () => {
         this.loadFrozenNotes(fr.result as string);
       };
@@ -576,9 +576,9 @@ export class ApiService {
   }
 
   public backupToFile(str: string) {
-    let dateStr = new Date().toLocaleDateString();
-    let dataStr = new Blob([str], { type: 'application/json' });
-    let dlAnchorElem = (document.createElement('A') as HTMLAnchorElement);
+    const dateStr = new Date().toLocaleDateString();
+    const dataStr = new Blob([str], {type: 'application/json'});
+    const dlAnchorElem = (document.createElement('A') as HTMLAnchorElement);
     dlAnchorElem.href = window.URL.createObjectURL(dataStr);
     dlAnchorElem.setAttribute('download', 'Inception Notes (' + dateStr + ').json');
     document.body.appendChild(dlAnchorElem);
@@ -596,7 +596,7 @@ export class ApiService {
         note['_sync'][prop].synchronized = false;
       }
     }
-    
+
     this.saveNote(note);
     this.onNoteChangedObservable.next(new NoteChanges(note, prop));
   }
@@ -605,7 +605,7 @@ export class ApiService {
    * Set a note as synced.
    */
   public setSynced(id: string, prop: string) {
-    let note = this.search(id);
+    const note = this.search(id);
 
     if (!note) {
       if (this.config.beta) {
@@ -623,7 +623,9 @@ export class ApiService {
    */
   public setAllPropsSynced(note: any) {
     Object.keys(note).forEach(prop => {
-      if (prop === 'id') return;
+      if (prop === 'id') {
+        return;
+      }
       this.setPropSynced(note, prop);
     });
   }
@@ -636,7 +638,7 @@ export class ApiService {
       note['_sync'] = {};
     }
 
-    if(!(prop in note['_sync'])) {
+    if (!(prop in note['_sync'])) {
       note['_sync'][prop] = {};
     }
 
@@ -656,17 +658,17 @@ export class ApiService {
   }
 
   /**
-   * 
+   *
    */
   private breakCeiling() {
-    let id = this.newId();
+    const id = this.newId();
 
-    let newTop = {
+    const newTop = {
       id: id,
       name: 'New Master List',
       description: '',
       color: '#ffffff',
-      items: [ this.top ]
+      items: [this.top]
     };
 
     this.top.parent = newTop;
@@ -680,8 +682,8 @@ export class ApiService {
   }
 
   public moveListUp(list: any, position: number = -1) {
-    let parents = this.parents(list);
-    let parent = parents.length >= 2 ? parents[parents.length - 2] : null;
+    const parents = this.parents(list);
+    const parent = parents.length >= 2 ? parents[parents.length - 2] : null;
 
     if (!parent) {
       return;
@@ -703,24 +705,24 @@ export class ApiService {
       return;
     }
 
-    let list = this.search(listId);
-    let toList = this.search(toListId);
+    const list = this.search(listId);
+    const toList = this.search(toListId);
 
     if (!list || !toList) {
       this.ui.dialog({
         message: 'List could not be found.'
       });
-      
+
       return;
     }
 
-    let listParents = this.parents(list);
-    let toListParents = this.parents(toList);
+    const listParents = this.parents(list);
+    const toListParents = this.parents(toList);
 
-    let listParent = listParents.length ? listParents[listParents.length - 1] : null;
+    const listParent = listParents.length ? listParents[listParents.length - 1] : null;
 
     if (listParent !== toList) {
-      for (let parent of toListParents) {
+      for (const parent of toListParents) {
         if (parent.id === listId) {
           this.ui.dialog({
             message: 'List cannot be moved into a child of itself.'
@@ -757,7 +759,7 @@ export class ApiService {
 
   public removeListFromParent(list: any) {
     if (list.parent) {
-      let pos = list.parent.items.indexOf(list);
+      const pos = list.parent.items.indexOf(list);
       if (pos >= 0) {
         list.parent.items.splice(pos, 1);
         this.modified(list.parent, 'items');
@@ -774,7 +776,7 @@ export class ApiService {
     const newList = this.newBlankList(list.parent, list.parent.items.indexOf(list) + 1);
 
     this.copyFromNote(newList, list, true);
-  
+
     this.modified(list.parent, 'items');
     this.modified(newList);
 
@@ -807,7 +809,7 @@ export class ApiService {
   }
 
   public newBlankList(list: any = null, position: number = null) {
-    let note: any = this.newBlankNote();
+    const note: any = this.newBlankNote();
 
     if (list) {
       note.parent = list;
@@ -818,7 +820,7 @@ export class ApiService {
         list.items.splice(position, 0, note);
       }
 
-      let synced = this.isSynced(list, 'items');
+      const synced = this.isSynced(list, 'items');
       this.modified(list, 'items');
       if (synced) {
         this.setPropSynced(list, 'items');
@@ -830,9 +832,11 @@ export class ApiService {
 
 
   public newBlankNote(fromServer?: boolean, id?: string): any {
-    if (!id) id = this.newId();
-    
-    let note = {
+    if (!id) {
+      id = this.newId();
+    }
+
+    const note = {
       id: id,
       name: '',
       description: '',
@@ -887,7 +891,7 @@ export class ApiService {
     }
 
     if (toList.ref) {
-      let idx = toList.ref.indexOf(list);
+      const idx = toList.ref.indexOf(list);
 
       if (idx !== -1) {
         toList.ref.splice(idx, 1);
@@ -896,7 +900,7 @@ export class ApiService {
     }
 
     if (list.ref) {
-      let idx = list.ref.indexOf(toList);
+      const idx = list.ref.indexOf(toList);
 
       if (idx !== -1) {
         list.ref.splice(idx, 1);
@@ -911,11 +915,11 @@ export class ApiService {
     }
 
     if (list.ref) {
-      let idx = list.ref.indexOf(toList);
+      const idx = list.ref.indexOf(toList);
 
       if (idx !== -1) {
         list.ref.splice(idx, 1);
-        
+
         if (position < 0) {
           list.ref.splice(list.ref.length - position, 0, toList);
         } else {
@@ -930,7 +934,7 @@ export class ApiService {
   /* Recents */
 
   public getRecent(which: string): any[] {
-    let recent = localStorage.getItem('recent::' + which);
+    const recent = localStorage.getItem('recent::' + which);
 
     if (!recent) {
       return [];
@@ -940,17 +944,21 @@ export class ApiService {
   }
 
   public addRecent(which: string, noteId: string) {
-    let recents = (localStorage.getItem('recent::' + which) || '').split(',').filter(n => n !== noteId);
+    const recents = (localStorage.getItem('recent::' + which) || '').split(',').filter(n => n !== noteId);
     recents.unshift(noteId);
-    if (recents.length > 3) recents.length = 3;
+    if (recents.length > 3) {
+      recents.length = 3;
+    }
     localStorage.setItem('recent::' + which, recents.join(','));
   }
-  
+
   /* Util */
 
   public newId() {
     let id;
-    do { id = this.rawNewId() } while(this.notes && (id in this.notes));
+    do {
+      id = this.rawNewId()
+    } while (this.notes && (id in this.notes));
     return id;
   }
 
@@ -959,9 +967,295 @@ export class ApiService {
   }
 
   private intro() {
-    this.notes = this.unfreeze({"9ecal36r08qsegt2q7ruar":{"id":"9ecal36r08qsegt2q7ruar","name":"My Notes","description":"Take notes here...","color":"#80d8ff","items":["ezyw5zl0s7k5ky66oz7368","tprx0gv41gepcofy7yia","tpot361b974p1mn3jxbr4","7fv55sy73d7epp5kqnguul"],"ref":[]},"ezyw5zl0s7k5ky66oz7368":{"id":"ezyw5zl0s7k5ky66oz7368","name":"Welcome to Inception Notes!","description":"","color":"#ff80ab","items":["3ooxxyu6ko97smbzcigvza","7llyfbgu4eb9rae6kb074l","s3flakxhf2mb8pixx0w1l","isqms385v5batkjoztpn15"],"ref":[]},"3ooxxyu6ko97smbzcigvza":{"id":"3ooxxyu6ko97smbzcigvza","name":"<b>Right-click</b> on the background to get help","description":"","color":"#ff8a80","items":["r8um73em8ikjy1847ituem"],"ref":[]},"r8um73em8ikjy1847ituem":{"id":"r8um73em8ikjy1847ituem","name":"","color":"#ffffff","items":["do7uegwh31lf6qu8lxpye"],"ref":[]},"do7uegwh31lf6qu8lxpye":{"id":"do7uegwh31lf6qu8lxpye","name":"","color":"#ffffff","items":[],"ref":[]},"s3flakxhf2mb8pixx0w1l":{"id":"s3flakxhf2mb8pixx0w1l","name":"Have fun!","description":"","color":"#ea80fc","items":["rjq9391912ae63xb2e8y"],"ref":[]},"rjq9391912ae63xb2e8y":{"id":"rjq9391912ae63xb2e8y","name":"","color":"#ffffff","items":["rgmgxz8fabchssd0j75acb"],"ref":[]},"rgmgxz8fabchssd0j75acb":{"id":"rgmgxz8fabchssd0j75acb","name":"","color":"#ffffff","items":[],"ref":[]},"isqms385v5batkjoztpn15":{"id":"isqms385v5batkjoztpn15","name":"","color":"#ffffff","items":["w0ok2ypdxqugorshz54l"],"ref":[]},"w0ok2ypdxqugorshz54l":{"id":"w0ok2ypdxqugorshz54l","name":"","color":"#ffffff","items":[],"ref":[]},"tprx0gv41gepcofy7yia":{"id":"tprx0gv41gepcofy7yia","name":"Main Projects","description":"","color":"#ffd180","items":["bxw7hfpcmytcq0738o31ef","rbcx2x3og4b2ty3efm4aux","whfs7lj4i5gzrdyifbt4td","7oknreb5imgufsn1ohxcib","ialkx35n6mo697qcqaulvl"],"ref":[]},"bxw7hfpcmytcq0738o31ef":{"id":"bxw7hfpcmytcq0738o31ef","name":"My First Project","description":"","color":"#E6E3D7","items":["di8colqbb8lyyvf5gidqqj"],"ref":[]},"di8colqbb8lyyvf5gidqqj":{"id":"di8colqbb8lyyvf5gidqqj","name":"","color":"#ffffff","items":["t6tdhnfx3ydzbvul20lti"],"ref":[]},"t6tdhnfx3ydzbvul20lti":{"id":"t6tdhnfx3ydzbvul20lti","name":"","color":"#ffffff","items":[],"ref":[]},"rbcx2x3og4b2ty3efm4aux":{"id":"rbcx2x3og4b2ty3efm4aux","name":"My Other Project","description":"","color":"#E6E3D7","items":["pl7mhv8mjxqs48qw1n3ku"],"ref":[]},"pl7mhv8mjxqs48qw1n3ku":{"id":"pl7mhv8mjxqs48qw1n3ku","name":"","color":"#ffffff","items":["yvnljwa9yhhqk3pqztuwh"],"ref":[]},"yvnljwa9yhhqk3pqztuwh":{"id":"yvnljwa9yhhqk3pqztuwh","name":"","color":"#ffffff","items":[],"ref":[]},"whfs7lj4i5gzrdyifbt4td":{"id":"whfs7lj4i5gzrdyifbt4td","name":"Big project!","color":"#ff80ab","items":["0xbh8qf3zrnfjfl0ibldk1","eeg9e8s76diffzstgsuch","ci0zuqdnygdbqbcw7g74tp","ftard0ob3qvu6yeinge5hr","977zrwrwinb41yjrncg0et"],"ref":[]},"0xbh8qf3zrnfjfl0ibldk1":{"id":"0xbh8qf3zrnfjfl0ibldk1","name":"First task","color":"#ffffff","items":["ycwwxs46gwnzama41koc"],"ref":[],"estimate":2},"tpot361b974p1mn3jxbr4":{"id":"tpot361b974p1mn3jxbr4","name":"My Reminders","description":"","color":"#b9f6ca ","items":["uc54p4plm19f9sgnnwux3i","isfiozt8g5ppt4y4u9hni","2b05yurzcc6z0au55zknfc"],"ref":[]},"uc54p4plm19f9sgnnwux3i":{"id":"uc54p4plm19f9sgnnwux3i","name":"Clean room","description":"","color":"#D7E6D9","items":["1pxfcxl9yxpop7cu9nnu2e"],"ref":[]},"1pxfcxl9yxpop7cu9nnu2e":{"id":"1pxfcxl9yxpop7cu9nnu2e","name":"","color":"#ffffff","items":["tut1poxh5ejbn9429bc9"],"ref":[]},"tut1poxh5ejbn9429bc9":{"id":"tut1poxh5ejbn9429bc9","name":"","color":"#ffffff","items":[],"ref":[]},"isfiozt8g5ppt4y4u9hni":{"id":"isfiozt8g5ppt4y4u9hni","name":"Go for a run","description":"","color":"#D7E6D9","items":["mhnttcm1ca3hd7cnvxg8a"],"ref":[]},"mhnttcm1ca3hd7cnvxg8a":{"id":"mhnttcm1ca3hd7cnvxg8a","name":"","color":"#ffffff","items":["zuo967kb1dsecaunq3eszq"],"ref":[]},"zuo967kb1dsecaunq3eszq":{"id":"zuo967kb1dsecaunq3eszq","name":"","color":"#ffffff","items":[],"ref":[]},"2b05yurzcc6z0au55zknfc":{"id":"2b05yurzcc6z0au55zknfc","name":"","color":"#ffffff","items":["qc12atkaitmosp34yv95c"],"ref":[]},"qc12atkaitmosp34yv95c":{"id":"qc12atkaitmosp34yv95c","name":"","color":"#ffffff","items":[],"ref":[]},"7oknreb5imgufsn1ohxcib":{"id":"7oknreb5imgufsn1ohxcib","name":"My Categories","color":"#ffffff","items":["9vk9ywmx4szziub8qxqo","ez1lvoo3dwkwmhdrh9s77","9ywa2zu4zgtbqz8v7sa2j"],"ref":[]},"9vk9ywmx4szziub8qxqo":{"id":"9vk9ywmx4szziub8qxqo","name":"🐊 Fun","color":"#80d8ff","items":["34606nw061xmm5vbsi9r6c"],"ref":["7llyfbgu4eb9rae6kb074l"]},"jugi69kmkhdq0k459wehn":{"id":"jugi69kmkhdq0k459wehn","name":"","description":"","color":"#ffd180","items":["ym01shouprrrrfsnxmzh"],"ref":[]},"ym01shouprrrrfsnxmzh":{"id":"ym01shouprrrrfsnxmzh","name":"","description":"","color":"#ffd180","items":[],"ref":[]},"ftard0ob3qvu6yeinge5hr":{"id":"ftard0ob3qvu6yeinge5hr","name":"Bonus task!","description":"","color":"#ff80ab","items":["4a07xdt072df7qw4tzvrjt"],"ref":[],"estimate":1},"eeg9e8s76diffzstgsuch":{"id":"eeg9e8s76diffzstgsuch","name":"Second task","description":"","color":"#ff80ab","items":["8o3pww4qn1xq2luyz717c"],"ref":[],"estimate":2},"ci0zuqdnygdbqbcw7g74tp":{"id":"ci0zuqdnygdbqbcw7g74tp","name":"Third task","description":"","color":"#ff80ab","items":["yyuay36cjzf57s18hg0d5t"],"ref":[],"estimate":4},"163j3kckevih3kmtfqkstf9":{"id":"163j3kckevih3kmtfqkstf9","name":"<br>","description":"","color":"#80d8ff","items":["djzte0aqmudbb88jo448qe"],"ref":[]},"977zrwrwinb41yjrncg0et":{"id":"977zrwrwinb41yjrncg0et","name":"","description":"","color":"#ff80ab","items":["bmdf45dmf5jfz96rxkq10h"],"ref":[]},"ycwwxs46gwnzama41koc":{"id":"ycwwxs46gwnzama41koc","name":"","description":"","color":"#ffffff","items":[],"ref":[]},"8o3pww4qn1xq2luyz717c":{"id":"8o3pww4qn1xq2luyz717c","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"yyuay36cjzf57s18hg0d5t":{"id":"yyuay36cjzf57s18hg0d5t","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"4a07xdt072df7qw4tzvrjt":{"id":"4a07xdt072df7qw4tzvrjt","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"djzte0aqmudbb88jo448qe":{"id":"djzte0aqmudbb88jo448qe","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"bmdf45dmf5jfz96rxkq10h":{"id":"bmdf45dmf5jfz96rxkq10h","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"7llyfbgu4eb9rae6kb074l":{"id":"7llyfbgu4eb9rae6kb074l","name":"I'm a task with links!","description":"","color":"#ff80ab","items":["jc0m3uxidpb1krerkvh3v2"],"ref":["9vk9ywmx4szziub8qxqo","ez1lvoo3dwkwmhdrh9s77"]},"7fv55sy73d7epp5kqnguul":{"id":"7fv55sy73d7epp5kqnguul","name":"","description":"","color":"#80d8ff","items":["v52993i59eby59317v6ejc"],"ref":[]},"v52993i59eby59317v6ejc":{"id":"v52993i59eby59317v6ejc","name":"","description":"","color":"#80d8ff","items":[],"ref":[]},"9ywa2zu4zgtbqz8v7sa2j":{"id":"9ywa2zu4zgtbqz8v7sa2j","name":"","description":"","color":"#ffffff","items":["7khopamf94pri5sb56dtwr"],"ref":[]},"ez1lvoo3dwkwmhdrh9s77":{"id":"ez1lvoo3dwkwmhdrh9s77","name":"🐟 Easy","description":"","color":"#ffd180","items":["nmhbxh86d9gpf3zgxcv0e"],"ref":["7llyfbgu4eb9rae6kb074l"]},"34606nw061xmm5vbsi9r6c":{"id":"34606nw061xmm5vbsi9r6c","name":"","description":"","color":"#ffffff","items":[],"ref":[]},"nmhbxh86d9gpf3zgxcv0e":{"id":"nmhbxh86d9gpf3zgxcv0e","name":"","description":"","color":"#ffffff","items":[],"ref":[]},"7khopamf94pri5sb56dtwr":{"id":"7khopamf94pri5sb56dtwr","name":"","description":"","color":"#ffffff","items":[],"ref":[]},"jc0m3uxidpb1krerkvh3v2":{"id":"jc0m3uxidpb1krerkvh3v2","name":"","description":"","color":"#ff80ab","items":["uw92fsodzs8scqpxraedd"],"ref":[]},"uw92fsodzs8scqpxraedd":{"id":"uw92fsodzs8scqpxraedd","name":"","description":"","color":"#ff80ab","items":[],"ref":[]},"ialkx35n6mo697qcqaulvl":{"id":"ialkx35n6mo697qcqaulvl","name":"","description":"","color":"#ffd180","items":["jb9zpt8uecbm04vlm2hg2h"],"ref":[]},"jb9zpt8uecbm04vlm2hg2h":{"id":"jb9zpt8uecbm04vlm2hg2h","name":"","description":"","color":"#ffd180","items":[],"ref":[]}});
+    this.notes = this.unfreeze({
+      '9ecal36r08qsegt2q7ruar': {
+        'id': '9ecal36r08qsegt2q7ruar',
+        'name': 'My Notes',
+        'description': 'Take notes here...',
+        'color': '#80d8ff',
+        'items': ['ezyw5zl0s7k5ky66oz7368', 'tprx0gv41gepcofy7yia', 'tpot361b974p1mn3jxbr4', '7fv55sy73d7epp5kqnguul'],
+        'ref': []
+      },
+      'ezyw5zl0s7k5ky66oz7368': {
+        'id': 'ezyw5zl0s7k5ky66oz7368',
+        'name': 'Welcome to Inception Notes!',
+        'description': '',
+        'color': '#ff80ab',
+        'items': ['3ooxxyu6ko97smbzcigvza', '7llyfbgu4eb9rae6kb074l', 's3flakxhf2mb8pixx0w1l', 'isqms385v5batkjoztpn15'],
+        'ref': []
+      },
+      '3ooxxyu6ko97smbzcigvza': {
+        'id': '3ooxxyu6ko97smbzcigvza',
+        'name': '<b>Right-click</b> on the background to get help',
+        'description': '',
+        'color': '#ff8a80',
+        'items': ['r8um73em8ikjy1847ituem'],
+        'ref': []
+      },
+      'r8um73em8ikjy1847ituem': {
+        'id': 'r8um73em8ikjy1847ituem',
+        'name': '',
+        'color': '#ffffff',
+        'items': ['do7uegwh31lf6qu8lxpye'],
+        'ref': []
+      },
+      'do7uegwh31lf6qu8lxpye': {'id': 'do7uegwh31lf6qu8lxpye', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      's3flakxhf2mb8pixx0w1l': {
+        'id': 's3flakxhf2mb8pixx0w1l',
+        'name': 'Have fun!',
+        'description': '',
+        'color': '#ea80fc',
+        'items': ['rjq9391912ae63xb2e8y'],
+        'ref': []
+      },
+      'rjq9391912ae63xb2e8y': {
+        'id': 'rjq9391912ae63xb2e8y',
+        'name': '',
+        'color': '#ffffff',
+        'items': ['rgmgxz8fabchssd0j75acb'],
+        'ref': []
+      },
+      'rgmgxz8fabchssd0j75acb': {'id': 'rgmgxz8fabchssd0j75acb', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      'isqms385v5batkjoztpn15': {
+        'id': 'isqms385v5batkjoztpn15',
+        'name': '',
+        'color': '#ffffff',
+        'items': ['w0ok2ypdxqugorshz54l'],
+        'ref': []
+      },
+      'w0ok2ypdxqugorshz54l': {'id': 'w0ok2ypdxqugorshz54l', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      'tprx0gv41gepcofy7yia': {
+        'id': 'tprx0gv41gepcofy7yia',
+        'name': 'Main Projects',
+        'description': '',
+        'color': '#ffd180',
+        'items': ['bxw7hfpcmytcq0738o31ef', 'rbcx2x3og4b2ty3efm4aux', 'whfs7lj4i5gzrdyifbt4td', '7oknreb5imgufsn1ohxcib', 'ialkx35n6mo697qcqaulvl'],
+        'ref': []
+      },
+      'bxw7hfpcmytcq0738o31ef': {
+        'id': 'bxw7hfpcmytcq0738o31ef',
+        'name': 'My First Project',
+        'description': '',
+        'color': '#E6E3D7',
+        'items': ['di8colqbb8lyyvf5gidqqj'],
+        'ref': []
+      },
+      'di8colqbb8lyyvf5gidqqj': {
+        'id': 'di8colqbb8lyyvf5gidqqj',
+        'name': '',
+        'color': '#ffffff',
+        'items': ['t6tdhnfx3ydzbvul20lti'],
+        'ref': []
+      },
+      't6tdhnfx3ydzbvul20lti': {'id': 't6tdhnfx3ydzbvul20lti', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      'rbcx2x3og4b2ty3efm4aux': {
+        'id': 'rbcx2x3og4b2ty3efm4aux',
+        'name': 'My Other Project',
+        'description': '',
+        'color': '#E6E3D7',
+        'items': ['pl7mhv8mjxqs48qw1n3ku'],
+        'ref': []
+      },
+      'pl7mhv8mjxqs48qw1n3ku': {
+        'id': 'pl7mhv8mjxqs48qw1n3ku',
+        'name': '',
+        'color': '#ffffff',
+        'items': ['yvnljwa9yhhqk3pqztuwh'],
+        'ref': []
+      },
+      'yvnljwa9yhhqk3pqztuwh': {'id': 'yvnljwa9yhhqk3pqztuwh', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      'whfs7lj4i5gzrdyifbt4td': {
+        'id': 'whfs7lj4i5gzrdyifbt4td',
+        'name': 'Big project!',
+        'color': '#ff80ab',
+        'items': ['0xbh8qf3zrnfjfl0ibldk1', 'eeg9e8s76diffzstgsuch', 'ci0zuqdnygdbqbcw7g74tp', 'ftard0ob3qvu6yeinge5hr', '977zrwrwinb41yjrncg0et'],
+        'ref': []
+      },
+      '0xbh8qf3zrnfjfl0ibldk1': {
+        'id': '0xbh8qf3zrnfjfl0ibldk1',
+        'name': 'First task',
+        'color': '#ffffff',
+        'items': ['ycwwxs46gwnzama41koc'],
+        'ref': [],
+        'estimate': 2
+      },
+      'tpot361b974p1mn3jxbr4': {
+        'id': 'tpot361b974p1mn3jxbr4',
+        'name': 'My Reminders',
+        'description': '',
+        'color': '#b9f6ca ',
+        'items': ['uc54p4plm19f9sgnnwux3i', 'isfiozt8g5ppt4y4u9hni', '2b05yurzcc6z0au55zknfc'],
+        'ref': []
+      },
+      'uc54p4plm19f9sgnnwux3i': {
+        'id': 'uc54p4plm19f9sgnnwux3i',
+        'name': 'Clean room',
+        'description': '',
+        'color': '#D7E6D9',
+        'items': ['1pxfcxl9yxpop7cu9nnu2e'],
+        'ref': []
+      },
+      '1pxfcxl9yxpop7cu9nnu2e': {
+        'id': '1pxfcxl9yxpop7cu9nnu2e',
+        'name': '',
+        'color': '#ffffff',
+        'items': ['tut1poxh5ejbn9429bc9'],
+        'ref': []
+      },
+      'tut1poxh5ejbn9429bc9': {'id': 'tut1poxh5ejbn9429bc9', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      'isfiozt8g5ppt4y4u9hni': {
+        'id': 'isfiozt8g5ppt4y4u9hni',
+        'name': 'Go for a run',
+        'description': '',
+        'color': '#D7E6D9',
+        'items': ['mhnttcm1ca3hd7cnvxg8a'],
+        'ref': []
+      },
+      'mhnttcm1ca3hd7cnvxg8a': {
+        'id': 'mhnttcm1ca3hd7cnvxg8a',
+        'name': '',
+        'color': '#ffffff',
+        'items': ['zuo967kb1dsecaunq3eszq'],
+        'ref': []
+      },
+      'zuo967kb1dsecaunq3eszq': {'id': 'zuo967kb1dsecaunq3eszq', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      '2b05yurzcc6z0au55zknfc': {
+        'id': '2b05yurzcc6z0au55zknfc',
+        'name': '',
+        'color': '#ffffff',
+        'items': ['qc12atkaitmosp34yv95c'],
+        'ref': []
+      },
+      'qc12atkaitmosp34yv95c': {'id': 'qc12atkaitmosp34yv95c', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      '7oknreb5imgufsn1ohxcib': {
+        'id': '7oknreb5imgufsn1ohxcib',
+        'name': 'My Categories',
+        'color': '#ffffff',
+        'items': ['9vk9ywmx4szziub8qxqo', 'ez1lvoo3dwkwmhdrh9s77', '9ywa2zu4zgtbqz8v7sa2j'],
+        'ref': []
+      },
+      '9vk9ywmx4szziub8qxqo': {
+        'id': '9vk9ywmx4szziub8qxqo',
+        'name': '🐊 Fun',
+        'color': '#80d8ff',
+        'items': ['34606nw061xmm5vbsi9r6c'],
+        'ref': ['7llyfbgu4eb9rae6kb074l']
+      },
+      'jugi69kmkhdq0k459wehn': {
+        'id': 'jugi69kmkhdq0k459wehn',
+        'name': '',
+        'description': '',
+        'color': '#ffd180',
+        'items': ['ym01shouprrrrfsnxmzh'],
+        'ref': []
+      },
+      'ym01shouprrrrfsnxmzh': {'id': 'ym01shouprrrrfsnxmzh', 'name': '', 'description': '', 'color': '#ffd180', 'items': [], 'ref': []},
+      'ftard0ob3qvu6yeinge5hr': {
+        'id': 'ftard0ob3qvu6yeinge5hr',
+        'name': 'Bonus task!',
+        'description': '',
+        'color': '#ff80ab',
+        'items': ['4a07xdt072df7qw4tzvrjt'],
+        'ref': [],
+        'estimate': 1
+      },
+      'eeg9e8s76diffzstgsuch': {
+        'id': 'eeg9e8s76diffzstgsuch',
+        'name': 'Second task',
+        'description': '',
+        'color': '#ff80ab',
+        'items': ['8o3pww4qn1xq2luyz717c'],
+        'ref': [],
+        'estimate': 2
+      },
+      'ci0zuqdnygdbqbcw7g74tp': {
+        'id': 'ci0zuqdnygdbqbcw7g74tp',
+        'name': 'Third task',
+        'description': '',
+        'color': '#ff80ab',
+        'items': ['yyuay36cjzf57s18hg0d5t'],
+        'ref': [],
+        'estimate': 4
+      },
+      '163j3kckevih3kmtfqkstf9': {
+        'id': '163j3kckevih3kmtfqkstf9',
+        'name': '<br>',
+        'description': '',
+        'color': '#80d8ff',
+        'items': ['djzte0aqmudbb88jo448qe'],
+        'ref': []
+      },
+      '977zrwrwinb41yjrncg0et': {
+        'id': '977zrwrwinb41yjrncg0et',
+        'name': '',
+        'description': '',
+        'color': '#ff80ab',
+        'items': ['bmdf45dmf5jfz96rxkq10h'],
+        'ref': []
+      },
+      'ycwwxs46gwnzama41koc': {'id': 'ycwwxs46gwnzama41koc', 'name': '', 'description': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      '8o3pww4qn1xq2luyz717c': {'id': '8o3pww4qn1xq2luyz717c', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
+      'yyuay36cjzf57s18hg0d5t': {'id': 'yyuay36cjzf57s18hg0d5t', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
+      '4a07xdt072df7qw4tzvrjt': {'id': '4a07xdt072df7qw4tzvrjt', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
+      'djzte0aqmudbb88jo448qe': {'id': 'djzte0aqmudbb88jo448qe', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
+      'bmdf45dmf5jfz96rxkq10h': {'id': 'bmdf45dmf5jfz96rxkq10h', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
+      '7llyfbgu4eb9rae6kb074l': {
+        'id': '7llyfbgu4eb9rae6kb074l',
+        'name': 'I\'m a task with links!',
+        'description': '',
+        'color': '#ff80ab',
+        'items': ['jc0m3uxidpb1krerkvh3v2'],
+        'ref': ['9vk9ywmx4szziub8qxqo', 'ez1lvoo3dwkwmhdrh9s77']
+      },
+      '7fv55sy73d7epp5kqnguul': {
+        'id': '7fv55sy73d7epp5kqnguul',
+        'name': '',
+        'description': '',
+        'color': '#80d8ff',
+        'items': ['v52993i59eby59317v6ejc'],
+        'ref': []
+      },
+      'v52993i59eby59317v6ejc': {'id': 'v52993i59eby59317v6ejc', 'name': '', 'description': '', 'color': '#80d8ff', 'items': [], 'ref': []},
+      '9ywa2zu4zgtbqz8v7sa2j': {
+        'id': '9ywa2zu4zgtbqz8v7sa2j',
+        'name': '',
+        'description': '',
+        'color': '#ffffff',
+        'items': ['7khopamf94pri5sb56dtwr'],
+        'ref': []
+      },
+      'ez1lvoo3dwkwmhdrh9s77': {
+        'id': 'ez1lvoo3dwkwmhdrh9s77',
+        'name': '🐟 Easy',
+        'description': '',
+        'color': '#ffd180',
+        'items': ['nmhbxh86d9gpf3zgxcv0e'],
+        'ref': ['7llyfbgu4eb9rae6kb074l']
+      },
+      '34606nw061xmm5vbsi9r6c': {'id': '34606nw061xmm5vbsi9r6c', 'name': '', 'description': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      'nmhbxh86d9gpf3zgxcv0e': {'id': 'nmhbxh86d9gpf3zgxcv0e', 'name': '', 'description': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      '7khopamf94pri5sb56dtwr': {'id': '7khopamf94pri5sb56dtwr', 'name': '', 'description': '', 'color': '#ffffff', 'items': [], 'ref': []},
+      'jc0m3uxidpb1krerkvh3v2': {
+        'id': 'jc0m3uxidpb1krerkvh3v2',
+        'name': '',
+        'description': '',
+        'color': '#ff80ab',
+        'items': ['uw92fsodzs8scqpxraedd'],
+        'ref': []
+      },
+      'uw92fsodzs8scqpxraedd': {'id': 'uw92fsodzs8scqpxraedd', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
+      'ialkx35n6mo697qcqaulvl': {
+        'id': 'ialkx35n6mo697qcqaulvl',
+        'name': '',
+        'description': '',
+        'color': '#ffd180',
+        'items': ['jb9zpt8uecbm04vlm2hg2h'],
+        'ref': []
+      },
+      'jb9zpt8uecbm04vlm2hg2h': {'id': 'jb9zpt8uecbm04vlm2hg2h', 'name': '', 'description': '', 'color': '#ffd180', 'items': [], 'ref': []}
+    });
     this.top = this.notes['9ecal36r08qsegt2q7ruar'];
-    let localify = this.rawNewId();
+    const localify = this.rawNewId();
     (<any>Object).values(this.notes).forEach(n => n.id = n.id + localify);
     this.saveAll();
   }
@@ -979,7 +1273,7 @@ export class ApiService {
   private migrateRootAdd(note: any) {
     this.notes[note.id] = note;
 
-    for (let subItem of note.items) {
+    for (const subItem of note.items) {
       subItem.parent = note;
       this.migrateRootAdd(subItem);
     }

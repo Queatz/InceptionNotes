@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, HostListener, ElementRef, AfterViewInit, HostBinding } from '@angular/core';
-import { UiService, MenuOption, Env } from 'app/ui.service';
+import {Component, OnInit, Input, HostListener, ElementRef, AfterViewInit, HostBinding} from '@angular/core';
+import {UiService, MenuOption, Env} from 'app/ui.service';
 import Util from 'app/util';
 
 @Component({
@@ -18,43 +18,44 @@ export class MenuComponent implements OnInit, AfterViewInit {
   @Input() position: { x: number, y: number, w?: number };
   @Input() environment: Env;
 
-  private showing: boolean = false;
+  private showing = false;
 
-  constructor(private elementRef: ElementRef, private ui: UiService) { }
+  constructor(private elementRef: ElementRef, private ui: UiService) {
+  }
 
   ngOnInit() {
   }
-  
+
   ngAfterViewInit() {
     setTimeout(() => {
       this.elementRef.nativeElement.querySelectorAll('.menu-option')[0].focus();
       this.showing = true;
     });
   }
-  
+
   @HostBinding('style.top')
   get styleTop() {
     let invert = 0;
-    
+
     if (document.documentElement) {
       if (this.position.y + this.elementRef.nativeElement.offsetHeight - document.documentElement.scrollTop > window.innerHeight) {
         invert = this.elementRef.nativeElement.clientHeight;
       }
     }
-  
+
     return (this.position.y - invert) + 'px';
   }
-  
+
   @HostBinding('style.left')
   get styleLeft() {
     let invert = 0;
-    
+
     if (document.documentElement) {
       if (this.position.x + this.elementRef.nativeElement.offsetWidth > document.documentElement.offsetWidth) {
         invert = this.elementRef.nativeElement.offsetWidth + (this.position.w || 0);
       }
     }
-    
+
     return (this.position.x - invert) + 'px';
   }
 
@@ -91,7 +92,7 @@ export class MenuComponent implements OnInit, AfterViewInit {
       this.ui.clearMenus(option);
     }
   }
-  
+
   clicked(event: Event, option: MenuOption) {
     event.stopPropagation();
     option.callback();

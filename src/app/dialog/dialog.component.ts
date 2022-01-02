@@ -1,7 +1,18 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, Input, EventEmitter, ElementRef, ViewChild, ComponentFactoryResolver, ViewContainerRef, ComponentRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  Input,
+  ElementRef,
+  ViewChild,
+  ComponentFactoryResolver,
+  ViewContainerRef,
+  ComponentRef
+} from '@angular/core';
 
-import { Subject } from 'rxjs';
-import { Env } from 'app/ui.service';
+import {Subject} from 'rxjs';
+import {Env} from 'app/ui.service';
 
 export class DialogModel {
   choice: string;
@@ -15,7 +26,7 @@ export class DialogConfig {
   view?: any;
   init?: (DialogComponent) => void;
   ok?: (DialogModel) => void;
-  cancel?:() => void;
+  cancel?: () => void;
 }
 
 @Component({
@@ -34,11 +45,11 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() clickout: () => void;
   @Input() environment: Env;
 
-  @ViewChild('custom', { read: ViewContainerRef, static: true })
+  @ViewChild('custom', {read: ViewContainerRef, static: true})
   private custom: ViewContainerRef;
   private component: ComponentRef<any>;
 
-  private model: DialogModel = {
+  model: DialogModel = {
     choice: null,
     input: ''
   };
@@ -46,8 +57,9 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
   changes: Subject<string> = new Subject<string>();
 
   constructor(private element: ElementRef,
-    private resolver: ComponentFactoryResolver,
-    private view: ViewContainerRef) { }
+              private resolver: ComponentFactoryResolver,
+              private view: ViewContainerRef) {
+  }
 
   ngOnInit() {
     this.model.input = this.config.prefill || '';

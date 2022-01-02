@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { UiService } from '../ui.service';
-import { ApiService } from '../api.service';
-import { VillageService } from '../village.service';
-import { Config } from 'app/config.service';
+import {Component, OnInit} from '@angular/core';
+import {UiService} from '../ui.service';
+import {ApiService} from '../api.service';
+import {VillageService} from '../village.service';
+import {Config} from 'app/config.service';
 
 @Component({
   selector: 'app-options',

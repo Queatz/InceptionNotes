@@ -1,53 +1,53 @@
-import { Directive, ElementRef, Input, Output, OnChanges, SimpleChanges, EventEmitter } from '@angular/core';
+import {Directive, ElementRef, Input, Output, OnChanges, SimpleChanges, EventEmitter} from '@angular/core';
 
 @Directive({
-	selector: '[contenteditableModel]',
-	host: {
-		'(blur)': 'onBlur()',
-		'(keyup)': 'changed()'
-	}
+  selector: '[contenteditableModel]',
+  host: {
+    '(blur)': 'onBlur()',
+    '(keyup)': 'changed()'
+  }
 })
 export class ContenteditableModelDirective implements OnChanges {
-	@Input('contenteditableModel') model: any;
-	@Output('contenteditableModelChange') update = new EventEmitter();
+  @Input('contenteditableModel') model: any;
+  @Output('contenteditableModelChange') update = new EventEmitter();
 
-	private lastViewModel: any;
+  private lastViewModel: any;
 
-	constructor(private elRef: ElementRef) {
-	}
+  constructor(private elRef: ElementRef) {
+  }
 
-	ngOnChanges(changes: SimpleChanges) {
-		if (changes['model'] && changes['model'].currentValue !== this.lastViewModel) {
-		this.lastViewModel = this.model;
-		this.refreshView();
-		}
-	}
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['model'] && changes['model'].currentValue !== this.lastViewModel) {
+      this.lastViewModel = this.model;
+      this.refreshView();
+    }
+  }
 
-	onBlur() {
-		if (this.elRef.nativeElement.lastChild) {
-			if ((this.elRef.nativeElement.lastChild as HTMLElement).tagName === 'BR') {
-				(this.elRef.nativeElement.lastChild as HTMLElement).remove();
-			}
-		}
-		if (this.elRef.nativeElement.firstChild) {
-			if ((this.elRef.nativeElement.firstChild as HTMLElement).tagName === 'BR') {
-				(this.elRef.nativeElement.firstChild as HTMLElement).remove();
-			}
-		}
-		this.changed();
-	}
+  onBlur() {
+    if (this.elRef.nativeElement.lastChild) {
+      if ((this.elRef.nativeElement.lastChild as HTMLElement).tagName === 'BR') {
+        (this.elRef.nativeElement.lastChild as HTMLElement).remove();
+      }
+    }
+    if (this.elRef.nativeElement.firstChild) {
+      if ((this.elRef.nativeElement.firstChild as HTMLElement).tagName === 'BR') {
+        (this.elRef.nativeElement.firstChild as HTMLElement).remove();
+      }
+    }
+    this.changed();
+  }
 
-	changed() {
-		let value = this.elRef.nativeElement.innerHTML;
+  changed() {
+    let value = this.elRef.nativeElement.innerHTML;
 
-		if (this.model !== value) {
-			this.lastViewModel = this.model = value;
-			this.update.emit(value);
-		}
-	}
+    if (this.model !== value) {
+      this.lastViewModel = this.model = value;
+      this.update.emit(value);
+    }
+  }
 
-	private refreshView() {
-		this.elRef.nativeElement.innerHTML = this.model;
-	}
+  private refreshView() {
+    this.elRef.nativeElement.innerHTML = this.model;
+  }
 }
 

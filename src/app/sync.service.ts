@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
-import { Config } from 'app/config.service';
-import { WsService } from 'app/ws.service';
-import { Event, SyncEvent, IdentifyEvent, ServerEvent, ShowEvent } from 'app/sync/event';
-import { ApiService } from 'app/api.service';
+import {Injectable} from '@angular/core';
+import {Config} from 'app/config.service';
+import {WsService} from 'app/ws.service';
+import {Event, SyncEvent, IdentifyEvent, ServerEvent, ShowEvent} from 'app/sync/event';
+import {ApiService} from 'app/api.service';
 import util from 'app/util';
-import { UiService } from 'app/ui.service';
+import {UiService} from 'app/ui.service';
 
 @Injectable()
 export class SyncService {
@@ -18,7 +18,7 @@ export class SyncService {
 
     this.ws.onBeforeOpen.subscribe(() => {
       this.send(new IdentifyEvent(this.clientKey(), this.me));
-      
+
       if (this.api.getShow()) {
         this.send(new ShowEvent(this.api.getShow().id));
       }
@@ -46,21 +46,21 @@ export class SyncService {
   public start() {
     this.ws.reconnect();
 
-    let syncAllEvent = new SyncEvent([]);
-    let an = this.api.getAllNotes();
-    for(let k in an) {
-      let n = an[k];
+    const syncAllEvent = new SyncEvent([]);
+    const an = this.api.getAllNotes();
+    for (const anItem of an) {
+      const n = anItem;
 
       if ('_sync' in n) {
-        let p: any = {};
-        for(let k in n['sync']) {
+        const p: any = {};
+        for (const k in n['sync']) {
           if (!n['sync'][k].synchronized) {
             p[k] = n[k];
           }
         }
 
         if (Object.keys(p).length) {
-          p.id = n.id;
+          p.id = n['id'];
           syncAllEvent.notes.push(this.api.freezeNote(p));
         }
       } else {
@@ -116,8 +116,8 @@ export class SyncService {
     events.forEach((event: any[]) => {
       if (this.config.logWs) {
         console.log('got', event);
-      }  
-      let t = this.event.actions.get(event[0]);
+      }
+      const t = this.event.actions.get(event[0]);
       event[1].__proto__ = t.prototype;
       event[1].got(this);
     });
@@ -171,11 +171,11 @@ export class SyncService {
       note = this.api.newBlankNote(true, noteId);
     }
 
-    let localProp = this.api.unfreezeProp(note, prop, value);
+    const localProp = this.api.unfreezeProp(note, prop, value);
     if (note[prop] === undefined || this.api.isSynced(note, prop)) {
       this.setProp(note, prop, localProp);
       this.api.setSynced(note.id, prop);
-    } else if(this.valEquals(note[prop], localProp)) {
+    } else if (this.valEquals(note[prop], localProp)) {
       this.api.setSynced(note.id, prop);
     } else {
       this.ui.dialog({

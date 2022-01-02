@@ -1,21 +1,33 @@
-import { Component, ElementRef, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChanges, HostListener, HostBinding, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  OnChanges,
+  Input,
+  Output,
+  EventEmitter,
+  SimpleChanges,
+  HostListener,
+  HostBinding,
+  ViewChild
+} from '@angular/core';
 
 import Util from '../util';
-import { ApiService } from '../api.service';
-import { UiService, MenuOption } from '../ui.service';
-import { ColorPickerComponent } from '../color-picker/color-picker.component';
-import { SearchComponent } from '../search/search.component';
-import { VillageService } from 'app/village.service';
-import { AddPeopleComponent } from 'app/add-people/add-people.component';
-import { Config } from 'app/config.service';
-import { FilterService } from 'app/filter.service'
+import {ApiService} from '../api.service';
+import {UiService, MenuOption} from '../ui.service';
+import {ColorPickerComponent} from '../color-picker/color-picker.component';
+import {SearchComponent} from '../search/search.component';
+import {VillageService} from 'app/village.service';
+import {AddPeopleComponent} from 'app/add-people/add-people.component';
+import {Config} from 'app/config.service';
+import {FilterService} from 'app/filter.service'
 
 @Component({
   selector: 'sub-list',
   templateUrl: './sub-list.component.html',
   styleUrls: ['./sub-list.component.css'],
   host: {
-    '[style.background-color]': 'useAsNavigation ? transparent : list.color',
+    '[style.background-color]': 'useAsNavigation ? \'transparent\' : list.color',
     '[style.opacity]': 'isDraggingList ? \'0.5\' : undefined',
     '[style.cursor]': 'useAsNavigation ? \'default\' : undefined',
     '[style.max-width]': 'getEnv().showAsPriorityList ? \'32rem\' : undefined',
@@ -24,22 +36,29 @@ import { FilterService } from 'app/filter.service'
 })
 export class SubListComponent implements OnInit, OnChanges {
 
-	@Input() list: any;
-	@Input() useAsNavigation: any;
-	@Output('modified') modified = new EventEmitter();
-  @Output('removed') removed = new EventEmitter();
-  
-  @ViewChild('element', { static: true }) nameElement: ElementRef;
-  @ViewChild('items', { static: false }) itemsElement: ElementRef;
+  @Input() list: any;
+  @Input() useAsNavigation: any;
+  @Output() modified = new EventEmitter();
+  @Output() removed = new EventEmitter();
 
-  private isDraggingList: boolean;
+  @ViewChild('element', {static: true}) nameElement: ElementRef;
+  @ViewChild('items', {static: false}) itemsElement: ElementRef;
+
+  isDraggingList: boolean;
   private isDroppingList: boolean;
   public dropAt: string;
   private isTouch: boolean;
-  private dragCounter: number = 0;
+  private dragCounter = 0;
   private mouseDownHack: boolean;
 
-  constructor(private ui: UiService, private api: ApiService, private filter: FilterService, private elementRef: ElementRef, private village: VillageService, private config: Config) { }
+  constructor(
+    private ui: UiService,
+    private api: ApiService,
+    private filter: FilterService,
+    private elementRef: ElementRef,
+    private village: VillageService,
+    private config: Config) {
+  }
 
   ngOnInit() {
     this.initNext();
@@ -55,73 +74,82 @@ export class SubListComponent implements OnInit, OnChanges {
     event.stopPropagation();
 
     const byLinksMenu = (this.list.items as Array<any>)
-    .map(item => item.ref || [])
-    .flat()
-    .map(ref => ref.parent)
-    .filter(list => !!list)
-    .filter((v, i, a) => a.indexOf(v) === i)
-    .map(refParent => {
-      return {
-        title: refParent.name,
-        callback: () => {
-          this.list.items.sort((a: any, b: any) => {
-            const aRef = a.ref?.find(ref => ref.parent === refParent);
-            const bRef = b.ref?.find(ref => ref.parent === refParent);
+      .map(item => item.ref || [])
+      .flat()
+      .map(ref => ref.parent)
+      .filter(list => !!list)
+      .filter((v, i, a) => a.indexOf(v) === i)
+      .map(refParent => {
+        return {
+          title: refParent.name,
+          callback: () => {
+            this.list.items.sort((a: any, b: any) => {
+              const aRef = a.ref?.find(ref => ref.parent === refParent);
+              const bRef = b.ref?.find(ref => ref.parent === refParent);
 
 
-            // Don't touch checked notes
-            if (a.checked || b.checked) {
-              return 0;
-            }
+              // Don't touch checked notes
+              if (a.checked || b.checked) {
+                return 0;
+              }
 
-            // Notes without refs to the refParent don't get sorted
-            if (!aRef && !bRef) {
-              return 0;
-            }
+              // Notes without refs to the refParent don't get sorted
+              if (!aRef && !bRef) {
+                return 0;
+              }
 
-            // Notes without refs to the refParent get moved down
-            if (!aRef !== !bRef) {
-              return !aRef ? 1 : -1;
-            }
+              // Notes without refs to the refParent get moved down
+              if (!aRef !== !bRef) {
+                return !aRef ? 1 : -1;
+              }
 
-            const aPos = refParent.items.indexOf(aRef);
-            const bPos = refParent.items.indexOf(bRef);
+              const aPos = refParent.items.indexOf(aRef);
+              const bPos = refParent.items.indexOf(bRef);
 
-            return aPos === bPos ? 0 : aPos > bPos ? 1 : -1;
-          });
-          this.api.modified(this.list, 'items');
-        }
-      } as MenuOption;
-    });
+              return aPos === bPos ? 0 : aPos > bPos ? 1 : -1;
+            });
+            this.api.modified(this.list, 'items');
+          }
+        } as MenuOption;
+      });
 
-    let options: Array<MenuOption> = [
+    const options: Array<MenuOption> = [
       {
         title: 'Link...',
         callback: () => this.addToNote(this.list),
-        menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.addRef(this.list, recent); }, this.list) 
+        menu: this.getRecentsSubmenu(recent => {
+          this.api.addRecent('search', recent.id);
+          this.api.addRef(this.list, recent);
+        }, this.list)
       },
       {
         title: 'Move...',
         callback: () => this.moveToNote(this.list),
-        menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.moveList(this.list.id, recent.id); }, this.list)
+        menu: this.getRecentsSubmenu(recent => {
+          this.api.addRecent('search', recent.id);
+          this.api.moveList(this.list.id, recent.id);
+        }, this.list)
       },
-      ...(this.list.parent ? [ {
+      ...(this.list.parent ? [{
         title: 'Duplicate',
         callback: () => this.api.duplicateList(this.list)
-      } ] : []),
+      }] : []),
       {
         title: 'Sort',
         shortcut: '⯈',
-        callback: () => {},
+        callback: () => {
+        },
         menu: [
           {
             title: 'By links',
             shortcut: '⯈',
-            callback: () => {},
+            callback: () => {
+            },
             menu: byLinksMenu.length ? byLinksMenu : [
               {
                 title: 'No links',
-                callback: (): void => {},
+                callback: (): void => {
+                },
                 disabled: true
               }
             ]
@@ -139,19 +167,19 @@ export class SubListComponent implements OnInit, OnChanges {
           {
             title: 'Done to bottom',
             callback: () => {
-              this.list.items.sort((a: any, b: any) => { 
+              this.list.items.sort((a: any, b: any) => {
                 if (!a.name !== !b.name) {
                   return !a.name ? 1 : -1;
                 }
 
                 return a.checked === b.checked ? 0 : a.checked ? 1 : -1;
-               });
+              });
               this.api.modified(this.list, 'items');
             }
           }
         ]
       },
-      ...(this.village.me() ? [ {
+      ...(this.village.me() ? [{
         title: 'Add people...',
         callback: () => this.addPeople(this.list),
       }] : []),
@@ -159,22 +187,24 @@ export class SubListComponent implements OnInit, OnChanges {
         title: 'Change color...',
         callback: () => this.changeColor(),
       },
-      { title: 'Delete', callback: () => {
-        if (this.ui.getEnv().unlinkOnDelete) {
-          while (this.list.ref?.length) {
-            this.api.removeRef(this.list, this.list.ref[0])
+      {
+        title: 'Delete', callback: () => {
+          if (this.ui.getEnv().unlinkOnDelete) {
+            while (this.list.ref?.length) {
+              this.api.removeRef(this.list, this.list.ref[0])
+            }
           }
-        }
 
-        this.api.removeListFromParent(this.list);
-      } },
-      ...(this.list.parent ? [ {
+          this.api.removeListFromParent(this.list);
+        }
+      },
+      ...(this.list.parent ? [{
         title: this.list.collapsed ? 'Un-collapse' : 'Collapse',
         callback: () => this.toggleCollapse(),
-      } ] : [])
+      }] : [])
     ];
 
-    this.ui.menu(options, { x: event.clientX, y: event.clientY });
+    this.ui.menu(options, {x: event.clientX, y: event.clientY});
   }
 
   addPeople(list: any) {
@@ -204,27 +234,41 @@ export class SubListComponent implements OnInit, OnChanges {
     event.stopPropagation();
 
     this.ui.menu([
-      { title: 'Link...', callback: () => this.addToNote(item), menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.addRef(item, recent); }, item) },
-      { title: 'Move...', callback: () => this.moveToNote(item), menu: this.getRecentsSubmenu(recent => { this.api.addRecent('search', recent.id); this.api.moveList(item.id, recent.id); }, item) },
-      ...(this.ui.getEnv().showEstimates ? [ { title: 'Estimate...', callback: () => this.ui.dialog({
-        message: 'Estimate (in days)',
-        prefill: item.estimate,
-        input: true,
-        ok: r => {
-          item.estimate = Number(r.input);
-          this.api.modified(item, 'estimate');
-        }
-      }) }, ] : []),
-      { title: 'Delete', callback: () => {
-        if (this.ui.getEnv().unlinkOnDelete) {
-          while (item.ref?.length) {
-            this.api.removeRef(item, item.ref[0])
+      {
+        title: 'Link...', callback: () => this.addToNote(item), menu: this.getRecentsSubmenu(recent => {
+          this.api.addRecent('search', recent.id);
+          this.api.addRef(item, recent);
+        }, item)
+      },
+      {
+        title: 'Move...', callback: () => this.moveToNote(item), menu: this.getRecentsSubmenu(recent => {
+          this.api.addRecent('search', recent.id);
+          this.api.moveList(item.id, recent.id);
+        }, item)
+      },
+      ...(this.ui.getEnv().showEstimates ? [{
+        title: 'Estimate...', callback: () => this.ui.dialog({
+          message: 'Estimate (in days)',
+          prefill: item.estimate,
+          input: true,
+          ok: r => {
+            item.estimate = Number(r.input);
+            this.api.modified(item, 'estimate');
           }
-        }
+        })
+      }] : []),
+      {
+        title: 'Delete', callback: () => {
+          if (this.ui.getEnv().unlinkOnDelete) {
+            while (item.ref?.length) {
+              this.api.removeRef(item, item.ref[0])
+            }
+          }
 
-        this.api.removeListFromParent(item);
-      } },
-    ], { x: event.clientX, y: event.clientY });
+          this.api.removeListFromParent(item);
+        }
+      },
+    ], {x: event.clientX, y: event.clientY});
   }
 
   showRefOptions(event: MouseEvent, item: any, refItem: any) {
@@ -239,7 +283,8 @@ export class SubListComponent implements OnInit, OnChanges {
       {
         title: 'Order',
         shortcut: '⯈',
-        callback: () => {},
+        callback: () => {
+        },
         menu: [
           {
             title: 'First',
@@ -250,7 +295,7 @@ export class SubListComponent implements OnInit, OnChanges {
           },
         ]
       }
-    ], { x: event.clientX, y: event.clientY });
+    ], {x: event.clientX, y: event.clientY});
   }
 
   private toggleCollapse() {
@@ -260,64 +305,64 @@ export class SubListComponent implements OnInit, OnChanges {
 
   private addToNote(item: any) {
     this.ui.dialog({
-          message: 'Link',
-          input: true,
-          view: SearchComponent,
-          init: dialog => {
-              dialog.changes.subscribe(val => {
-                  dialog.component.instance.searchString = val;
-                  dialog.component.instance.ngOnChanges(null);
-              });
-              dialog.component.instance.onSelection.subscribe(note => {
-                  this.api.addRef(item, note);
-                  if (!this.getEnv().showLinks) {
-                    this.getEnv().showLinks = true;
-                    setTimeout(() => this.ui.dialog({ message: 'Show links enabled' }));
-                  }
-                  dialog.back();
-              });
-              dialog.component.instance.resultsChanged.subscribe(results => {
-                  dialog.model.results = results;
-              });
-          },
-          ok: result => {
-              if (result.results && result.results.length) {
-                  this.api.addRecent('search', result.results[0].id);
-                  this.api.addRef(item, result.results[0]);
-                  if (!this.getEnv().showLinks) {
-                    this.getEnv().showLinks = true;
-                    setTimeout(() => this.ui.dialog({ message: 'Show links enabled' }));
-                  }
-              }
-          }
+      message: 'Link',
+      input: true,
+      view: SearchComponent,
+      init: dialog => {
+        dialog.changes.subscribe(val => {
+          dialog.component.instance.searchString = val;
+          dialog.component.instance.ngOnChanges(null);
         });
+        dialog.component.instance.onSelection.subscribe(note => {
+          this.api.addRef(item, note);
+          if (!this.getEnv().showLinks) {
+            this.getEnv().showLinks = true;
+            setTimeout(() => this.ui.dialog({message: 'Show links enabled'}));
+          }
+          dialog.back();
+        });
+        dialog.component.instance.resultsChanged.subscribe(results => {
+          dialog.model.results = results;
+        });
+      },
+      ok: result => {
+        if (result.results && result.results.length) {
+          this.api.addRecent('search', result.results[0].id);
+          this.api.addRef(item, result.results[0]);
+          if (!this.getEnv().showLinks) {
+            this.getEnv().showLinks = true;
+            setTimeout(() => this.ui.dialog({message: 'Show links enabled'}));
+          }
+        }
+      }
+    });
   }
 
   private moveToNote(item: any) {
     this.ui.dialog({
-          message: 'Move...',
-          input: true,
-          view: SearchComponent,
-          init: dialog => {
-              dialog.changes.subscribe(val => {
-                  dialog.component.instance.searchString = val;
-                  dialog.component.instance.ngOnChanges(null);
-              });
-              dialog.component.instance.onSelection.subscribe(note => {
-                  dialog.back();
-                  this.api.moveList(item.id, note.id);
-              });
-              dialog.component.instance.resultsChanged.subscribe(results => {
-                  dialog.model.results = results;
-              });
-          },
-          ok: result => {
-              if (result.results && result.results.length) {
-                  this.api.addRecent('search', result.results[0].id);
-                  this.api.moveList(item.id, result.results[0].id);
-              }
-          }
+      message: 'Move...',
+      input: true,
+      view: SearchComponent,
+      init: dialog => {
+        dialog.changes.subscribe(val => {
+          dialog.component.instance.searchString = val;
+          dialog.component.instance.ngOnChanges(null);
         });
+        dialog.component.instance.onSelection.subscribe(note => {
+          dialog.back();
+          this.api.moveList(item.id, note.id);
+        });
+        dialog.component.instance.resultsChanged.subscribe(results => {
+          dialog.model.results = results;
+        });
+      },
+      ok: result => {
+        if (result.results && result.results.length) {
+          this.api.addRecent('search', result.results[0].id);
+          this.api.moveList(item.id, result.results[0].id);
+        }
+      }
+    });
   }
 
   private changeColor() {
@@ -433,7 +478,7 @@ export class SubListComponent implements OnInit, OnChanges {
     event.preventDefault();
     event.stopPropagation();
 
-    let id = event.dataTransfer.getData('application/x-id');
+    const id = event.dataTransfer.getData('application/x-id');
 
     if (id) {
       if (!this.dropAt) {
@@ -448,10 +493,10 @@ export class SubListComponent implements OnInit, OnChanges {
         }
       }
     } else {
-      let text = event.dataTransfer.getData('text/plain');
+      const text = event.dataTransfer.getData('text/plain');
 
       if (text) {
-        let l = this.newBlankList();
+        const l = this.newBlankList();
         l.name = text;
         this.api.modified(l);
       }
@@ -467,14 +512,14 @@ export class SubListComponent implements OnInit, OnChanges {
       return;
     }
 
-    let element = this.elementRef.nativeElement;
+    const element = this.elementRef.nativeElement;
 
     if (!element.getBoundingClientRect) {
       return;
     }
 
-    let rect = element.getBoundingClientRect();
-    let percent = Math.max(0, Math.min(element.clientWidth, event.clientX - rect.left) / element.clientWidth);
+    const rect = element.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(element.clientWidth, event.clientX - rect.left) / element.clientWidth);
 
     if (percent < .25) {
       this.dropAt = 'left';
@@ -516,7 +561,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
   onItemChecked(item: any) {
     item.checked = !item.checked;
-    this.api.modified(item, 'checked');    
+    this.api.modified(item, 'checked');
   }
 
   isEmpty(item: any) {
@@ -524,7 +569,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   getSubitemText(item: any) {
-    let c = this.countSubItems(item);
+    const c = this.countSubItems(item);
 
     return c ? c + ' sub-item' + (c === 1 ? '' : 's') : 'No sub-items';
   }
@@ -533,7 +578,7 @@ export class SubListComponent implements OnInit, OnChanges {
     let t = '';
     let p = item.parent;
 
-    for(let i = 0; i < 3 && p; i++) {
+    for (let i = 0; i < 3 && p; i++) {
       t += ' → ' + p.name;
       p = p.parent;
     }
@@ -542,8 +587,8 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   getAfterText(item: any, ignoreShowSublistPreviews = false) {
-    let c = ignoreShowSublistPreviews || !this.getEnv().showSublistPreviews ? this.countSubItems(item) : 0;
-    let d = this.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0;
+    const c = ignoreShowSublistPreviews || !this.getEnv().showSublistPreviews ? this.countSubItems(item) : 0;
+    const d = this.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0;
 
     return c || d ? ' (' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') + ')' : '';
   }
@@ -576,7 +621,7 @@ export class SubListComponent implements OnInit, OnChanges {
   moveItem(event: Event, item: any, move: number) {
     event.stopPropagation();
     event.preventDefault();
-    
+
     const location = this.list.items.indexOf(item);
 
     if (location === -1 || move === 0) {
@@ -595,7 +640,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
     if (move > 0 && location === this.list.items.length - 1) {
       if (this.list.parent) {
-        let pos = this.list.parent.items.indexOf(this.list);
+        const pos = this.list.parent.items.indexOf(this.list);
 
         if (pos >= 0 && pos <= this.list.parent.items.length - 1) {
           this.api.moveListUp(item, pos + 1);
@@ -614,7 +659,7 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   onItemEnterPressed(element: any, item: any) {
-    let i = this.list.items.indexOf(item);
+    const i = this.list.items.indexOf(item);
 
     if (i === -1) {
       return false;
@@ -628,7 +673,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
   onItemBackspacePressed(element: any, item: any) {
     if (Util.isEmptyStr(item.name) && this.list.items.length > 1) {
-      let c = this.api.getSubItemNames(item);
+      const c = this.api.getSubItemNames(item);
 
       if (c.length) {
         this.ui.dialog({
@@ -644,7 +689,9 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   hideItem(item: any, includeEmpty = true) {
-    return (item.checked && this.ui.getEnv().hideDoneItems) || this.filter.byRef?.length && (item.name || includeEmpty) && !item.ref?.find(x => this.filter.byRef.indexOf(x) !== -1);
+    return (item.checked && this.ui.getEnv().hideDoneItems)
+      || this.filter.byRef?.length && (item.name || includeEmpty)
+      && !item.ref?.find(x => this.filter.byRef.indexOf(x) !== -1);
   }
 
   hideSubItem(item: any) {
@@ -680,7 +727,7 @@ export class SubListComponent implements OnInit, OnChanges {
   public onArrowUpDown(event: Event, item: any, move: number) {
     event.preventDefault();
 
-    let i = this.list.items.filter(x => !this.hideItem(x)).indexOf(item);
+    const i = this.list.items.filter(x => !this.hideItem(x)).indexOf(item);
 
     if (i === -1) {
       return;
@@ -690,7 +737,7 @@ export class SubListComponent implements OnInit, OnChanges {
       this.focusName();
     }
   }
-  
+
   private focusName() {
     this.nameElement.nativeElement.focus();
   }
@@ -701,10 +748,10 @@ export class SubListComponent implements OnInit, OnChanges {
     }
 
     this.itemsElement
-        .nativeElement
-        .children[index]
-        .querySelector('[contenteditable]')
-        .focus();
+      .nativeElement
+      .children[index]
+      .querySelector('[contenteditable]')
+      .focus();
 
     return true;
   }
@@ -714,7 +761,8 @@ export class SubListComponent implements OnInit, OnChanges {
 
     return recents.length ? recents.filter(x => x !== exclude).map(recent => {
       return {
-        title: Util.htmlToText(recent.name) + (recent.parent ? `<span class="note-parent"> → ${ Util.htmlToText(recent.parent.name) }</span>` : ''),
+        title: Util.htmlToText(recent.name) +
+          (recent.parent ? `<span class="note-parent"> → ${Util.htmlToText(recent.parent.name)}</span>` : ''),
         callback: () => {
           callback(recent);
         }
@@ -749,17 +797,17 @@ export class SubListComponent implements OnInit, OnChanges {
 
   private moveItemToLastPosition(item: any) {
     const location = this.list.items.indexOf(item);
-    
+
     if (location === -1) {
       return;
     }
-    
+
     this.list.items.splice(location, 1);
     this.list.items.push(item);
   }
 
   private newBlankList(position: number = null) {
-    let l = this.api.newBlankList(this.list, position);
+    const l = this.api.newBlankList(this.list, position);
     l.color = this.list.color;
     this.api.modified(l);
     this.api.setAllPropsSynced(l);

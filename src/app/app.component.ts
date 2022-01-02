@@ -1,31 +1,31 @@
-import { Component, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
-import { Location, LocationStrategy, PathLocationStrategy, PopStateEvent } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
-import { ApiService } from './api.service';
-import { UiService } from './ui.service';
-import { VillageService } from 'app/village.service';
-import { SyncService } from 'app/sync.service';
-import { Title } from '@angular/platform-browser';
+import {Component, ViewContainerRef, ComponentFactoryResolver} from '@angular/core';
+import {Location, LocationStrategy, PathLocationStrategy} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {ApiService} from './api.service';
+import {UiService} from './ui.service';
+import {VillageService} from 'app/village.service';
+import {SyncService} from 'app/sync.service';
+import {Title} from '@angular/platform-browser';
 import Util from 'app/util';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  host: { '(window:keydown.esc)': 'escapePressed($event)' },
+  host: {'(window:keydown.esc)': 'escapePressed()'},
   providers: [Location, {provide: LocationStrategy, useClass: PathLocationStrategy}]
 })
 export class AppComponent {
   constructor(
-      public api: ApiService,
-      public ui: UiService,
-      public village: VillageService,
-      public sync: SyncService,
-      public view: ViewContainerRef,
-      public resolver: ComponentFactoryResolver,
-      private location: Location,
-      private route: ActivatedRoute,
-      private title: Title
+    public api: ApiService,
+    public ui: UiService,
+    public village: VillageService,
+    public sync: SyncService,
+    public view: ViewContainerRef,
+    public resolver: ComponentFactoryResolver,
+    private location: Location,
+    private route: ActivatedRoute,
+    private title: Title
   ) {
     this.ui.registerAppComponent(this);
     this.sync.start();
@@ -35,7 +35,7 @@ export class AppComponent {
       if (!params['id']) {
         return;
       }
-      
+
       let note = this.api.search(params['id']);
 
       if (!note) {
@@ -50,7 +50,7 @@ export class AppComponent {
     })
   }
 
-  escapePressed(event: any) {
+  escapePressed() {
     if (!this.ui.back()) {
       this.api.up();
     }

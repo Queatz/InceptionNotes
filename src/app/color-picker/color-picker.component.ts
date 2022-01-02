@@ -1,6 +1,6 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { ApiService } from '../api.service';
-import { UiService } from '../ui.service';
+import {Component, OnInit, Output, EventEmitter} from '@angular/core';
+import {ApiService} from '../api.service';
+import {UiService} from '../ui.service';
 
 @Component({
   selector: 'app-color-picker',
@@ -13,7 +13,8 @@ export class ColorPickerComponent implements OnInit {
   @Output() onColorSelected = new EventEmitter<string>();
   @Output() onColorConfirmed = new EventEmitter();
 
-  constructor(private api: ApiService, private ui: UiService) { }
+  constructor(private api: ApiService, private ui: UiService) {
+  }
 
   ngOnInit() {
     this.colors = this.ui.getEnv().recentColors;

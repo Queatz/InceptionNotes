@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { UiService } from './ui.service';
-import { ApiService } from './api.service';
+import {Injectable} from '@angular/core';
+import {UiService} from './ui.service';
+import {ApiService} from './api.service';
 
 import {
   CollaborativeJson,
@@ -11,18 +11,20 @@ import {
   Conflict
 } from './collaborative-json';
 
-const _sync: string = '_sync';
+const _sync = '_sync';
 
-export class CollaborativeJsonString extends CollaborativeJsonAtom {}
+export class CollaborativeJsonString extends CollaborativeJsonAtom {
+}
 
 export class CollaborativeJsonArray implements CollaborativeJsonNode {
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService) {
+  }
 
   sync(key: string, node: Object, foreign: Object): boolean {
     if (node[key].length === foreign[key].length) {
       let equal = true;
-      for (let i in node[key]) {
+      for (const i in node[key]) {
         if (node[key][i].id !== foreign[key][i].id) {
           equal = false;
           break;
@@ -38,10 +40,10 @@ export class CollaborativeJsonArray implements CollaborativeJsonNode {
   }
 
   set(key: string, node: Object, foreign: Object) {
-    let all = this.api.getAllNotes();
+    const all = this.api.getAllNotes();
 
-    for (let i in foreign[key]) {
-      let id = foreign[key][i].id;
+    for (const i in foreign[key]) {
+      const id = foreign[key][i].id;
 
       if (id in all) {
         node[key][i] = all[id];
@@ -72,7 +74,7 @@ export class CollaborateService {
     this.collaborativeJson.addRule('items', new CollaborativeJsonArray(api));
     this.collaborativeJson.addRule('ref', new CollaborativeJsonArray(api));
 
-    let diffStr = this.diffStr;
+    const diffStr = this.diffStr;
 
     this.conflictResolver = ({
       resolve(conflict: Conflict): Promise<ConflictResolution> {
@@ -96,10 +98,10 @@ export class CollaborateService {
   }
 
   public syncAll(node: any, foreign: any) {
-    let needsMerge: Array<any> = [];
+    const needsMerge: Array<any> = [];
     let promise: Promise<boolean> = Promise.resolve(true);
 
-    for(let key in foreign) {
+    for (const key in foreign) {
       if (key in node) {
         promise = promise.then(() => this.sync(node[key], foreign[key]));
       } else {
@@ -115,7 +117,7 @@ export class CollaborateService {
   }
 
   public diffStr(obj: any) {
-    if (typeof(obj) === 'string') {
+    if (typeof (obj) === 'string') {
       return obj;
     } else if (Array.isArray(obj)) {
       return obj.reduce((val, item) => val + '\n' + item.name, '');

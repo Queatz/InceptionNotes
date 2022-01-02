@@ -1,9 +1,9 @@
-import { Injectable, ComponentFactoryResolver } from '@angular/core';
-import { Subject } from 'rxjs'
+import {Injectable, ComponentFactoryResolver} from '@angular/core';
+import {Subject} from 'rxjs'
 
-import { AppComponent } from './app.component';
-import { DialogComponent, DialogConfig } from './dialog/dialog.component';
-import { MenuComponent } from './menu/menu.component';
+import {AppComponent} from './app.component';
+import {DialogComponent, DialogConfig} from './dialog/dialog.component';
+import {MenuComponent} from './menu/menu.component';
 
 @Injectable()
 export class UiService {
@@ -14,21 +14,22 @@ export class UiService {
   private dialogs = [];
   private lastMenu: Array<MenuStackEntry> = [];
 
-  constructor(private resolver: ComponentFactoryResolver) { }
+  private env: Env;
+
+  constructor(private resolver: ComponentFactoryResolver) {
+  }
 
   public registerAppComponent(app: AppComponent) {
     this.appComponent = app;
     this.load();
   }
 
-  private env: Env;
-
   public back() {
     if (!this.dialogs.length) {
       return false;
     }
 
-    let top = this.dialogs.pop();
+    const top = this.dialogs.pop();
     top.hostView.destroy();
 
     return true;
@@ -74,8 +75,8 @@ export class UiService {
   }
 
   public dialog(config: DialogConfig) {
-    let dialog = this.appComponent.view
-        .createComponent(this.resolver.resolveComponentFactory(DialogComponent));
+    const dialog = this.appComponent.view
+      .createComponent(this.resolver.resolveComponentFactory(DialogComponent));
 
     this.dialogs.push(dialog);
 
@@ -96,7 +97,9 @@ export class UiService {
     while (this.lastMenu.length > depth + 1 && !!this.lastMenu.length) {
       const option = this.lastMenu.pop();
       option.component.clickout();
-      if (option.parent) option.parent.isOpen = false;
+      if (option.parent) {
+        option.parent.isOpen = false;
+      }
     }
   }
 
@@ -105,8 +108,8 @@ export class UiService {
       return;
     }
 
-    let menu = this.appComponent.view
-        .createComponent(this.resolver.resolveComponentFactory(MenuComponent));
+    const menu = this.appComponent.view
+      .createComponent(this.resolver.resolveComponentFactory(MenuComponent));
 
     if (this.lastMenu.length && !parentMenuOption) {
       this.lastMenu.pop().component.clickout();
@@ -114,7 +117,9 @@ export class UiService {
       parentMenuOption.isOpen = true;
     }
 
-    if (parentMenuOption) this.clearMenus(parentMenuOption);
+    if (parentMenuOption) {
+      this.clearMenus(parentMenuOption);
+    }
 
     const component = menu.instance as MenuComponent;
 
@@ -135,7 +140,7 @@ export class UiService {
   }
 
   public addRecentColor(color: string) {
-    let exists = this.env.recentColors.indexOf(color);
+    const exists = this.env.recentColors.indexOf(color);
 
     if (exists !== -1) {
       this.env.recentColors.splice(exists, 1);
@@ -155,7 +160,7 @@ export class UiService {
   }
 }
 
-export type Env = {
+export interface Env {
   sidepane: boolean,
   dblClickToOpen: boolean,
   lastBackup: string,
@@ -172,7 +177,7 @@ export type Env = {
   recentColors: Array<string>
 }
 
-export type MenuOption = {
+export interface MenuOption {
   title: string,
   disabled?: boolean,
   callback: () => void,
@@ -182,7 +187,7 @@ export type MenuOption = {
   isOpen?: boolean;
 }
 
-type MenuStackEntry = {
+interface MenuStackEntry {
   depth: number,
   parent: MenuOption,
   component: MenuComponent

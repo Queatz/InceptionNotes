@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, Subject, of } from 'rxjs';
-import { map, first } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Observable, Subject, of} from 'rxjs';
+import {map, first} from 'rxjs/operators';
 
-import { ApiService } from './api.service';
-import { UiService } from './ui.service';
-import { Config } from 'app/config.service';
-import { SyncService } from 'app/sync.service';
+import {ApiService} from './api.service';
+import {UiService} from './ui.service';
+import {Config} from 'app/config.service';
+import {SyncService} from 'app/sync.service';
 import util from 'app/util';
 
 @Injectable()
@@ -26,11 +26,11 @@ export class VillageService {
   private backers: any[];
 
   constructor(private http: HttpClient,
-      private config: Config,
-      private api: ApiService,
-      private ui: UiService,
-      private syncService: SyncService) {
-    var local = JSON.parse(localStorage.getItem('village'));
+              private config: Config,
+              private api: ApiService,
+              private ui: UiService,
+              private syncService: SyncService) {
+    const local = JSON.parse(localStorage.getItem('village'));
 
     if (local) {
       this.data = local;
@@ -65,7 +65,7 @@ export class VillageService {
   }
 
   private setup() {
-    let me = util.newKey();
+    const me = util.newKey();
     this.put(VillageService.VLLLAGE_ME_KEY, JSON.stringify(me)).subscribe(success => {
       this.onMeAvailable(me);
     }, err => {
@@ -141,30 +141,30 @@ export class VillageService {
 
     if (!this.listener) {
       this.listener = event => {
-          if (event.data && event.data.me !== undefined) {
-            if (event.data.me) {
-              this.data = event.data.me;
-              this.sync();
-              localStorage.setItem('village', JSON.stringify(this.data));
+        if (event.data && event.data.me !== undefined) {
+          if (event.data.me) {
+            this.data = event.data.me;
+            this.sync();
+            localStorage.setItem('village', JSON.stringify(this.data));
 
-              if (this.found) {
-                return;
-              }
-              this.found = true;
-              this.ui.dialog({
-                message: 'Hey ' + event.data.me.firstName + '!',
-              });
-            } else {
-              if (this.found === false) {
-                return;
-              }
-              this.found = false;
-              this.ui.dialog({
-                message: 'You are not currently signed into Village.',
-              });
+            if (this.found) {
+              return;
             }
+            this.found = true;
+            this.ui.dialog({
+              message: 'Hey ' + event.data.me.firstName + '!',
+            });
+          } else {
+            if (this.found === false) {
+              return;
+            }
+            this.found = false;
+            this.ui.dialog({
+              message: 'You are not currently signed into Village.',
+            });
           }
-        };
+        }
+      };
 
       window.addEventListener('message', this.listener, false);
 
@@ -189,11 +189,11 @@ export class VillageService {
       return of(backs);
     } else {
       this.http.get(this.config.vlllageFriends(this.me().id, this.me().token), this.options()).subscribe((person: any) => {
-            this.backers = person.backs.map(back => back.source);
-            this.update(this.backers);
-            let backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1);
-            this.friendsObservable.next(backs);
-          });
+        this.backers = person.backs.map(back => back.source);
+        this.update(this.backers);
+        let backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1);
+        this.friendsObservable.next(backs);
+      });
     }
 
     return this.friendsObservable.pipe(first());
@@ -212,7 +212,8 @@ export class VillageService {
   }
 
   private options() {
-    return { headers: new HttpHeaders({
+    return {
+      headers: new HttpHeaders({
         'Authorization': this.data.token,
         'Content-Type': 'application/json'
       })

@@ -1,14 +1,25 @@
-import { Component, OnInit, OnChanges, SimpleChanges, ElementRef, Input, HostListener, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
-import { ApiService } from '../api.service';
-import { UiService, MenuOption } from '../ui.service';
-import { VillageService } from '../village.service';
-import { OpComponent } from '../op/op.component';
-import { SearchComponent } from '../search/search.component';
-import { AddPeopleComponent } from 'app/add-people/add-people.component';
+import {
+  Component,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+  ElementRef,
+  Input,
+  HostListener,
+  OnDestroy,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core';
+import {ApiService} from '../api.service';
+import {UiService, MenuOption} from '../ui.service';
+import {VillageService} from '../village.service';
+import {OpComponent} from '../op/op.component';
+import {SearchComponent} from '../search/search.component';
+import {AddPeopleComponent} from 'app/add-people/add-people.component';
 import Util from 'app/util';
-import { FilterService } from 'app/filter.service'
-import { Subject } from 'rxjs'
-import { takeUntil } from 'rxjs/operators'
+import {FilterService} from 'app/filter.service'
+import {Subject} from 'rxjs'
+import {takeUntil} from 'rxjs/operators'
 
 @Component({
   selector: 'main-desk',
@@ -23,15 +34,20 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() list: any;
 
-  @ViewChild('listsContainer', { read: ViewContainerRef }) listsContainer: ViewContainerRef;
+  @ViewChild('listsContainer', {read: ViewContainerRef}) listsContainer: ViewContainerRef;
 
   private destroyed = new Subject<void>()
 
-  constructor(public api: ApiService, public filter: FilterService, public village: VillageService, public ui: UiService, private elementRef: ElementRef) {
+  constructor(
+    public api: ApiService,
+    public filter: FilterService,
+    public village: VillageService,
+    public ui: UiService,
+    private elementRef: ElementRef) {
   }
-  
+
   ngOnInit() {
-  	this.initNext();
+    this.initNext();
 
     this.ui.locate.pipe(
       takeUntil(this.destroyed)
@@ -39,10 +55,11 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
       const idx = this.getLists().indexOf(note);
 
       if (document.documentElement && idx !== -1) {
-        const y = ((this.listsContainer.element.nativeElement as HTMLDivElement).children[idx] as HTMLDivElement).offsetTop - Util.convertRemToPixels(1);
+        const y = ((this.listsContainer.element.nativeElement as HTMLDivElement).children[idx] as HTMLDivElement).offsetTop -
+          Util.convertRemToPixels(1);
         document.documentElement.scrollTo({
           top: y,
-          behavior: 'smooth' 
+          behavior: 'smooth'
         })
       }
     })
@@ -63,7 +80,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
   onItemRemoved(item: any) {
     if (this.getLists().length > 1) {
-      let c = this.api.getSubItemNames(item);
+      const c = this.api.getSubItemNames(item);
 
       if (!c.length) {
         this.removeItem(item);
@@ -125,7 +142,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   moveItem(event: Event, item: any, move: number) {
-    let location = this.list.items.indexOf(item);
+    const location = this.list.items.indexOf(item);
 
     if (location === -1) {
       return;
@@ -143,7 +160,9 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     this.list.items.splice(location + move, 0, item);
     this.api.modified(this.list, 'items');
 
-    setTimeout(() => this.elementRef.nativeElement.querySelectorAll('sub-list')[(location + move)].querySelector('.sub-list-title').focus());
+    setTimeout(() =>
+      this.elementRef.nativeElement.querySelectorAll('sub-list')[(location + move)]
+        .querySelector('.sub-list-title').focus());
   }
 
   getShow() {
@@ -163,27 +182,27 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     event.preventDefault();
 
     let opts: Array<MenuOption>;
-    let v = !!this.village.me();
+    const v = !!this.village.me();
 
     if (!v) {
       opts = [
-        { title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null) },
-        { title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null) },
-        { title: 'Change background...', callback: () => this.changeBackground() },
-        //{ title: 'Connect with Village...', callback: () => this.village.connect() },
-        { title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null) }
+        {title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null)},
+        {title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null)},
+        {title: 'Change background...', callback: () => this.changeBackground()},
+        // { title: 'Connect with Village...', callback: () => this.village.connect() },
+        {title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null)}
       ];
     } else {
       opts = [
-        { title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null) },
-        { title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null) },
-        { title: 'Change background...', callback: () => this.changeBackground() },
-        //{ title: 'Add people...', callback: () => this.addPeople(this.list) },
-        { title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null) },
+        {title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null)},
+        {title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null)},
+        {title: 'Change background...', callback: () => this.changeBackground()},
+        // { title: 'Add people...', callback: () => this.addPeople(this.list) },
+        {title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null)},
       ];
     }
 
-    this.ui.menu(opts, { x: event.clientX, y: event.clientY });
+    this.ui.menu(opts, {x: event.clientX, y: event.clientY});
   }
 
   @HostListener('window:keydown.alt.o', ['$event'])
@@ -217,24 +236,24 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
       input: true,
       view: SearchComponent,
       init: dialog => {
-          dialog.changes.subscribe(val => {
-              dialog.component.instance.searchString = val;
-              dialog.component.instance.ngOnChanges(null);
-          });
-          dialog.component.instance.onSelection.subscribe(note => {
-              this.api.addRecent('search', note.id);
-              this.api.setEye(note);
-              dialog.back();
-          });
-          dialog.component.instance.resultsChanged.subscribe(results => {
-              dialog.model.results = results;
-          });
+        dialog.changes.subscribe(val => {
+          dialog.component.instance.searchString = val;
+          dialog.component.instance.ngOnChanges(null);
+        });
+        dialog.component.instance.onSelection.subscribe(note => {
+          this.api.addRecent('search', note.id);
+          this.api.setEye(note);
+          dialog.back();
+        });
+        dialog.component.instance.resultsChanged.subscribe(results => {
+          dialog.model.results = results;
+        });
       },
       ok: result => {
-          if (result.results && result.results.length) {
-              this.api.addRecent('search', result.results[0].id);
-              this.api.setEye(result.results[0]);
-          }
+        if (result.results && result.results.length) {
+          this.api.addRecent('search', result.results[0].id);
+          this.api.setEye(result.results[0]);
+        }
       }
     });
   }
@@ -254,30 +273,30 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
       input: true,
       view: SearchComponent,
       init: dialog => {
-          dialog.component.instance.recentWhich = 'filter';
+        dialog.component.instance.recentWhich = 'filter';
 
-          dialog.changes.subscribe(val => {
-            dialog.component.instance.searchString = val;
-              dialog.component.instance.ngOnChanges(null);
-          });
-          dialog.component.instance.onSelection.subscribe(note => {
-            this.api.addRecent('filter', note.id);
-              this.filter.toggleRef(note);
-              dialog.back();
-          });
-          dialog.component.instance.resultsChanged.subscribe(results => {
-              dialog.model.results = results;
-          });
+        dialog.changes.subscribe(val => {
+          dialog.component.instance.searchString = val;
+          dialog.component.instance.ngOnChanges(null);
+        });
+        dialog.component.instance.onSelection.subscribe(note => {
+          this.api.addRecent('filter', note.id);
+          this.filter.toggleRef(note);
+          dialog.back();
+        });
+        dialog.component.instance.resultsChanged.subscribe(results => {
+          dialog.model.results = results;
+        });
       },
       ok: result => {
-          if (result.results && result.results.length) {
-              this.api.addRecent('filter', result.results[0].id);
-              this.filter.toggleRef(result.results[0]);
-          }
+        if (result.results && result.results.length) {
+          this.api.addRecent('filter', result.results[0].id);
+          this.filter.toggleRef(result.results[0]);
+        }
       }
     });
   }
-  
+
   @HostListener('window:keydown.alt.p')
   showAsPriority(event: Event) {
     this.ui.getEnv().showAsPriorityList = !this.ui.getEnv().showAsPriorityList;
@@ -296,7 +315,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     let t = '';
     let p = item.parent;
 
-    for(let i = 0; i < 3 && p; i++) {
+    for (let i = 0; i < 3 && p; i++) {
       t += ' → ' + p.name;
       p = p.parent;
     }
@@ -320,17 +339,17 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
         title: 'Remove filter',
         callback: () => this.filter.toggleRef(item)
       }
-    ], { x: event.clientX, y: event.clientY });
+    ], {x: event.clientX, y: event.clientY});
   }
 
   private initNext() {
-    let items = this.getLists();
+    const items = this.getLists();
 
     if (items.length && Util.isEmptyStr(this.list.items[items.length - 1].name)) {
       return;
     }
 
-    let l = this.api.newBlankList(this.list);
+    const l = this.api.newBlankList(this.list);
     l.color = this.getShow().color;
     this.api.modified(l);
     this.api.setAllPropsSynced(l);

@@ -1,7 +1,7 @@
-import { Component, OnInit, Input, HostListener } from '@angular/core';
+import {Component, OnInit, Input, HostListener} from '@angular/core';
 
-import { ApiService } from '../api.service';
-import { UiService } from '../ui.service';
+import {ApiService} from '../api.service';
+import {UiService} from '../ui.service';
 
 import Util from '../util';
 
@@ -16,10 +16,11 @@ import Util from '../util';
 export class SubSubListItemComponent implements OnInit {
   @Input() item: any;
 
-  private isDroppingList: boolean;
-  private dragCounter: number = 0;
+  isDroppingList: boolean;
+  private dragCounter = 0;
 
-  constructor(private ui: UiService, private api: ApiService) { }
+  constructor(private ui: UiService, private api: ApiService) {
+  }
 
   ngOnInit() {
   }
@@ -60,7 +61,7 @@ export class SubSubListItemComponent implements OnInit {
 
     this.isDroppingList = false;
     this.dragCounter = 0;
-    let id = event.dataTransfer.getData('application/x-id');
+    const id = event.dataTransfer.getData('application/x-id');
     this.api.moveList(id, this.item.id);
   }
 
@@ -73,8 +74,8 @@ export class SubSubListItemComponent implements OnInit {
   }
 
   getAfterText(item: any) {
-    let c = this.countSubItems(item);
-    let d = this.ui.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0;
+    const c = this.countSubItems(item);
+    const d = this.ui.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0;
 
     return c || d ? ' (' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') + ')' : '';
   }

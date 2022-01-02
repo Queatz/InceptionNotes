@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
-import { VillageService } from 'app/village.service';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Subject} from 'rxjs';
+import {VillageService} from 'app/village.service';
 
 @Component({
   selector: 'app-add-people',
@@ -10,7 +10,7 @@ import { VillageService } from 'app/village.service';
 export class AddPeopleComponent implements OnInit, OnDestroy {
 
   onSelection: Subject<any>;
-  
+
   results: any[] = [];
 
   constructor(private village: VillageService) {
