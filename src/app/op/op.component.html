@@ -6,7 +6,7 @@
   <br /><br />
   <label><input type="checkbox" name="useDarkTheme" [(ngModel)]="env.useDarkTheme" (ngModelChange)="update()" /> Use dark theme</label>
   <br /><br />
-  <label><input type="checkbox" name="useDarkTheme" [(ngModel)]="env.showFlat" (ngModelChange)="update()" /> Use flat theme</label>
+  <label><input type="checkbox" name="showFlat" [(ngModel)]="env.showFlat" (ngModelChange)="update()" /> Use flat theme</label>
   <br /><br />
   <label><input type="checkbox" name="showAsPriorityList" [(ngModel)]="env.showAsPriorityList" (ngModelChange)="update()" /> Show as priority list (ALT + P)</label>
   <br /><br />
@@ -23,6 +23,8 @@
   <label><input type="checkbox" name="unlinkOnDelete" [(ngModel)]="env.unlinkOnDelete" (ngModelChange)="update()" /> Unlink links on delete</label>
   <br /><br />
   <label><input type="checkbox" name="hideDoneItems" [(ngModel)]="env.hideDoneItems" (ngModelChange)="update()" /> Hide done items</label>
+  <br /><br />
+  <label>Show only <input type="number" name="showOnly" min="0" [(ngModel)]="env.showOnly" (ngModelChange)="update()" /> items per note</label>
 </form>
 <br />
 <span *ngIf="isVillageConnected()">

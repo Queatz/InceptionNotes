@@ -19,3 +19,8 @@
 .button-wrap > button + button {
   margin-left: .25rem;
 }
+
+input[type='number'] {
+  width: 3rem;
+  max-width: 3rem;
+}
