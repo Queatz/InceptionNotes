@@ -6,7 +6,10 @@ import {UiService} from 'app/ui.service';
   selector: 'main-list',
   templateUrl: './main-list.component.html',
   styleUrls: ['./main-list.component.css'],
-  host: {'[style.background-color]': 'api.getEye().color'}
+  host: {
+    '[style.background-color]': 'api.getEye().color',
+    '[style.background-image]': 'ui.getEnv().showFlat ? null : \'-webkit-linear-gradient(right, rgba(255, 255, 255, .25), transparent)\''
+  }
 })
 export class MainListComponent implements OnInit {
 

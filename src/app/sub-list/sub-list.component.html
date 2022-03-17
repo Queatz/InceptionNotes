@@ -16,6 +16,7 @@
     <div class="item-links" *ngIf="getEnv().showLinks && list.ref">
       <div *ngFor="let i of list.ref" class="item-link lg" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name"></div>
     </div>
+    <div class="open-note" (click)="useAsNavigation ? up() : openList($event)" [title]="useAsNavigation ? 'Go up' : 'Open note'">{{ useAsNavigation ? '↑' : '↗'}}</div>
   </div>
   <div *ngIf="!useAsNavigation && !list.collapsed" #items>
     <ng-container *ngFor="let item of list.items; index as i">

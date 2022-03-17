@@ -428,7 +428,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
   @HostBinding('style.background-image')
   get styledNote() {
-    return !this.getEnv().showFlat ? '-webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent)' : null;
+    return !this.useAsNavigation && !this.getEnv().showFlat ? '-webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent)' : null;
   }
 
   @HostBinding('draggable')
@@ -794,6 +794,10 @@ export class SubListComponent implements OnInit, OnChanges {
       .focus();
 
     return true;
+  }
+
+  public up() {
+    this.api.up()
   }
 
   private getRecentsSubmenu(callback: (recent: any) => void, exclude: any): Array<MenuOption> | null {

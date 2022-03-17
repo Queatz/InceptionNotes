@@ -258,3 +258,28 @@
 .navigate-to-note {
   cursor: pointer;
 }
+
+.open-note {
+  cursor: pointer;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  justify-content: center;
+  align-items: center;
+  display: none;
+  border-radius: 8rem;
+  color: rgba(0, 0, 0, .75);
+  background-color: rgba(255, 255, 255, .75);
+
+  transition: background-color .125s ease-out;
+}
+
+.item-name:hover .open-note {
+  display: flex;
+}
+
+.open-note:hover {
+  background-color: rgb(255, 255, 255);
+}
