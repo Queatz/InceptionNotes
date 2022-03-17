@@ -23,4 +23,7 @@
 input[type='number'] {
   width: 3rem;
   max-width: 3rem;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  margin: .25rem;
 }

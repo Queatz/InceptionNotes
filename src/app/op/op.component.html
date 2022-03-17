@@ -1,30 +1,34 @@
 <br />
 <form>
+  <b>Navigation</b><br />
   <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.dblClickToOpen" (ngModelChange)="update()" /> Enable double-click to jump inside notes</label>
-  <br /><br />
-  <label><input type="checkbox" name="showDescriptions" [(ngModel)]="env.showDescriptions" (ngModelChange)="update()" /> Show pages</label>
-  <br /><br />
+  <br />
+  <br /><b>Appearance</b><br />
   <label><input type="checkbox" name="useDarkTheme" [(ngModel)]="env.useDarkTheme" (ngModelChange)="update()" /> Use dark theme</label>
-  <br /><br />
+  <br />
   <label><input type="checkbox" name="showFlat" [(ngModel)]="env.showFlat" (ngModelChange)="update()" /> Use flat theme</label>
-  <br /><br />
+  <br />
   <label><input type="checkbox" name="showAsPriorityList" [(ngModel)]="env.showAsPriorityList" (ngModelChange)="update()" /> Show as priority list (ALT + P)</label>
-  <br /><br />
+  <br />
+  <br /><b>Display</b><br />
   <label><input type="checkbox" name="showListCheckboxes" [(ngModel)]="env.showListCheckboxes" (ngModelChange)="update()" /> Show list checkboxes</label>
-  <br /><br />
+  <br />
   <label><input type="checkbox" name="showSublistCheckboxes" [(ngModel)]="env.showSublistCheckboxes" (ngModelChange)="update()" /> Show sublist checkboxes</label>
-  <br /><br />
+  <br />
   <label><input type="checkbox" name="showSublistPreviews" [(ngModel)]="env.showSublistPreviews" (ngModelChange)="update()" /> Show sublist previews</label>
-  <br /><br />
+  <br />
   <label><input type="checkbox" name="showLinks" [(ngModel)]="env.showLinks" (ngModelChange)="update()" /> Show links</label>
-  <br /><br />
+  <br />
   <label><input type="checkbox" name="showEstimates" [(ngModel)]="env.showEstimates" (ngModelChange)="update()" /> Show estimates</label>
-  <br /><br />
-  <label><input type="checkbox" name="unlinkOnDelete" [(ngModel)]="env.unlinkOnDelete" (ngModelChange)="update()" /> Unlink links on delete</label>
-  <br /><br />
+  <br />
+  <label><input type="checkbox" name="showDescriptions" [(ngModel)]="env.showDescriptions" (ngModelChange)="update()" /> Show pages</label>
+  <br />
   <label><input type="checkbox" name="hideDoneItems" [(ngModel)]="env.hideDoneItems" (ngModelChange)="update()" /> Hide done items</label>
-  <br /><br />
-  <label>Show only <input type="number" name="showOnly" min="0" [(ngModel)]="env.showOnly" (ngModelChange)="update()" /> items per note</label>
+  <br />
+  <label><input type="number" name="showOnly" min="0" [(ngModel)]="env.showOnly" (ngModelChange)="update()" /> max items shown per note</label>
+  <br />
+  <br /><b>Extras</b><br />
+  <label><input type="checkbox" name="unlinkOnDelete" [(ngModel)]="env.unlinkOnDelete" (ngModelChange)="update()" /> Unlink links on delete</label>
 </form>
 <br />
 <span *ngIf="isVillageConnected()">
