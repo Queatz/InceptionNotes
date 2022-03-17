@@ -190,6 +190,7 @@ export class ApiService {
       backgroundUrl: a.backgroundUrl,
       collapsed: a.collapsed,
       estimate: a.estimate,
+      created: a.created,
       _sync: a._sync
     };
   }
@@ -841,7 +842,8 @@ export class ApiService {
       name: '',
       description: '',
       color: '#ffffff',
-      items: []
+      items: [],
+      created: new Date().toISOString()
     };
 
     if (this.notes) {
