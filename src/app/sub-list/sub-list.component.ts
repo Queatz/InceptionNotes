@@ -281,6 +281,10 @@ export class SubListComponent implements OnInit, OnChanges {
         callback: () => this.api.removeRef(item, refItem)
       },
       {
+        title: 'Apply as filter',
+        callback: () => this.filter.toggleRef(refItem)
+      },
+      {
         title: 'Order',
         shortcut: '⯈',
         callback: () => {
