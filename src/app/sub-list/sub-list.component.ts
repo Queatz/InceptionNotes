@@ -125,10 +125,13 @@ export class SubListComponent implements OnInit, OnChanges {
       {
         title: 'Move...',
         callback: () => this.moveToNote(this.list),
-        menu: this.getRecentsSubmenu(recent => {
+        menu: [ ...(this.list.parent?.parent ? [ {
+          title: '↑ Up to parent',
+          callback: () => this.api.moveListUp(this.list, this.list.parent.parent.items.indexOf(this.list.parent) + 1)
+        } ] : []), ...this.getRecentsSubmenu(recent => {
           this.api.addRecent('search', recent.id);
           this.api.moveList(this.list.id, recent.id);
-        }, this.list)
+        }, this.list) ]
       },
       ...(this.list.parent ? [{
         title: 'Duplicate',
@@ -241,10 +244,13 @@ export class SubListComponent implements OnInit, OnChanges {
         }, item)
       },
       {
-        title: 'Move...', callback: () => this.moveToNote(item), menu: this.getRecentsSubmenu(recent => {
+        title: 'Move...', callback: () => this.moveToNote(item), menu: [ {
+          title: '↓ Out',
+          callback: () => this.api.moveListUp(item, item.parent.parent.items.indexOf(item.parent) + 1)
+        }, ...this.getRecentsSubmenu(recent => {
           this.api.addRecent('search', recent.id);
           this.api.moveList(item.id, recent.id);
-        }, item)
+        }, item) ]
       },
       ...(this.ui.getEnv().showEstimates ? [{
         title: 'Estimate...', callback: () => this.ui.dialog({
