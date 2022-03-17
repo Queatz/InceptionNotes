@@ -285,6 +285,18 @@ export class SubListComponent implements OnInit, OnChanges {
         callback: () => this.filter.toggleRef(refItem)
       },
       {
+        title: 'Change to',
+        shortcut: '⯈',
+        callback: () => {
+        },
+        menu: [
+          ...(refItem.parent?.items || []).filter(x => x !== refItem && x.name.trim()).map(refSibling => ({
+            title: refSibling.name,
+            callback: () => this.api.changeRef(item, refItem, refSibling)
+          }))
+        ]
+      },
+      {
         title: 'Order',
         shortcut: '⯈',
         callback: () => {

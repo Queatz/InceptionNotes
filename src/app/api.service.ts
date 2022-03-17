@@ -931,6 +931,49 @@ export class ApiService {
     }
   }
 
+  changeRef(list: any, refToRemove: any, newRef: any) {
+    if (list === newRef) {
+      return;
+    }
+
+    if (!newRef.ref) {
+      newRef.ref = [];
+    }
+
+    if (!list.ref) {
+      list.ref = [];
+    }
+
+    if (newRef.ref.indexOf(list) !== -1) {
+      return;
+    }
+
+    if (list.ref.indexOf(newRef) !== -1) {
+      return;
+    }
+
+    const listPos = list.ref.indexOf(refToRemove);
+
+    if (listPos === -1) {
+      return;
+    }
+
+    const listPosOldRef = refToRemove.ref.indexOf(list);
+
+    if (listPosOldRef === -1) {
+      return;
+    }
+
+    list.ref.splice(listPos, 1, newRef);
+    this.modified(list, 'ref');
+
+    newRef.ref.push(list);
+    this.modified(newRef, 'ref');
+
+    refToRemove.ref.splice(listPosOldRef, 1);
+    this.modified(refToRemove, 'ref');
+  }
+
   /* Recents */
 
   public getRecent(which: string): any[] {
