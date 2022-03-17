@@ -189,6 +189,15 @@ export class SubListComponent implements OnInit, OnChanges {
       {
         title: 'Change color...',
         callback: () => this.changeColor(),
+        menu: (this.getEnv().recentColors || []).slice(0, 3).map(color => ({
+          title: color,
+          color,
+          callback: () => {
+            this.ui.addRecentColor(color);
+            this.list.color = color;
+            this.api.modified(this.list, 'color');
+          }
+        }))
       },
       {
         title: 'Delete', callback: () => {
@@ -399,8 +408,8 @@ export class SubListComponent implements OnInit, OnChanges {
       },
       ok: result => {
         if (result.input) {
-          this.list.color = result.input;
           this.ui.addRecentColor(result.input);
+          this.list.color = result.input;
           this.api.modified(this.list, 'color');
         }
       }

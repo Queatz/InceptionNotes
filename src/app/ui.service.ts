@@ -183,6 +183,7 @@ export interface Env {
 
 export interface MenuOption {
   title: string,
+  color?: string,
   disabled?: boolean,
   callback: () => void,
   shortcut?: string,
