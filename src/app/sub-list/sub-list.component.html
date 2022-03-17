@@ -13,7 +13,7 @@
           (keydown.arrowDown)="focusItem(0)"
           class="sub-list-title"></div>
         </div>
-    <div class="item-links" *ngIf="getEnv().showLinks && list.ref && !list.collapsed">
+    <div class="item-links" *ngIf="getEnv().showLinks && list.ref">
       <div *ngFor="let i of list.ref" class="item-link lg" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name"></div>
     </div>
   </div>
