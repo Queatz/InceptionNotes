@@ -46,7 +46,7 @@
           <div *ngIf="!useAsNavigation && getEnv().showLinks && item.ref" class="item-links">
             <div *ngFor="let i of item.ref" class="item-link" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name"></div>
           </div>
-          <div class="sneak-peek" [ngClass]="{'interactable': getEnv().showSublistCheckboxes}" *ngIf="getEnv().showSublistPreviews && item.items.length">
+          <div class="sneak-peek" [ngClass]="{'interactable': getEnv().showSublistCheckboxes}" *ngIf="!item.collapsed && getEnv().showSublistPreviews && item.items.length">
             <div *ngFor="let i of item.items" class="sneak-peek-item-container" [hidden]="hideSubItem(i)">
               <div *ngIf="(getEnv().showSublistCheckboxes || i.checked) && i.name" (click)="onItemChecked(i)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': i.checked}"></div>
               <div class="sneak-peek-item"

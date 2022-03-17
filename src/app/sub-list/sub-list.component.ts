@@ -623,10 +623,12 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   getAfterText(item: any, ignoreShowSublistPreviews = false) {
-    const c = ignoreShowSublistPreviews || !this.getEnv().showSublistPreviews ? this.countSubItems(item) : 0;
+    const c = ignoreShowSublistPreviews || this.getEnv().showSublistPreviews ? this.countSubItems(item) : 0;
     const d = this.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0;
 
-    return c || d ? ' ' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') : '';
+    const t = c || d ? ' ' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') : '';
+
+    return item.collapsed ? `${t}, collapsed` : t;
   }
 
   onNameBackspacePressed() {
