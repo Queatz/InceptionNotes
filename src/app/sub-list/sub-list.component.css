@@ -4,10 +4,9 @@
   width: 16rem;
   padding: 1rem;
   margin: 1rem;
-  border-radius: 2.5px;
-  background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent);
+  border-radius: 1rem;
   background-color: #fff;
-  box-shadow: 3px 3px 9px rgba(0, 0, 0, .125);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .125);
   vertical-align: top;
   cursor: grab;
 }

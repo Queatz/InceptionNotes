@@ -395,6 +395,11 @@ export class SubListComponent implements OnInit, OnChanges {
     return !this.dropAt && this.isDroppingList ? '3px solid orange' : undefined;
   }
 
+  @HostBinding('style.background-image')
+  get styledNote() {
+    return !this.getEnv().showFlat ? '-webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent)' : null;
+  }
+
   @HostBinding('draggable')
   get draggable() {
     return this.mouseDownHack && !this.useAsNavigation && !this.isTouch;
