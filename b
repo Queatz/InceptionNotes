@@ -1,1 +1,1 @@
-ng build --output-path dist/ --prod --aot
+ng build --output-path dist/ --configuration production --aot

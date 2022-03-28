@@ -22,7 +22,7 @@
 .description {
   padding: 2rem;
   margin: 2rem;
-  margin-bottom: 0rem;
+  margin-bottom: 0;
   background: #ffffff;
   box-shadow: 0 3px 9px rgba(0, 0, 0, .125);
 }
@@ -33,8 +33,12 @@
   transition: padding-top ease-out .25s;
 }
 
-.filterbox.is-showing + .items {
-  padding-top: 7rem;
+.items, .description {
+  transition: margin-top .25s ease-out;
+}
+
+.filterbox.is-showing + .items, .filterbox.is-showing + .description {
+  margin-top: 7rem;
 }
 
 .items.priority-list {
@@ -71,6 +75,9 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 6rem;
   padding: 0 2rem;
   background: #ffffff;

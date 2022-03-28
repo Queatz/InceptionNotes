@@ -49,25 +49,23 @@ export class SyncService {
     const syncAllEvent = new SyncEvent([]);
     const an = this.api.getAllNotes();
 
-    if (an) {
-      for (const anItem of an) {
-        const n = anItem;
+    for (const anItem of an) {
+      const n = anItem;
 
-        if ('_sync' in n) {
-          const p: any = {};
-          for (const k in n['sync']) {
-            if (!n['sync'][k].synchronized) {
-              p[k] = n[k];
-            }
+      if ('_sync' in n) {
+        const p: any = {};
+        for (const k in n['sync']) {
+          if (!n['sync'][k].synchronized) {
+            p[k] = n[k];
           }
-
-          if (Object.keys(p).length) {
-            p.id = n['id'];
-            syncAllEvent.notes.push(this.api.freezeNote(p));
-          }
-        } else {
-          syncAllEvent.notes.push(this.api.freezeNote(n));
         }
+
+        if (Object.keys(p).length) {
+          p.id = n['id'];
+          syncAllEvent.notes.push(this.api.freezeNote(p));
+        }
+      } else {
+        syncAllEvent.notes.push(this.api.freezeNote(n));
       }
     }
 

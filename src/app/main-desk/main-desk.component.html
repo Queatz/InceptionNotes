@@ -1,9 +1,3 @@
-<div *ngIf="getEnv().showDescriptions"
-    contenteditable
-    [(contenteditableModel)]="getShow().description"
-    (contenteditableModelChange)="saveDescription()"
-    (dblclick)="dontPropagate($event)"
-    class="description"></div>
 <div [ngClass]="{ 'is-showing': filter.byRef?.length, 'dark-theme': getEnv().useDarkTheme }" class="filterbox">
   <div class="filterbox-title">Showing items with links</div>
   <div class="item-links">
@@ -16,6 +10,12 @@
       [innerHTML]="i.name"></div>
   </div>
 </div>
+<div *ngIf="getEnv().showDescriptions"
+     contenteditable
+     [(contenteditableModel)]="getShow().description"
+     (contenteditableModelChange)="saveDescription()"
+     (dblclick)="dontPropagate($event)"
+     class="description"></div>
 <div class="items" [ngClass]="{'priority-list': getEnv().showAsPriorityList}" #listsContainer>
   <sub-list *ngFor="let list of getLists()"
     (modified)="onItemModified(list)"

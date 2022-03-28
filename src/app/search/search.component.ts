@@ -53,7 +53,7 @@ export class SearchComponent implements OnInit, OnChanges {
 
     const all = this.api.getAllNotes();
     const s = this.searchString.trim().toLowerCase();
-    this.results = (<any>Object).values(all).filter(n => n.name.toLowerCase().indexOf(s) !== -1);
+    this.results = [...all.values()].filter(n => n.name.toLowerCase().indexOf(s) !== -1);
 
     if (this.results.length > 50) {
       this.results.length = 50;

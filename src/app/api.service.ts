@@ -37,7 +37,7 @@ export class ApiService {
   public onViewChangedObservable: Subject<ViewConfig> = new Subject<ViewConfig>();
 
   constructor(private ui: UiService, private config: Config, private router: Router) {
-    this.people = new Map();
+    this.people = new Map<string, any>();
     this.load();
   }
 
@@ -58,6 +58,7 @@ export class ApiService {
     if (root) {
       this.backupToFile(localStorage.getItem('root'));
       this.migrateRoot(root);
+
       setTimeout(() => {
         this.ui.dialog({
           message: 'Inception Notes has received an update.\n\nA backup copy of notes have been downloaded. If all else fails, check Right Click -> Inspect -> Application (tab) -> Local Storage -> \'root\''
@@ -72,28 +73,26 @@ export class ApiService {
     }
 
     const localNotes = new Map<string, any>();
+
     for (const n in localStorage) {
       if (n.substring(0, 5) === 'note:') {
         const n2 = JSON.parse(localStorage.getItem(n));
-        localNotes[n2.id] = n2;
+        localNotes.set(n2.id, n2);
       } else if (n.substring(0, 7) === 'person:') {
         this.updatePerson(JSON.parse(localStorage.getItem(n)));
       }
     }
 
-    if (Object.keys(localNotes).length) {
-      Object.keys(localNotes).forEach(k => {
-        localNotes[k] = this.unfreezeNote(localNotes[k], localNotes);
-      });
+    if (localNotes.size) {
+      for (const n of localNotes.values()) {
+        localNotes.set(n.id, this.unfreezeNote(n, localNotes));
+      }
 
       this.notes = localNotes;
+      this.resetView();
+    } else {
+      this.intro();
     }
-
-    if (!this.notes) {
-      this.intro()
-    }
-
-    this.resetView();
   }
 
   public saveAll() {
@@ -101,9 +100,9 @@ export class ApiService {
       return;
     }
 
-    Object.keys(this.notes).forEach(k => {
-      this.saveNote(this.notes[k]);
-    });
+    for (const note of this.notes.values()) {
+      this.saveNote(note);
+    }
   }
 
   /**
@@ -120,7 +119,7 @@ export class ApiService {
     localStorage.setItem('note:' + note.id, JSON.stringify(this.freezeNote(note)));
   }
 
-  private freeze(animal: any) {
+  private freeze(animal: any): string {
     if (!animal) {
       return null;
     }
@@ -134,7 +133,7 @@ export class ApiService {
     return JSON.stringify(fossil);
   }
 
-  public unfreeze(fossil: any) {
+  public unfreeze(fossil: any): Map<string, any> {
     if (typeof (fossil) === 'string') {
       fossil = JSON.parse(fossil);
     }
@@ -143,11 +142,17 @@ export class ApiService {
       return null;
     }
 
-    for (const a of (<any>Object).values(fossil)) {
-      this.unfreezeNote(a, fossil);
+    const map = new Map<string, any>();
+
+    for (const x of Object.keys(fossil)) {
+      map.set(x, fossil[x]);
     }
 
-    return fossil;
+    for (const a of map.values()) {
+      this.unfreezeNote(a, map);
+    }
+
+    return map;
   }
 
   /**
@@ -199,9 +204,9 @@ export class ApiService {
    * Unfreeze a note
    *
    * @param a The currently semi-frozen note
-   * @param fossil A pool of semi-frozen notes
+   * @param fossils A pool of semi-frozen notes
    */
-  public unfreezeNote(a: any, fossil: any) {
+  public unfreezeNote(a: any, fossils: Map<string, any>): any {
     const items = [];
 
     if (!a.items) {
@@ -209,7 +214,7 @@ export class ApiService {
     }
 
     for (const id of a.items) {
-      let n = fossil[id];
+      let n = fossils.get(id);
 
       if (!n) {
         if (this.config.beta) {
@@ -228,7 +233,7 @@ export class ApiService {
       const ref = [];
 
       for (const id of a.ref) {
-        let n = fossil[id];
+        let n = fossils.get(id);
 
         if (!n) {
           if (this.config.beta) {
@@ -366,9 +371,9 @@ export class ApiService {
     const top = localStorage.getItem('top');
 
     if (top) {
-      this.top = this.notes[top];
+      this.top = this.notes.get(top);
     } else {
-      for (const note of (<any>Object).values(this.notes)) {
+      for (const note of this.notes.values()) {
         this.top = note;
         break;
       }
@@ -434,7 +439,7 @@ export class ApiService {
   }
 
   public search(id: string) {
-    return this.notes[id];
+    return this.notes.get(id);
   }
 
   private parents(note: any) {
@@ -531,20 +536,20 @@ export class ApiService {
 
   /* Synchronization */
 
-  public loadFrozenNotes(notes: string) {
+  public loadFrozenNotes(notes: string): void {
     const n = this.unfreeze(notes);
 
-    for (const note in n) {
-      const nn = n[note];
-      this.notes[note] = nn;
+    for (const note of n.keys()) {
+      const nn = n.get(note);
+      this.notes.set(note, nn);
 
       if (nn.name.replace(/<(?:.|\n)*?>/gm, '').trim().length && !nn.parent) {
         this.getEye().items.push(nn);
       }
     }
 
-    this.resetView();
     this.saveAll();
+    this.resetView();
   }
 
   /* Backup */
@@ -655,7 +660,9 @@ export class ApiService {
    * Set all notes as needing sync.
    */
   public setAllNotesUnsynced() {
-    (<any>Object).values(this.notes).forEach(note => this.modified(note));
+    for (const note of this.notes.values()) {
+      this.modified(note);
+    }
   }
 
   /**
@@ -675,7 +682,7 @@ export class ApiService {
     this.top.parent = newTop;
     this.top = newTop;
 
-    this.notes[id] = this.top;
+    this.notes.set(id, this.top);
 
     this.view.eye = this.view.show = this.top;
     this.saveView();
@@ -847,7 +854,7 @@ export class ApiService {
     };
 
     if (this.notes) {
-      this.notes[note.id] = note;
+      this.notes.set(note.id, note);
     }
 
     if (fromServer) {
@@ -1001,9 +1008,11 @@ export class ApiService {
 
   public newId() {
     let id;
+
     do {
       id = this.rawNewId()
-    } while (this.notes && (id in this.notes));
+    } while (this.notes?.has(id));
+
     return id;
   }
 
@@ -1299,10 +1308,15 @@ export class ApiService {
       },
       'jb9zpt8uecbm04vlm2hg2h': {'id': 'jb9zpt8uecbm04vlm2hg2h', 'name': '', 'description': '', 'color': '#ffd180', 'items': [], 'ref': []}
     });
-    this.top = this.notes['9ecal36r08qsegt2q7ruar'];
+
+    this.view.eye = this.view.show = this.top = this.notes.get('9ecal36r08qsegt2q7ruar');
+
     const localify = this.rawNewId();
-    (<any>Object).values(this.notes).forEach(n => n.id = n.id + localify);
+
+    this.notes.forEach(n => n.id = n.id + localify);
+
     this.saveAll();
+    this.save();
   }
 
   private migrateRoot(root: any) {
@@ -1316,7 +1330,7 @@ export class ApiService {
   }
 
   private migrateRootAdd(note: any) {
-    this.notes[note.id] = note;
+    this.notes.set(note.id, note);
 
     for (const subItem of note.items) {
       subItem.parent = note;
