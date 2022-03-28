@@ -128,10 +128,10 @@ export class SubListComponent implements OnInit, OnChanges {
         menu: [ ...(this.list.parent?.parent ? [ {
           title: '↑ Up to parent',
           callback: () => this.api.moveListUp(this.list, this.list.parent.parent.items.indexOf(this.list.parent) + 1)
-        } ] : []), ...this.getRecentsSubmenu(recent => {
+        } ] : []), ...(this.getRecentsSubmenu(recent => {
           this.api.addRecent('search', recent.id);
           this.api.moveList(this.list.id, recent.id);
-        }, this.list) ]
+        }, this.list) ?? []) ]
       },
       ...(this.list.parent ? [{
         title: 'Duplicate',

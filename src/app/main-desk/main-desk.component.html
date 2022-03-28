@@ -14,14 +14,15 @@
      contenteditable
      [(contenteditableModel)]="getShow().description"
      (contenteditableModelChange)="saveDescription()"
+     data-placeholder="Add a description"
      (dblclick)="dontPropagate($event)"
      class="description"></div>
 <div class="items" [ngClass]="{'priority-list': getEnv().showAsPriorityList}" #listsContainer>
   <sub-list *ngFor="let list of getLists()"
     (modified)="onItemModified(list)"
     (removed)="onItemRemoved(list)"
-    (keydown.control.arrowup)="moveItem($event, list, -1)"
-    (keydown.control.arrowdown)="moveItem($event, list, 1)"
+    (keydown.control.arrowUp)="moveItem($event, list, -1)"
+    (keydown.control.arrowDown)="moveItem($event, list, 1)"
     [list]="list"></sub-list>
 </div>
 <div class="go-up" (click)="up()" title="Go up">↑</div>

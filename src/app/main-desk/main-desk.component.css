@@ -20,11 +20,19 @@
 }
 
 .description {
-  padding: 2rem;
-  margin: 2rem;
-  margin-bottom: 0;
+  padding: 1rem;
+  margin: 2rem 2rem 0 2rem;
+  line-height: 1.5rem;
   background: #ffffff;
-  box-shadow: 0 3px 9px rgba(0, 0, 0, .125);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .125);
+  border-radius: 1rem;
+
+  overflow: auto;
+}
+
+.description:empty:before {
+  content: attr(data-placeholder);
+  color: rgb(0 0 0 / 25%);
 }
 
 .items {

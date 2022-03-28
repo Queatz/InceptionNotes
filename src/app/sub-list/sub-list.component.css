@@ -85,6 +85,12 @@
   padding: .5rem .5rem 0 1rem;
 }
 
+.is-navigation .item-description {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 0;
+}
+
 .sneak-peek {
   opacity: .5;
   font-size: 75%;
@@ -138,7 +144,15 @@
   flex-direction: column;
   flex-grow: 1;
   min-height: 1rem;
-  min-width: 0rem;
+  min-width: 0;
+}
+
+.item-description {
+  padding-bottom: .5rem;
+  font-size: 75%;
+  color: rgb(0 0 0 / 75%);
+  word-break: break-word;
+  overflow: hidden;
 }
 
 .item-name-checked {
