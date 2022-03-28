@@ -1021,7 +1021,7 @@ export class ApiService {
   }
 
   private intro() {
-    this.notes = this.unfreeze({
+    const notes = this.unfreeze({
       '9ecal36r08qsegt2q7ruar': {
         'id': '9ecal36r08qsegt2q7ruar',
         'name': 'My Notes',
@@ -1309,11 +1309,19 @@ export class ApiService {
       'jb9zpt8uecbm04vlm2hg2h': {'id': 'jb9zpt8uecbm04vlm2hg2h', 'name': '', 'description': '', 'color': '#ffd180', 'items': [], 'ref': []}
     });
 
-    this.view.eye = this.view.show = this.top = this.notes.get('9ecal36r08qsegt2q7ruar');
+    this.view.eye = this.view.show = this.top = notes.get('9ecal36r08qsegt2q7ruar');
 
     const localify = this.rawNewId();
 
-    this.notes.forEach(n => n.id = n.id + localify);
+    for (const n of notes.values()) {
+      n.id = n.id + localify;
+    }
+
+    this.notes = new Map<string, any>();
+
+    for (const n of notes.values()) {
+      this.notes.set(n.id, n);
+    }
 
     this.saveAll();
     this.save();

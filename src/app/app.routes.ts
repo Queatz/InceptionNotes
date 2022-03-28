@@ -13,7 +13,7 @@ import {AppComponent} from './app.component';
         path: '**',
         component: AppComponent
       }
-    ], {relativeLinkResolution: 'legacy'})
+    ], { scrollPositionRestoration: 'enabled' })
   ],
   exports: [
     RouterModule
