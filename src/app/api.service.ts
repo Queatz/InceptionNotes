@@ -119,14 +119,14 @@ export class ApiService {
     localStorage.setItem('note:' + note.id, JSON.stringify(this.freezeNote(note)));
   }
 
-  private freeze(animal: any): string {
+  private freeze(animal: Map<string, any>): string {
     if (!animal) {
       return null;
     }
 
     const fossil = {};
 
-    for (const a of (<any>Object).values(animal)) {
+    for (const a of animal.values()) {
       fossil[a.id] = this.freezeNote(a);
     }
 
