@@ -41,6 +41,7 @@
             (keydown.arrowUp)="onArrowUpDown($event, item, -1)"
             (keydown.arrowDown)="onArrowUpDown($event, item, 1)"
             [title]="getSubitemText(item)"
+            [attr.data-before]="!list?.options?.enumerate || isEmpty(item) ? '' : (visualIndex(item) + 1) + '. '"
             [attr.data-after]="getAfterText(item)"
             class="sub-list-item"
             [ngClass]="{'item-name-checked': item.checked}"></div>

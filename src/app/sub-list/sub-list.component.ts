@@ -182,6 +182,24 @@ export class SubListComponent implements OnInit, OnChanges {
           }
         ]
       },
+      {
+        title: 'Options',
+        shortcut: '⯈',
+        callback: () => {},
+        menu: [
+          {
+            title: this.list.options?.enumerate ? 'Un-enumerate' : 'Enumerate', callback: () => {
+              if (!this.list.options) {
+                this.list.options = {};
+              }
+
+              this.list.options.enumerate = !this.list.options.enumerate;
+
+              this.api.modified(this.list, 'options')
+            }
+          }
+        ]
+      },
       ...(this.village.me() ? [{
         title: 'Add people...',
         callback: () => this.addPeople(this.list),
@@ -199,6 +217,10 @@ export class SubListComponent implements OnInit, OnChanges {
           }
         }))
       },
+      ...(this.list.parent ? [{
+        title: this.list.collapsed ? 'Un-collapse' : 'Collapse',
+        callback: () => this.toggleCollapse(),
+      }] : []),
       {
         title: 'Delete', callback: () => {
           if (this.ui.getEnv().unlinkOnDelete) {
@@ -209,11 +231,7 @@ export class SubListComponent implements OnInit, OnChanges {
 
           this.api.removeListFromParent(this.list);
         }
-      },
-      ...(this.list.parent ? [{
-        title: this.list.collapsed ? 'Un-collapse' : 'Collapse',
-        callback: () => this.toggleCollapse(),
-      }] : [])
+      }
     ];
 
     this.ui.menu(options, {x: event.clientX, y: event.clientY});

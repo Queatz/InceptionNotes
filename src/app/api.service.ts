@@ -192,6 +192,7 @@ export class ApiService {
       items: items,
       ref: ref,
       people: people,
+      options: a.options,
       backgroundUrl: a.backgroundUrl,
       collapsed: a.collapsed,
       estimate: a.estimate,
