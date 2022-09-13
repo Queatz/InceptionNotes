@@ -122,7 +122,6 @@
       }
     }
   },
-  "defaultProject": "inception-todo",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",

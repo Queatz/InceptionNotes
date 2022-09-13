@@ -2,7 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "../out-tsc/app",
-    "target": "es6",
+    "target": "es2020",
     "downlevelIteration": true,
     "module": "es2020",
     "lib": [

@@ -30,47 +30,39 @@ import {FilterService} from './filter.service'
 enableProdMode();
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    MainListComponent,
-    MainDeskComponent,
-    SubListComponent,
-    ContenteditableModelDirective,
-    DialogComponent,
-    SubSubListItemComponent,
-    OpComponent,
-    MenuComponent,
-    ColorPickerComponent,
-    DiffComponent,
-    SearchComponent,
-    AddPeopleComponent,
-    WindowComponent
-  ],
-  entryComponents: [
-    DialogComponent,
-    OpComponent,
-    MenuComponent,
-    ColorPickerComponent,
-    SearchComponent,
-    AddPeopleComponent
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpClientModule,
-    AppRoutingModule
-  ],
-  providers: [
-    ApiService,
-    FilterService,
-    UiService,
-    VillageService,
-    CollaborateService,
-    SyncService,
-    WsService,
-    Config
-  ],
-  bootstrap: [WindowComponent]
+    declarations: [
+        AppComponent,
+        MainListComponent,
+        MainDeskComponent,
+        SubListComponent,
+        ContenteditableModelDirective,
+        DialogComponent,
+        SubSubListItemComponent,
+        OpComponent,
+        MenuComponent,
+        ColorPickerComponent,
+        DiffComponent,
+        SearchComponent,
+        AddPeopleComponent,
+        WindowComponent
+    ],
+    imports: [
+        BrowserModule,
+        FormsModule,
+        HttpClientModule,
+        AppRoutingModule
+    ],
+    providers: [
+        ApiService,
+        FilterService,
+        UiService,
+        VillageService,
+        CollaborateService,
+        SyncService,
+        WsService,
+        Config
+    ],
+    bootstrap: [WindowComponent]
 })
 export class AppModule {
 }
