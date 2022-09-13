@@ -133,10 +133,6 @@ export class SubListComponent implements OnInit, OnChanges {
           this.api.moveList(this.list.id, recent.id);
         }, this.list) ?? []) ]
       },
-      ...(this.list.parent ? [{
-        title: 'Duplicate',
-        callback: () => this.api.duplicateList(this.list)
-      }] : []),
       {
         title: 'Sort',
         shortcut: '⯈',
@@ -217,6 +213,10 @@ export class SubListComponent implements OnInit, OnChanges {
           }
         }))
       },
+      ...(this.list.parent ? [{
+        title: 'Duplicate',
+        callback: () => this.api.duplicateList(this.list)
+      }] : []),
       ...(this.list.parent ? [{
         title: this.list.collapsed ? 'Un-collapse' : 'Collapse',
         callback: () => this.toggleCollapse(),
