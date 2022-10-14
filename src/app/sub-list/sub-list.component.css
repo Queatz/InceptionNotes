@@ -11,6 +11,10 @@
   cursor: grab;
 }
 
+:host.is-selecting-multiple {
+  outline: 3px solid orangered;
+}
+
 .sub-list-title {
   font: inherit;
   border: none;

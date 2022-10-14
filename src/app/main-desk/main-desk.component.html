@@ -22,6 +22,10 @@
   <sub-list *ngFor="let list of getLists()"
     (modified)="onItemModified(list)"
     (removed)="onItemRemoved(list)"
+    (selected)="onItemSelected(list, $event)"
+    [onSelection]="onSelection"
+    (onSelectionChange)="onSelectionChange(list, $event)"
+    [getSelectedListIds]="getSelectedListIds()"
     (keydown.control.arrowUp)="moveItem($event, list, -1)"
     (keydown.control.arrowDown)="moveItem($event, list, 1)"
     [list]="list"></sub-list>

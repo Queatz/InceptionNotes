@@ -9,7 +9,8 @@ import {
   SimpleChanges,
   HostListener,
   HostBinding,
-  ViewChild
+  ViewChild,
+  OnDestroy
 } from '@angular/core';
 
 import Util from '../util';
@@ -21,6 +22,8 @@ import {VillageService} from 'app/village.service';
 import {AddPeopleComponent} from 'app/add-people/add-people.component';
 import {Config} from 'app/config.service';
 import {FilterService} from 'app/filter.service'
+import {filter as filterOp, Observable, Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'sub-list',
@@ -34,22 +37,29 @@ import {FilterService} from 'app/filter.service'
     '[style.width]': 'getEnv().showAsPriorityList ? \'100%\' : undefined'
   }
 })
-export class SubListComponent implements OnInit, OnChanges {
+export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() list: any;
   @Input() useAsNavigation: boolean;
+  @Input() onSelection?: Observable<{ lastList: any | undefined, list: any | undefined, selected: boolean, ctrl: boolean, shift: boolean }>;
+  @Input() getSelectedListIds?: Array<string>;
   @Output() modified = new EventEmitter();
   @Output() removed = new EventEmitter();
+  @Output() selected = new EventEmitter<{ selected: boolean, ctrl: boolean, shift: boolean }>();
+  @Output() onSelectionChange = new EventEmitter<boolean>();
 
   @ViewChild('element', {static: true}) nameElement: ElementRef;
   @ViewChild('items', {static: false}) itemsElement: ElementRef;
 
   isDraggingList: boolean;
+  isSelected: boolean;
   private isDroppingList: boolean;
   public dropAt: string;
   private isTouch: boolean;
   private dragCounter = 0;
   private mouseDownHack: boolean;
+
+  private destroyed = new Subject<void>();
 
   constructor(
     private ui: UiService,
@@ -62,10 +72,50 @@ export class SubListComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.initNext();
+
+    this.onSelection?.pipe(
+      takeUntil(this.destroyed),
+      filterOp(event => event.list !== this.list)
+    ).subscribe(event => {
+      if (!event.list) {
+        this.isSelected = false
+        this.onSelectionChange.emit(this.isSelected);
+      } else if (event.shift) {
+        if (this.list.parent && event.lastList && event.selected !== this.isSelected) {
+          const startIndex = this.list.parent.items.indexOf(event.lastList)
+          const endIndex = this.list.parent.items.indexOf(event.list)
+          const myIndex = this.list.parent.items.indexOf(this.list)
+          if (myIndex >= 0 && startIndex >= 0 && endIndex >= 0) {
+            if (startIndex < endIndex) {
+              if (myIndex >= startIndex && myIndex <= endIndex) {
+                this.isSelected = event.selected;
+                this.onSelectionChange.emit(this.isSelected);
+              }
+            } else {
+              if (myIndex >= endIndex && myIndex <= startIndex) {
+                this.isSelected = event.selected;
+                this.onSelectionChange.emit(this.isSelected);
+              }
+            }
+          }
+        }
+      } else if (!event.ctrl) {
+        this.isSelected = false;
+        this.onSelectionChange.emit(this.isSelected);
+      }
+    })
+  }
+
+  ngOnDestroy() {
+    this.destroyed.next();
+    this.destroyed.complete();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    this.initNext();
+    if (changes.list) {
+      this.isSelected = false;
+      this.initNext();
+    }
   }
 
   @HostListener('contextmenu', ['$event'])
@@ -127,10 +177,10 @@ export class SubListComponent implements OnInit, OnChanges {
         title: 'Move...',
         callback: () => this.moveToNote(this.list),
         menu: [
-          ...(this.getRecentsSubmenu(recent => {
+          ...this.getRecentsSubmenu(recent => {
             this.api.addRecent('search', recent.id);
             this.api.moveList(this.list.id, recent.id);
-          }, this.list) ?? []),
+          }, this.list),
           ...(this.list.parent?.parent ? [{
             title: '↑ Up to parent',
             callback: () => this.api.moveListUp(this.list, this.list.parent.parent.items.indexOf(this.list.parent) + 1)
@@ -465,6 +515,11 @@ export class SubListComponent implements OnInit, OnChanges {
     return this.mouseDownHack && !this.useAsNavigation && !this.isTouch;
   }
 
+  @HostBinding('class.is-selecting-multiple')
+  get isSelectingMultipleClass() {
+    return this.isSelected;
+  }
+
   // Hack for Firefox and Safari
   @HostListener('mousedown', ['$event'])
   mouseDownDraggable(event: Event) {
@@ -488,7 +543,10 @@ export class SubListComponent implements OnInit, OnChanges {
     event.stopPropagation();
 
     this.isDraggingList = true;
-    event.dataTransfer.setData('application/x-id', this.list.id);
+
+    const ids = this.getSelectedListIds.length ? this.getSelectedListIds : [ this.list.id ]
+
+    event.dataTransfer.setData('application/x-ids', ids.join(','));
   }
 
   @HostListener('dragend', ['$event'])
@@ -543,20 +601,33 @@ export class SubListComponent implements OnInit, OnChanges {
     event.preventDefault();
     event.stopPropagation();
 
-    const id = event.dataTransfer.getData('application/x-id');
+    const ids = event.dataTransfer.getData('application/x-ids').split(',');
 
-    if (id) {
-      if (!this.dropAt) {
-        this.api.moveList(id, this.list.id);
-      } else if (this.dropAt === 'left') {
-        if (this.list.parent) {
-          this.api.moveListToPosition(id, this.list.parent.id, this.list.parent.items.indexOf(this.list));
-        }
-      } else if (this.dropAt === 'right') {
-        if (this.list.parent) {
-          this.api.moveListToPosition(id, this.list.parent.id, this.list.parent.items.indexOf(this.list) + 1);
-        }
+    if (ids.length) {
+      if (ids.indexOf(this.list.id) !== -1) {
+        this.isDroppingList = false;
+        this.dropAt = null;
+        this.dragCounter = 0;
+        return
       }
+
+      ids.sort((aId, bId) => {
+        const a = this.api.search(aId);
+        const b = this.api.search(bId);
+        return a?.parent?.items?.indexOf(a) - b?.parent?.items?.indexOf(b)
+      }).forEach(id => {
+        if (!this.dropAt) {
+          this.api.moveList(id, this.list.id);
+        } else if (this.dropAt === 'left') {
+          if (this.list.parent) {
+            this.api.moveListToPosition(id, this.list.parent.id, this.list.parent.items.indexOf(this.list));
+          }
+        } else if (this.dropAt === 'right') {
+          if (this.list.parent) {
+            this.api.moveListToPosition(id, this.list.parent.id, this.list.parent.items.indexOf(this.list) + 1);
+          }
+        }
+      })
     } else {
       const text = event.dataTransfer.getData('text/plain');
 
@@ -790,8 +861,22 @@ export class SubListComponent implements OnInit, OnChanges {
   }
 
   @HostListener('click', ['$event'])
+  dontPropagateClick(event: MouseEvent) {
+    event.stopPropagation();
+
+    if (event.target === this.elementRef.nativeElement) {
+      this.isSelected = !this.isSelected;
+      this.onSelectionChange.emit(this.isSelected);
+      this.selected.emit({
+        selected: this.isSelected,
+        ctrl: event.ctrlKey,
+        shift: event.shiftKey
+      })
+    }
+  }
+
   @HostListener('dblclick', ['$event'])
-  dontPropagate(event: Event) {
+  dontPropagateDblClick(event: Event) {
     event.stopPropagation();
   }
 
@@ -831,7 +916,7 @@ export class SubListComponent implements OnInit, OnChanges {
     this.api.up()
   }
 
-  private getRecentsSubmenu(callback: (recent: any) => void, exclude: any): Array<MenuOption> | null {
+  private getRecentsSubmenu(callback: (recent: any) => void, exclude: any): Array<MenuOption> {
     const recents = this.api.getRecent('search');
 
     return recents.length ? recents.filter(x => x !== exclude).map(recent => {
@@ -842,7 +927,7 @@ export class SubListComponent implements OnInit, OnChanges {
           callback(recent);
         }
       } as MenuOption;
-    }) : null;
+    }) : [];
   }
 
   private deleteItem(element: any, item: any) {

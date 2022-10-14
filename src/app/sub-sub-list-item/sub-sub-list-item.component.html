@@ -7,7 +7,7 @@
 </div>
 <div #subsub
     [style.max-height]="getMaxHeight(subsub)"
-    [ngClass]="{'is-selected': ui.getEnv().expandedNav || isSelectedNav(item)}"
+    [ngClass]="{'is-selected': (ui.getEnv().expandedNav && !item.collapsed) || isSelectedNav(item)}"
     class="sub-sub-sup">
   <div class="container" *ngFor="let subItem of item.items">
     <div class="sub-item sub-sub"

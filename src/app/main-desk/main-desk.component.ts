@@ -38,12 +38,27 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
   private destroyed = new Subject<void>()
 
+  private lastListSelected: any | undefined;
+  readonly onSelection: Subject<{
+    lastList: any | undefined,
+    list: any | undefined,
+    selected: boolean,
+    ctrl: any,
+    shift: any
+  }> = new Subject();
+
+  private readonly selectedListIds = new Set<string>();
+
   constructor(
     public api: ApiService,
     public filter: FilterService,
     public village: VillageService,
     public ui: UiService,
     private elementRef: ElementRef) {
+  }
+
+  getSelectedListIds(): Array<string> {
+    return Array.from(this.selectedListIds.values());
   }
 
   ngOnInit() {
@@ -93,6 +108,11 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
         });
       }
     }
+  }
+
+  onItemSelected(list: any, event: { selected: boolean, ctrl: boolean, shift: boolean }) {
+    this.onSelection.next({ lastList: this.lastListSelected, list, selected: event.selected, ctrl: event.ctrl, shift: event.shift });
+    this.lastListSelected = list;
   }
 
   private removeItem(item: any) {
@@ -309,6 +329,29 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     this.dontPropagate(event);
     this.ui.getEnv().sidepane = !this.ui.getEnv().sidepane;
     this.ui.save();
+  }
+
+  @HostListener('click', ['$event'])
+  unselectAll(event: Event) {
+    this.dontPropagate(event);
+
+    if (this.getLists().length > 0) {
+      this.onSelection.next({
+        lastList: undefined,
+        list: undefined,
+        selected: false,
+        ctrl: false,
+        shift: false
+      })
+    }
+  }
+
+  onSelectionChange(list: any, selected: boolean) {
+    if (selected) {
+      this.selectedListIds.add(list.id);
+    } else {
+      this.selectedListIds.delete(list.id);
+    }
   }
 
   getItemLinkText(item: any) {

@@ -1,4 +1,4 @@
-<div [ngClass]="{'is-navigation': useAsNavigation}" (dblclick)="dontPropagate($event)">
+<div [ngClass]="{'is-navigation': useAsNavigation}" (dblclick)="dontPropagateDblClick($event)">
   <div class="item-name" [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length && !list.collapsed) }" [attr.data-after]="!useAsNavigation && list.collapsed ? getAfterText(list, true).substring(1) : undefined">
     <div class="sub-list-title-container">
       <div *ngIf="!useAsNavigation && getEnv().showListCheckboxes" (click)="onItemChecked(list)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': list.checked}"></div>
@@ -6,7 +6,7 @@
           #element
           [(contenteditableModel)]="list.name"
           (contenteditableModelChange)="onNameChange()"
-          (dblclick)="getEnv().dblClickToOpen && !useAsNavigation ? openList($event) : dontPropagate($event)"
+          (dblclick)="getEnv().dblClickToOpen && !useAsNavigation ? openList($event) : dontPropagateDblClick($event)"
           (click)="useAsNavigation ? openList($event) : undefined"
           (keydown.backspace)="onNameBackspacePressed()"
           (keydown.enter)="onNameEnterPressed(element)"
@@ -33,7 +33,7 @@
             [(contenteditableModel)]="item.name"
             (contenteditableModelChange)="onItemChange(item)"
             (click)="useAsNavigation ? showItem($event, item) : undefined"
-            (dblclick)="getEnv().dblClickToOpen ? openItem($event, item) : dontPropagate($event)"
+            (dblclick)="getEnv().dblClickToOpen ? openItem($event, item) : dontPropagateDblClick($event)"
             (keydown.enter)="onItemEnterPressed(element, item)"
             (keydown.backspace)="onItemBackspacePressed(element, item)"
             (keydown.control.arrowUp)="moveItem($event, item, -1)"

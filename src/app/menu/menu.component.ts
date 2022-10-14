@@ -28,7 +28,7 @@ export class MenuComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     setTimeout(() => {
-      this.elementRef.nativeElement.querySelectorAll('.menu-option')[0].focus();
+      this.elementRef.nativeElement.querySelectorAll('.menu-option')?.[0]?.focus();
       this.showing = true;
     });
   }
