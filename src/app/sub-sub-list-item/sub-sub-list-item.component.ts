@@ -19,7 +19,7 @@ export class SubSubListItemComponent implements OnInit {
   isDroppingList: boolean;
   private dragCounter = 0;
 
-  constructor(private ui: UiService, private api: ApiService) {
+  constructor(public ui: UiService, private api: ApiService) {
   }
 
   ngOnInit() {
@@ -81,7 +81,7 @@ export class SubSubListItemComponent implements OnInit {
   }
 
   getMaxHeight(e: HTMLElement) {
-    if (this.isSelectedNav(this.item)) {
+    if (this.ui.getEnv().expandedNav || this.isSelectedNav(this.item)) {
       return e.scrollHeight + 'px';
     }
 

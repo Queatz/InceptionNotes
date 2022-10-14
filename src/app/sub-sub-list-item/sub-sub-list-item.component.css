@@ -44,13 +44,13 @@
 
 .sub-item:hover,
 .sub-item.is-selected {
-  background: rgba(0, 0, 0, .1);
+  background: rgba(255, 255, 255, .25);
   cursor: pointer;
 }
 
 .sub-sub {
   opacity: 0;
-  background: rgba(0, 0, 0, .05);
+  background: rgba(255, 255, 255, .125);
   padding: .75rem;
   font-size: 85%;
   transition: background-color .125s, opacity .25s ease-out;
@@ -67,8 +67,11 @@
 
 .sub-sub-sup {
   overflow: hidden;
+  margin: .5rem;
+  border-radius: .5rem;
+  transition: max-height .25s;
 }
 
-.sub-sub-sup {
-  transition: max-height .25s;
+.sub-sub-sup .navigate-to-note {
+  right: .5rem;
 }

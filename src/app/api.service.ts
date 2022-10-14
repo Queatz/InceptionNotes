@@ -755,6 +755,10 @@ export class ApiService {
       position--;
     }
 
+    if (position < 0) {
+      position = toList.items.findLastIndex((item: any) => !item.name)
+    }
+
     if (position >= 0 && position < toList.items.length) {
       toList.items.splice(position, 0, list);
     } else {

@@ -358,4 +358,8 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
   up() {
     this.api.up();
   }
+
+  hasEvents() {
+    return false;
+  }
 }

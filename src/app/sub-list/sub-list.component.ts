@@ -37,7 +37,7 @@ import {FilterService} from 'app/filter.service'
 export class SubListComponent implements OnInit, OnChanges {
 
   @Input() list: any;
-  @Input() useAsNavigation: any;
+  @Input() useAsNavigation: boolean;
   @Output() modified = new EventEmitter();
   @Output() removed = new EventEmitter();
 
@@ -120,18 +120,22 @@ export class SubListComponent implements OnInit, OnChanges {
         menu: this.getRecentsSubmenu(recent => {
           this.api.addRecent('search', recent.id);
           this.api.addRef(this.list, recent);
+          this.focusName()
         }, this.list)
       },
       {
         title: 'Move...',
         callback: () => this.moveToNote(this.list),
-        menu: [ ...(this.list.parent?.parent ? [ {
-          title: '↑ Up to parent',
-          callback: () => this.api.moveListUp(this.list, this.list.parent.parent.items.indexOf(this.list.parent) + 1)
-        } ] : []), ...(this.getRecentsSubmenu(recent => {
-          this.api.addRecent('search', recent.id);
-          this.api.moveList(this.list.id, recent.id);
-        }, this.list) ?? []) ]
+        menu: [
+          ...(this.getRecentsSubmenu(recent => {
+            this.api.addRecent('search', recent.id);
+            this.api.moveList(this.list.id, recent.id);
+          }, this.list) ?? []),
+          ...(this.list.parent?.parent ? [{
+            title: '↑ Up to parent',
+            callback: () => this.api.moveListUp(this.list, this.list.parent.parent.items.indexOf(this.list.parent) + 1)
+          }] : [])
+        ]
       },
       {
         title: 'Sort',
@@ -222,7 +226,7 @@ export class SubListComponent implements OnInit, OnChanges {
         callback: () => this.toggleCollapse(),
       }] : []),
       {
-        title: 'Delete', callback: () => {
+        title: 'Remove', callback: () => {
           if (this.ui.getEnv().unlinkOnDelete) {
             while (this.list.ref?.length) {
               this.api.removeRef(this.list, this.list.ref[0])
@@ -268,16 +272,20 @@ export class SubListComponent implements OnInit, OnChanges {
         title: 'Link...', callback: () => this.addToNote(item), menu: this.getRecentsSubmenu(recent => {
           this.api.addRecent('search', recent.id);
           this.api.addRef(item, recent);
+          this.focusItem(this.visualIndex(item))
         }, item)
       },
       {
-        title: 'Move...', callback: () => this.moveToNote(item), menu: [ {
-          title: '↓ Out',
-          callback: () => this.api.moveListUp(item, item.parent.parent.items.indexOf(item.parent) + 1)
-        }, ...this.getRecentsSubmenu(recent => {
-          this.api.addRecent('search', recent.id);
-          this.api.moveList(item.id, recent.id);
-        }, item) ]
+        title: 'Move...', callback: () => this.moveToNote(item), menu: [
+          ...this.getRecentsSubmenu(recent => {
+            this.api.addRecent('search', recent.id);
+            this.api.moveList(item.id, recent.id);
+          }, item),
+          {
+            title: '↓ Out',
+            callback: () => this.api.moveListUp(item, item.parent.parent.items.indexOf(item.parent) + 1)
+          }
+        ]
       },
       ...(this.ui.getEnv().showEstimates ? [{
         title: 'Estimate...', callback: () => this.ui.dialog({
@@ -291,7 +299,7 @@ export class SubListComponent implements OnInit, OnChanges {
         })
       }] : []),
       {
-        title: 'Delete', callback: () => {
+        title: 'Remove', callback: () => {
           if (this.ui.getEnv().unlinkOnDelete) {
             while (item.ref?.length) {
               this.api.removeRef(item, item.ref[0])
@@ -325,7 +333,10 @@ export class SubListComponent implements OnInit, OnChanges {
         menu: [
           ...(refItem.parent?.items || []).filter(x => x !== refItem && x.name.trim()).map(refSibling => ({
             title: refSibling.name,
-            callback: () => this.api.changeRef(item, refItem, refSibling)
+            callback: () => {
+              this.api.addRecent('search', refSibling.id);
+              this.api.changeRef(item, refItem, refSibling);
+            }
           }))
         ]
       },

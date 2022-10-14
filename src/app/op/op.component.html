@@ -3,6 +3,8 @@
   <b>Navigation</b><br />
   <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.dblClickToOpen" (ngModelChange)="update()" /> Enable double-click to jump inside notes</label>
   <br />
+  <label><input type="checkbox" name="expandedNav" [(ngModel)]="env.expandedNav" (ngModelChange)="update()" /> Keep navigation expanded</label>
+  <br />
   <br /><b>Appearance</b><br />
   <label><input type="checkbox" name="useDarkTheme" [(ngModel)]="env.useDarkTheme" (ngModelChange)="update()" /> Use dark theme</label>
   <br />

@@ -19,6 +19,12 @@
   }
 }
 
+.calendar {
+  height: 16rem;
+  background: rgba(0, 0, 0, .125);
+  position: relative;
+}
+
 .description {
   padding: 1rem;
   margin: 2rem 2rem 0 2rem;
