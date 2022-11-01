@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" [ngClass]="{ 'invert-text': item.parent?.options?.invertText }">
   <div [innerHTML]="item.name"
     class="sub-item"
     [attr.data-after]="getAfterText(item)"
@@ -9,7 +9,7 @@
     [style.max-height]="getMaxHeight(subsub)"
     [ngClass]="{'is-selected': (ui.getEnv().expandedNav && !item.collapsed) || isSelectedNav(item)}"
     class="sub-sub-sup">
-  <div class="container" *ngFor="let subItem of item.items">
+  <div class="container" [ngClass]="{ 'invert-text': item.parent?.options?.invertText }" *ngFor="let subItem of item.items">
     <div class="sub-item sub-sub"
       [hidden]="isEmpty(subItem)"
       (click)="showItem($event, subItem)"
