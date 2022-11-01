@@ -8,7 +8,7 @@ import {MenuComponent} from './menu/menu.component';
 @Injectable()
 export class UiService {
 
-  readonly locate = new Subject<any>()
+  readonly locate = new Subject<{ list: any, animate?: boolean }>()
 
   private appComponent: AppComponent;
   private dialogs = [];

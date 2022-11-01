@@ -66,15 +66,15 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
     this.ui.locate.pipe(
       takeUntil(this.destroyed)
-    ).subscribe(note => {
-      const idx = this.getLists().indexOf(note);
+    ).subscribe(locate => {
+      const idx = this.getLists().indexOf(locate.list);
 
       if (document.documentElement && idx !== -1) {
         const y = ((this.listsContainer.element.nativeElement as HTMLDivElement).children[idx] as HTMLDivElement).offsetTop -
           Util.convertRemToPixels(1);
         document.documentElement.scrollTo({
           top: y,
-          behavior: 'smooth'
+          behavior: locate.animate === false ? 'auto' : 'smooth'
         })
       }
     })

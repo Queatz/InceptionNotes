@@ -681,15 +681,15 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  openList(dblclickEvent: Event) {
-    dblclickEvent.stopPropagation();
+  openList(event: Event) {
+    event.stopPropagation();
     this.api.setEye(this.list);
 
     return false;
   }
 
-  openItem(dblclickEvent: Event, item: any) {
-    dblclickEvent.stopPropagation();
+  openItem(event: Event, item: any) {
+    event.stopPropagation();
     this.api.setEye(item);
 
     return false;

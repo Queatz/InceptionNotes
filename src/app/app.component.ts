@@ -52,7 +52,11 @@ export class AppComponent {
 
   escapePressed() {
     if (!this.ui.back()) {
+      const show = this.api.getShow();
       this.api.up();
+      setTimeout(() => {
+        this.ui.locate.next({ list: show, animate: false })
+      })
     }
   }
 

@@ -209,6 +209,7 @@
 
 .item-entry {
   display: flex;
+  position: relative;
   min-height: 1rem;
 }
 
@@ -318,6 +319,14 @@
   background-color: rgba(255, 255, 255, .75);
 
   transition: background-color .125s ease-out;
+}
+
+.item-entry .open-note {
+  right: 0;
+  top: 0;
+  height: 1.25rem;
+  width: 1.25rem;
+  font-size: 75%;
 }
 
 .item-name:hover .open-note {
