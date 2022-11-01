@@ -56,7 +56,8 @@ export class MenuComponent implements OnInit, AfterViewInit {
       }
     }
 
-    return (this.position.x - invert) + 'px';
+    const offset = (this.position.x - invert)
+    return (offset  < 0 ? this.position.x : offset) + 'px';
   }
 
   @HostListener('window:keydown.esc', ['$event'])
