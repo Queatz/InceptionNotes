@@ -43,7 +43,7 @@ export class MenuComponent implements OnInit, AfterViewInit {
       }
     }
 
-    return (this.position.y - invert) + 'px';
+    return Math.max(document.documentElement.scrollTop, this.position.y - invert) + 'px';
   }
 
   @HostBinding('style.left')
@@ -57,7 +57,7 @@ export class MenuComponent implements OnInit, AfterViewInit {
     }
 
     const offset = (this.position.x - invert)
-    return (offset  < 0 ? this.position.x : offset) + 'px';
+    return (offset < 0 ? document.documentElement.offsetWidth - this.elementRef.nativeElement.offsetWidth : offset) + 'px';
   }
 
   @HostListener('window:keydown.esc', ['$event'])

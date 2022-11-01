@@ -11,6 +11,8 @@
   user-select: none;
   min-width: 8rem;
   max-width: 16rem;
+  max-height: 100vh;
+  box-sizing: border-box;
 }
 
 .menu-option {
