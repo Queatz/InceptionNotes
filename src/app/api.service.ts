@@ -805,6 +805,7 @@ export class ApiService {
     note.checked = referenceNote.checked;
     note.backgroundUrl = referenceNote.backgroundUrl;
     note.collapsed = referenceNote.collapsed;
+    note.options = Object.assign({}, referenceNote.options);
 
     if (referenceNote.ref?.length) {
       referenceNote.ref.forEach(ref => {

@@ -1,4 +1,4 @@
-<div class="color-picker" [ngClass]="{ 'is-dark': isDark() }">
+<div class="color-picker" #colorPicker [ngClass]="{ 'is-dark': isDark() }">
   <div *ngFor="let color of colors"
        [tabIndex]="0"
        (focus)="onColorSelected.emit(color)"
