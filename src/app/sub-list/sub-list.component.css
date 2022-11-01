@@ -230,7 +230,11 @@
   white-space: nowrap;
   overflow: hidden;
   background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent);
-  box-shadow: inset 0 0 1px 0px rgba(0, 0, 0, .5);
+  box-shadow: inset 0 0 1px 0 rgba(0, 0, 0, .5);
+}
+
+.item-link.is-flat {
+  background-image: none;
 }
 
 .item-link.lg {

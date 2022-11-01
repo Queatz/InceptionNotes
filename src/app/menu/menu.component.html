@@ -8,7 +8,7 @@
     (mouseenter)="hovered($event, option)">
   <span class="space-between">
     <span class="menu-option-wrapper">
-      <span *ngIf="option.color" class="menu-option-color" [style.background-color]="option.color"></span>
+      <span *ngIf="option.color" class="menu-option-color" [ngClass]="{ 'is-flat': environment.showFlat }" [style.background-color]="option.color"></span>
       <span class="menu-option-title" [innerHTML]="option.title"></span>
     </span>
     <span *ngIf="option.shortcut" class="menu-shortcut">{{ option.shortcut }}</span>

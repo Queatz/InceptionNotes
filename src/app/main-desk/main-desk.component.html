@@ -1,4 +1,4 @@
-<div [ngClass]="{ 'is-showing': filter.byRef?.length, 'dark-theme': getEnv().useDarkTheme }" class="filterbox">
+<div [ngClass]="{ 'is-showing': filter.byRef?.length, 'dark-theme': getEnv().useDarkTheme, 'flat-theme': getEnv().showFlat }" class="filterbox">
   <div class="filterbox-title">Showing items with links</div>
   <div class="item-links">
     <div *ngFor="let i of filter.byRef"

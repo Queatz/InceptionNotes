@@ -32,6 +32,10 @@ export class ColorPickerComponent implements OnInit {
     return this.ui.getEnv().useDarkTheme;
   }
 
+  isFlat() {
+    return this.ui.getEnv().showFlat;
+  }
+
   @HostListener('keydown.arrowLeft')
   left() {
     const indexOfFocused = this.elements.findIndex(element => element === document.activeElement)

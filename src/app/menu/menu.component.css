@@ -37,6 +37,10 @@
   box-shadow: 1.5px 1.5px 4.5px rgba(0, 0, 0, .05125);;
 }
 
+.menu-option-color.is-flat {
+  background-image: none;
+}
+
 .menu-option-wrapper {
   overflow: hidden;
   display: inline-flex;

@@ -15,7 +15,7 @@
       </div>
     <div *ngIf="getEnv().showDescriptions && list.description" class="item-description" [innerHTML]="list.description"></div>
     <div class="item-links" *ngIf="getEnv().showLinks && list.ref">
-      <div *ngFor="let i of list.ref" class="item-link lg" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name"></div>
+      <div *ngFor="let i of list.ref" class="item-link lg" [ngClass]="{ 'is-flat': getEnv().showFlat}" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name"></div>
     </div>
     <div class="open-note" (click)="useAsNavigation ? up() : openList($event)" [title]="useAsNavigation ? 'Go up' : 'Open note'">{{ useAsNavigation ? '↑' : '↗'}}</div>
   </div>
@@ -46,7 +46,7 @@
             class="sub-list-item"
             [ngClass]="{'item-name-checked': item.checked}"></div>
           <div *ngIf="!useAsNavigation && getEnv().showLinks && item.ref" class="item-links">
-            <div *ngFor="let i of item.ref" class="item-link" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name"></div>
+            <div *ngFor="let i of item.ref" class="item-link" [ngClass]="{ 'is-flat': getEnv().showFlat}" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name"></div>
           </div>
           <div class="open-note" (click)="openItem($event, item)" [title]="'Open note'">↗</div>
           <div class="sneak-peek" [ngClass]="{'interactable': getEnv().showSublistCheckboxes}" *ngIf="!item.collapsed && getEnv().showSublistPreviews && item.items.length">

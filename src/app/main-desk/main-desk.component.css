@@ -142,6 +142,10 @@
   box-shadow: inset 0 0 1px 0px rgba(0, 0, 0, .5);
 }
 
+.is-flat .item-link {
+  background-image: none;
+}
+
 .item-link.lg {
   margin-right: .5rem;
   margin-bottom: .5rem;

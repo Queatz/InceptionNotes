@@ -22,3 +22,7 @@
 .color-picker.is-dark > div:hover {
   box-shadow: 3px 3px 9px rgba(0, 0, 0, .125), 0 0 0 2px white inset;
 }
+
+.color-picker.is-flat > div {
+  background-image: none;
+}
