@@ -222,7 +222,10 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
       ];
     }
 
-    this.ui.menu(opts, {x: event.clientX, y: event.clientY});
+    this.ui.menu([
+      {title: 'New note...', callback: () => this.newNoteAtPosition(event.pageX, event.pageY)},
+      ...opts
+    ], {x: event.clientX, y: event.clientY});
   }
 
   @HostListener('window:keydown.alt.o', ['$event'])
@@ -394,6 +397,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
     const l = this.api.newBlankList(this.list);
     l.color = this.getShow().color;
+    l.options = this.getShow().options;
     this.api.modified(l);
     this.api.setAllPropsSynced(l);
   }
@@ -404,5 +408,42 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
   hasEvents() {
     return false;
+  }
+
+  private newNoteAtPosition(x: number, y: number) {
+    const children = [ ...this.listsContainer.element.nativeElement.childNodes ]
+    let notes: Array<any> = children.map((child, index) => {
+      return {
+        match: (x > child.offsetLeft + child.offsetWidth && y > child.offsetTop) ||
+          (x > child.offsetLeft && y > child.offsetTop + child.offsetHeight),
+        index
+      }
+    }).filter(item => item.match);
+
+    let note = notes[notes.length - 1];
+    let indexOffset = 0;
+
+    if (!note) {
+      notes = children.map((child, index) => {
+        return {
+          match: y > child.offsetTop,
+          y: child.offsetTop,
+          index
+        }
+      }).filter(item => item.match);
+
+      while (notes.length > 1 && notes[notes.length - 1].y === notes[notes.length - 2].y) {
+        notes.pop()
+      }
+
+      note = notes[notes.length - 1];
+      indexOffset = -1;
+    }
+
+    const l = this.api.newBlankList(this.list, note ? note.index + 1 + indexOffset : 0);
+    l.color = this.getShow().color;
+    l.options = this.getShow().options;
+    this.api.modified(l);
+    this.api.setAllPropsSynced(l);
   }
 }
