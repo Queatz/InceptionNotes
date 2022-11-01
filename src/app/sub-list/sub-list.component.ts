@@ -284,7 +284,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       }] : []),
       ...(this.list.parent ? [{
         title: this.list.collapsed ? 'Un-collapse' : 'Collapse',
-        callback: () => this.toggleCollapse(),
+        callback: () => this.toggleCollapse(this.list),
       }] : []),
       {
         title: 'Remove', callback: () => {
@@ -360,6 +360,10 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         })
       }] : []),
       {
+        title: item.collapsed ? 'Un-collapse' : 'Collapse',
+        callback: () => this.toggleCollapse(item),
+      },
+      {
         title: 'Remove', callback: () => {
           if (this.ui.getEnv().unlinkOnDelete) {
             while (item.ref?.length) {
@@ -419,9 +423,9 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     ], {x: event.clientX, y: event.clientY});
   }
 
-  private toggleCollapse() {
-    this.list.collapsed = !this.list.collapsed;
-    this.api.modified(this.list, 'collapsed');
+  private toggleCollapse(list: any) {
+    list.collapsed = !list.collapsed;
+    this.api.modified(list, 'collapsed');
   }
 
   private addToNote(item: any) {
