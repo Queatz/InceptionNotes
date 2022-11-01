@@ -1,3 +1,8 @@
 <div class="color-picker" [ngClass]="{ 'is-dark': isDark() }">
-  <div *ngFor="let color of colors" (click)="onColorSelected.emit(color)" (dblclick)="onColorConfirmed.emit()" [style.background-color]="color"></div>
+  <div *ngFor="let color of colors"
+       [tabIndex]="0"
+       (focus)="onColorSelected.emit(color)"
+       (click)="onColorSelected.emit(color)"
+       (dblclick)="onColorConfirmed.emit()"
+       [style.background-color]="color"></div>
 </div>
