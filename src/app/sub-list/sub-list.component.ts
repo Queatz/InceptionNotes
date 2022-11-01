@@ -984,6 +984,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   private newBlankList(position: number = null) {
     const l = this.api.newBlankList(this.list, position);
     l.color = this.list.color;
+    l.options = Object.assign({}, this.list.options);
     this.api.modified(l);
     this.api.setAllPropsSynced(l);
     return l;
