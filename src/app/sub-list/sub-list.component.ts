@@ -24,6 +24,8 @@ import {Config} from 'app/config.service';
 import {FilterService} from 'app/filter.service'
 import {filter as filterOp, Observable, Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
+import {formatDistanceToNow} from 'date-fns';
+import {formatDate} from '@angular/common';
 
 @Component({
   selector: 'sub-list',
@@ -286,6 +288,19 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         title: this.list.collapsed ? 'Un-collapse' : 'Collapse',
         callback: () => this.toggleCollapse(this.list),
       }] : []),
+      {
+        title: 'Info', callback: () => {
+          const created = this.list.created ? Date.parse(this.list.created) : null;
+          const updated = this.list.updated ? Date.parse(this.list.updated) : null;
+
+          const createdStr = !created ? 'Unknown creation date' : `Created ${formatDistanceToNow(created)} ago on ${formatDate(created, 'medium', 'en-US')}`
+          const updatedStr = !updated ? 'Note has never been updated' : `Modified ${formatDistanceToNow(updated)} ago on ${formatDate(updated, 'medium', 'en-US')}`
+
+          this.ui.dialog({
+            message: `${createdStr}\n\n${updatedStr}`
+          })
+        }
+      },
       {
         title: 'Remove', callback: () => {
           if (this.ui.getEnv().unlinkOnDelete) {

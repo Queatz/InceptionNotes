@@ -604,6 +604,7 @@ export class ApiService {
       }
     }
 
+    note.updated = new Date().toISOString()
     this.saveNote(note);
     this.onNoteChangedObservable.next(new NoteChanges(note, prop));
   }
