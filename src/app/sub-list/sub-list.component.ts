@@ -841,8 +841,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  hideItem(item: any, includeEmpty = true) {
-    if (this.getEnv().showOnly && this.list.items.indexOf(item) >= this.getEnv().showOnly) {
+  hideItem(item: any, includeEmpty = true, internalCall = false) {
+    if (this.getEnv().showOnly && (!internalCall && this.visualIndex(item)) >= this.getEnv().showOnly) {
       return true;
     }
 
@@ -864,7 +864,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   visualIndex(item: any): number {
-    return this.list.items.filter(x => !this.hideItem(x)).indexOf(item);
+    return this.list.items.filter(x => !this.hideItem(x, undefined, true)).indexOf(item);
   }
 
   countSubItems(item: any) {
