@@ -247,6 +247,17 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
               this.api.modified(this.list, 'options')
             }
+          },
+          {
+            title: 'Invert text color', callback: () => {
+              if (!this.list.options) {
+                this.list.options = {};
+              }
+
+              this.list.options.invertText = !this.list.options.invertText;
+
+              this.api.modified(this.list, 'options')
+            }
           }
         ]
       },

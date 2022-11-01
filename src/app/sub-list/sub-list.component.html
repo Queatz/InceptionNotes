@@ -1,4 +1,4 @@
-<div [ngClass]="{'is-navigation': useAsNavigation}" (dblclick)="dontPropagateDblClick($event)">
+<div [ngClass]="{'is-navigation': useAsNavigation, 'invert-text': list.options?.invertText}" (dblclick)="dontPropagateDblClick($event)">
   <div class="item-name" [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length && !list.collapsed) }" [attr.data-after]="!useAsNavigation && list.collapsed ? getAfterText(list, true).substring(1) : undefined">
     <div class="sub-list-title-container">
       <div *ngIf="!useAsNavigation && getEnv().showListCheckboxes" (click)="onItemChecked(list)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': list.checked}"></div>

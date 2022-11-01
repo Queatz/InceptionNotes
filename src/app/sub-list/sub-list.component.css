@@ -15,6 +15,10 @@
   outline: 3px solid orangered;
 }
 
+.invert-text {
+  color: white;
+}
+
 .sub-list-title {
   font: inherit;
   border: none;
@@ -74,6 +78,11 @@
 [data-after]:after {
   content: attr(data-after);
   color: rgba(0, 0, 0, .25);
+}
+
+.invert-text [data-after]:after {
+  content: attr(data-after);
+  color: rgba(255, 255, 255, .25);
 }
 
 .is-navigation .sub-list-title {
@@ -164,6 +173,10 @@
   overflow: hidden;
 }
 
+.invert-text .item-description {
+  color: rgb(255 255 255 / 75%);
+}
+
 .item-name-checked {
   opacity: .5;
 }
@@ -183,11 +196,15 @@
 
 .item-relation {
   display: none;
-  width: 2px;
+  width: 1px;
   background: rgba(0, 0, 0, .075);
   align-self: center;
   flex-grow: 1;
   margin-bottom: -.6rem;
+}
+
+.invert-text .item-relation {
+  background: rgba(255, 255, 255, .075);
 }
 
 .item-entry {
@@ -260,6 +277,10 @@
 
 .item-checkbox:hover {
   border-color: rgba(0, 0, 0, .5);
+}
+
+.invert-text .item-checkbox {
+  border-color: rgba(255, 255, 255, .25);
 }
 
 .item-checkbox.item-checkbox-checked {
