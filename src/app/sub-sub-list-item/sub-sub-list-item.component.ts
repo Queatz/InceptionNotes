@@ -81,7 +81,9 @@ export class SubSubListItemComponent implements OnInit {
   }
 
   getMaxHeight(e: HTMLElement) {
-    if ((this.ui.getEnv().expandedNav && !this.item.collapsed) || this.isSelectedNav(this.item)) {
+    if (this.ui.getEnv().expandedNav && !this.item.collapsed) {
+      return undefined;
+    } else if (this.isSelectedNav(this.item)) {
       return e.scrollHeight + 'px';
     }
 
