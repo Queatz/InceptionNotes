@@ -222,9 +222,12 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           {
             title: 'Done to bottom',
             callback: () => {
+              const lastItem = this.list.items[this.list.items.length - 1];
               this.list.items.sort((a: any, b: any) => {
-                if (!a.name !== !b.name) {
-                  return !a.name ? 1 : -1;
+                if (!a.name && a === lastItem) {
+                  return 1;
+                } else if (!b.name && b === lastItem) {
+                  return -1;
                 }
 
                 return a.checked === b.checked ? 0 : a.checked ? 1 : -1;
