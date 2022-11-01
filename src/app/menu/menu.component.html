@@ -1,6 +1,6 @@
 <div class="menu-option"
-    *ngFor="let option of options"
     tabindex="0"
+     *ngFor="let option of options"
     [class.menu-open]="option.isOpen"
     [class.menu-option-disabled]="option.disabled"
     (keydown.enter)="clicked($event, option)"
@@ -14,3 +14,4 @@
     <span *ngIf="option.shortcut" class="menu-shortcut">{{ option.shortcut }}</span>
   </span>
 </div>
+<div *ngIf="!options.length" (click)="clear()" class="menu-option menu-option-disabled">No items</div>

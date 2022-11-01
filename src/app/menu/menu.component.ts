@@ -97,6 +97,10 @@ export class MenuComponent implements OnInit, AfterViewInit {
   clicked(event: Event, option: MenuOption) {
     event.stopPropagation();
     option.callback();
+    this.clear()
+  }
+
+  clear() {
     this.clickout();
     this.ui.clearMenus();
   }
