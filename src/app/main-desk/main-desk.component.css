@@ -17,6 +17,9 @@
   main-list.is-showing+:host {
     padding-left: 16rem;
   }
+  main-list.is-showing+:host .filterbox {
+    left: 16rem;
+  }
 }
 
 .calendar {
@@ -99,7 +102,7 @@
   opacity: 0;
   z-index: 1;
 
-  transition: transform .25s ease-out, opacity .25s ease-out;
+  transition: left .25s ease-out, transform .25s ease-out, opacity .25s ease-out;
   transform: translateY(-100%);
 }
 

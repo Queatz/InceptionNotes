@@ -1,18 +1,18 @@
 :host {
-    background: #ffffff;
-    display: flex;
-    position: fixed;
-    overflow-y: auto;
-    top: 0;
-    width: 16rem;
-    left: 0;
-    bottom: 0;
+  background: #ffffff;
+  display: flex;
+  position: fixed;
+  overflow-y: auto;
+  top: 0;
+  width: 16rem;
+  left: 0;
+  bottom: 0;
 
-    z-index: 1;
-    box-shadow: 3px 0px 9px rgba(0, 0, 0, .125);
+  z-index: 2;
+  box-shadow: 3px 0px 9px rgba(0, 0, 0, .125);
 
-    transition: transform .25s ease-out;
-    transform: translateX(-100%);
+  transition: transform .25s ease-out;
+  transform: translateX(-100%);
 }
 
 :host.is-showing {
@@ -20,21 +20,15 @@
 }
 
 :host sub-list {
-    width: 100%;
-    margin: 0;
-    padding: 1rem 0;
-    background: transparent;
-    box-shadow: none;
-    vertical-align: inherit;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-}
-
-@media screen and (max-width: 600px) {
-  :host {
-    display: none;
-  }
+  width: 100%;
+  margin: 0;
+  padding: 1rem 0;
+  background: transparent;
+  box-shadow: none;
+  vertical-align: inherit;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 @media print {
@@ -42,4 +36,3 @@
     display: none;
   }
 }
-
