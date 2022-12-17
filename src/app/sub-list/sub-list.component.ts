@@ -381,6 +381,24 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         title: item.collapsed ? 'Un-collapse' : 'Collapse',
         callback: () => this.toggleCollapse(item),
       },
+      ...(item.name.indexOf('<br>') !== -1 ? [{
+        title: 'Split by line', callback: () => {
+          const position = this.list.items.indexOf(item)
+          item.name.split('<br>').reverse().forEach(line => {
+            const newItem = this.api.newBlankList(this.list, position)
+            newItem.name = line
+            this.api.modified(newItem, 'name')
+          })
+
+          if (this.ui.getEnv().unlinkOnDelete) {
+            while (item.ref?.length) {
+              this.api.removeRef(item, item.ref[0])
+            }
+          }
+
+          this.api.removeListFromParent(item)
+        }
+      }] : []),
       {
         title: 'Remove', callback: () => {
           if (this.ui.getEnv().unlinkOnDelete) {
