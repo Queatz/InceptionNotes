@@ -40,6 +40,9 @@
             (keydown.control.arrowDown)="moveItem($event, item, 1)"
             (keydown.arrowUp)="onArrowUpDown($event, item, -1)"
             (keydown.arrowDown)="onArrowUpDown($event, item, 1)"
+            (keydown.control.b)="command($event, 'bold')"
+            (keydown.control.i)="command($event, 'italic')"
+            (keydown.control.u)="command($event, 'underline')"
             [title]="getSubitemText(item)"
             [attr.data-before]="!list?.options?.enumerate || isEmpty(item) ? '' : (visualIndex(item, true) + 1) + '. '"
             [attr.data-after]="getAfterText(item)"
@@ -65,6 +68,9 @@
                   (keydown.control.arrowDown)="moveItem($event, i, 1, item, sneakItems)"
                   (keydown.arrowUp)="onArrowUpDown($event, i, -1, item, sneakItems)"
                   (keydown.arrowDown)="onArrowUpDown($event, i, 1, item, sneakItems)"
+                  (keydown.control.b)="command($event, 'bold')"
+                  (keydown.control.i)="command($event, 'italic')"
+                  (keydown.control.u)="command($event, 'underline')"
                   [attr.data-before]="!item?.options?.enumerate || isEmpty(i) ? '' : (visualIndexOf(item, i, true) + 1) + '. '"
                   [attr.data-after]="getAfterText(i)"></div>
               </div>

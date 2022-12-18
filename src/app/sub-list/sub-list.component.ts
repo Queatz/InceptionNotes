@@ -908,6 +908,11 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  command(event: Event, command: string) {
+    event.preventDefault()
+    document.execCommand(command, false, null)
+  }
+
   hideItem(item: any, includeEmpty = true, includeFiltered = false, internalCall = false) {
     if (this.getEnv().showOnly && (!internalCall && this.visualIndexOf(item.parent, item, includeFiltered)) >= this.getEnv().showOnly) {
       return true;
