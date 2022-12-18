@@ -76,9 +76,8 @@
 
 .sub-sub-sup {
   overflow: hidden;
-  margin: .5rem;
   border-radius: .5rem;
-  transition: max-height .25s;
+  transition: max-height .25s, margin .25s;
 }
 
 .sub-sub-sup .navigate-to-note {

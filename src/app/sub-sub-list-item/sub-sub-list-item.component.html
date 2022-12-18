@@ -7,6 +7,7 @@
 </div>
 <div #subsub
     [style.max-height]="getMaxHeight(subsub)"
+    [style.margin]="getMaxHeight(subsub) === '0px' ? '0 .5rem' : '.5rem'"
     [ngClass]="{'is-selected': (ui.getEnv().expandedNav && !item.collapsed) || isSelectedNav(item)}"
     class="sub-sub-sup">
   <div class="container" [ngClass]="{ 'invert-text': item.parent?.options?.invertText }" *ngFor="let subItem of item.items">
@@ -16,7 +17,7 @@
       (dblclick)="openItem($event, subItem)"
       [ngClass]="{'is-selected': isExactSelectedNav(subItem)}"
       [style.border-left]="'5px solid ' + subItem.color"
-      [attr.data-before]="!item?.options?.enumerate || isEmpty(subItem) ? '' : (visualIndex(subItem, true) + 1) + '. '"
+      [attr.data-before]="!item?.options?.enumerate || isEmpty(subItem) ? '' : (visualIndex(subItem) + 1) + '. '"
       [attr.data-after]="getAfterText(subItem)"
       [innerHTML]="subItem.name"></div>
     <div class="navigate-to-note" (click)="scrollToNote($event, subItem)">↗</div>
