@@ -919,6 +919,10 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   dontPropagateClick(event: MouseEvent) {
     event.stopPropagation();
 
+    if (this.useAsNavigation) {
+      return
+    }
+
     if (event.target === this.elementRef.nativeElement) {
       this.isSelected = !this.isSelected;
       this.onSelectionChange.emit(this.isSelected);
