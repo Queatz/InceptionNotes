@@ -124,6 +124,7 @@
 
 .sneak-peek-item {
   outline: none;
+  flex-grow: 1;
 }
 
 .sneak-peek-item-container {

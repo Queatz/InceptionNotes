@@ -49,18 +49,26 @@
             <div *ngFor="let i of item.ref" class="item-link" [ngClass]="{ 'is-flat': getEnv().showFlat}" [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color" (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name"></div>
           </div>
           <div class="open-note" (click)="openItem($event, item)" [title]="'Open note'">↗</div>
-          <div class="sneak-peek" [ngClass]="{'interactable': getEnv().showSublistCheckboxes}" *ngIf="!item.collapsed && getEnv().showSublistPreviews && item.items.length">
-            <div *ngFor="let i of item.items" class="sneak-peek-item-container" [hidden]="hideSubItem(i)">
-              <div *ngIf="(getEnv().showSublistCheckboxes || i.checked) && i.name" (click)="onItemChecked(i)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': i.checked}"></div>
-              <div class="sneak-peek-item"
-                (contextmenu)="showSubitemOptions($event, i)"
-                [ngClass]="{ 'item-name-checked': i.checked }"
-                [contentEditable]="true"
-                [(contenteditableModel)]="i.name"
-                (contenteditableModelChange)="onItemChange(i)"
-                [attr.data-before]="!item?.options?.enumerate || isEmpty(i) ? '' : (visualIndexOf(item, i, true) + 1) + '. '"
-                [attr.data-after]="getAfterText(i)"></div>
-            </div>
+          <div class="sneak-peek" #sneakItems [ngClass]="{'interactable': getEnv().showSublistCheckboxes}" *ngIf="!item.collapsed && getEnv().showSublistPreviews && item.items.length">
+            <ng-container *ngFor="let i of item.items">
+              <div *ngIf="!hideSubItem(item, i)" class="sneak-peek-item-container">
+                <div *ngIf="(getEnv().showSublistCheckboxes || i.checked)" (click)="onItemChecked(i)" class="item-checkbox" [ngClass]="{'item-checkbox-checked': i.checked}"></div>
+                <div class="sneak-peek-item"
+                  (contextmenu)="showSubitemOptions($event, i)"
+                  [ngClass]="{ 'item-name-checked': i.checked }"
+                  [contentEditable]="true"
+                  [(contenteditableModel)]="i.name"
+                  (contenteditableModelChange)="onItemChange(i)"
+                  (keydown.enter)="onSubItemEnterPressed(sneakItems, item, i)"
+                  (keydown.backspace)="onSubItemBackspacePressed(sneakItems, item, i)"
+                  (keydown.control.arrowUp)="moveItem($event, i, -1, item, sneakItems)"
+                  (keydown.control.arrowDown)="moveItem($event, i, 1, item, sneakItems)"
+                  (keydown.arrowUp)="onArrowUpDown($event, i, -1, item, sneakItems)"
+                  (keydown.arrowDown)="onArrowUpDown($event, i, 1, item, sneakItems)"
+                  [attr.data-before]="!item?.options?.enumerate || isEmpty(i) ? '' : (visualIndexOf(item, i, true) + 1) + '. '"
+                  [attr.data-after]="getAfterText(i)"></div>
+              </div>
+            </ng-container>
           </div>
         </div>
       </div>
@@ -77,7 +85,7 @@
   <div *ngIf="useAsNavigation">
     <sub-sub-list-item
       *ngFor="let item of list.items"
-      [hidden]="hideSubItem(item)"
+      [hidden]="hideSubItem(list, item)"
       (click)="showItem($event, item)"
       (dblclick)="openItem($event, item)"
       [item]="item"

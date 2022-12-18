@@ -807,11 +807,12 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  moveItem(event: Event, item: any, move: number) {
+  moveItem(event: Event, item: any, move: number, list?: any, itemsElement?: any) {
     event.stopPropagation();
     event.preventDefault();
 
-    const location = this.list.items.indexOf(item);
+    const l = (list || this.list)
+    const location = l.items.indexOf(item);
 
     if (location === -1 || move === 0) {
       return;
@@ -819,7 +820,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
     const dir = move < 0 ? -1 : 1;
 
-    while (location + move > 0 && location + move < this.list.items.length - 1 && this.hideItem(this.list.items[location + move])) {
+    while (location + move > 0 && location + move < l.items.length - 1 && this.hideItem(l.items[location + move])) {
       move += dir;
     }
 
@@ -827,11 +828,11 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    if (move > 0 && location === this.list.items.length - 1) {
-      if (this.list.parent) {
-        const pos = this.list.parent.items.indexOf(this.list);
+    if (move > 0 && location === l.items.length - 1) {
+      if (l.parent) {
+        const pos = l.parent.items.indexOf(l);
 
-        if (pos >= 0 && pos <= this.list.parent.items.length - 1) {
+        if (pos >= 0 && pos <= l.parent.items.length - 1) {
           this.api.moveListUp(item, pos + 1);
           return;
         }
@@ -839,12 +840,12 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
       this.api.moveListUp(item);
     } else {
-      this.list.items.splice(location, 1);
-      this.list.items.splice(location + move, 0, item);
+      l.items.splice(location, 1);
+      l.items.splice(location + move, 0, item);
       this.api.modified(this.list, 'items');
     }
 
-    setTimeout(() => this.focusItem(this.visualIndex(item)));
+    setTimeout(() => this.focusItem(this.visualIndexOf(l, item), list, itemsElement));
   }
 
   onItemEnterPressed(element: any, item: any) {
@@ -868,17 +869,47 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         this.ui.dialog({
           message: 'Also delete ' + c.length + ' sub-item' + (c.length === 1 ? '' : 's') + '?\n\n' + c.join('\n'),
           ok: () => {
-            this.deleteItem(element, item);
+            this.deleteItem(this.itemsElement, this.list, item);
           }
         });
       } else {
-        this.deleteItem(element, item);
+        this.deleteItem(this.itemsElement, this.list, item);
+      }
+    }
+  }
+
+  onSubItemEnterPressed(itemsElement: any, list: any, item: any) {
+    const i = list.items.indexOf(item);
+
+    if (i === -1) {
+      return false;
+    }
+
+    const l = this.newBlankListInList(list, i + 1);
+    setTimeout(() => this.focusItem(this.visualIndexOf(list, l), list, itemsElement));
+
+    return false;
+  }
+
+  onSubItemBackspacePressed(itemsElement: any, list: any, item: any) {
+    if (Util.isEmptyStr(item.name) && list.items.length > 1) {
+      const c = this.api.getSubItemNames(item);
+
+      if (c.length) {
+        this.ui.dialog({
+          message: 'Also delete ' + c.length + ' sub-item' + (c.length === 1 ? '' : 's') + '?\n\n' + c.join('\n'),
+          ok: () => {
+            this.deleteItem(itemsElement, list, item);
+          }
+        });
+      } else {
+        this.deleteItem(itemsElement, list, item);
       }
     }
   }
 
   hideItem(item: any, includeEmpty = true, includeFiltered = false, internalCall = false) {
-    if (this.getEnv().showOnly && (!internalCall && this.visualIndex(item, includeFiltered)) >= this.getEnv().showOnly) {
+    if (this.getEnv().showOnly && (!internalCall && this.visualIndexOf(item.parent, item, includeFiltered)) >= this.getEnv().showOnly) {
       return true;
     }
 
@@ -887,8 +918,12 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       && !item.ref?.find(x => this.filter.byRef.indexOf(x) !== -1);
   }
 
-  hideSubItem(item: any) {
-    return this.isEmpty(item) || (item.checked && this.ui.getEnv().hideDoneItems);
+  hideSubItem(list: any, item: any) {
+    return this.isLastAndEmpty(list, item) || (item.checked && this.ui.getEnv().hideDoneItems);
+  }
+
+  isLastAndEmpty(list: any, item: any): boolean {
+    return this.isEmpty(item) && list.items.indexOf(item) === list.items.length - 1
   }
 
   numberHidden(list: any) {
@@ -939,17 +974,19 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     event.stopPropagation();
   }
 
-  public onArrowUpDown(event: Event, item: any, move: number) {
+  public onArrowUpDown(event: Event, item: any, move: number, list?: any, itemsElement?: any) {
     event.preventDefault();
 
-    const i = this.list.items.filter(x => !this.hideItem(x)).indexOf(item);
+    const i = this.visualIndexOf(list || this.list, item)
 
     if (i === -1) {
       return;
     }
 
-    if (!this.focusItem(i + move)) {
-      this.focusName();
+    if (!this.focusItem(i + move, list, itemsElement)) {
+      if (!list) {
+        this.focusName();
+      }
     }
   }
 
@@ -957,15 +994,14 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     this.nameElement.nativeElement.focus();
   }
 
-  public focusItem(index: number) {
-    if (index < 0 || index >= this.list.items.length) {
+  public focusItem(index: number, list?: any, element?: HTMLElement) {
+    if (index < 0 || index >= (list || this.list).items.length) {
       return false;
     }
 
-    this.itemsElement
-      .nativeElement
+    (element || this.itemsElement.nativeElement)
       .children[index]
-      .querySelector('[contenteditable]')
+      .querySelector('[contentEditable]')
       .focus();
 
     return true;
@@ -989,16 +1025,20 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     }) : [];
   }
 
-  private deleteItem(element: any, item: any) {
-    const i = this.list.items.indexOf(item);
-    const vi = this.visualIndex(item);
-    this.list.items.splice(i, 1);
-    this.api.modified(this.list, 'items');
+  private deleteItem(itemsElement: any, list: any, item: any) {
+    const i = list.items.indexOf(item);
+    const vi = this.visualIndexOf(list, item);
+    list.items.splice(i, 1);
+    this.api.modified(list, 'items');
 
     if (i === 0) {
-      this.focusName();
+      if (!list) {
+        this.focusName();
+      } else {
+        this.focusItem(this.visualIndex(list))
+      }
     } else {
-      this.focusItem(vi - 1);
+      this.focusItem(vi - 1, list, itemsElement);
     }
   }
 
@@ -1026,9 +1066,13 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private newBlankList(position: number = null) {
-    const l = this.api.newBlankList(this.list, position);
-    l.color = this.list.color;
-    l.options = Object.assign({}, this.list.options);
+    return this.newBlankListInList(this.list, position)
+  }
+
+  private newBlankListInList(list: any, position: number = null) {
+    const l = this.api.newBlankList(list, position);
+    l.color = list.color;
+    l.options = Object.assign({}, list.options);
     this.api.modified(l);
     this.api.setAllPropsSynced(l);
     return l;
