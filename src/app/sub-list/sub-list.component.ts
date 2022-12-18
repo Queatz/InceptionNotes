@@ -877,13 +877,13 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  hideItem(item: any, includeEmpty = true, internalCall = false) {
-    if (this.getEnv().showOnly && (!internalCall && this.visualIndex(item)) >= this.getEnv().showOnly) {
+  hideItem(item: any, includeEmpty = true, includeFiltered = false, internalCall = false) {
+    if (this.getEnv().showOnly && (!internalCall && this.visualIndex(item, includeFiltered)) >= this.getEnv().showOnly) {
       return true;
     }
 
     return (item.checked && this.ui.getEnv().hideDoneItems)
-      || this.filter.byRef?.length && (item.name || includeEmpty)
+      || !includeFiltered && this.filter.byRef?.length && (item.name || includeEmpty)
       && !item.ref?.find(x => this.filter.byRef.indexOf(x) !== -1);
   }
 
@@ -899,8 +899,12 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     return list.items.filter(x => this.hideItem(x, false)).length;
   }
 
-  visualIndex(item: any): number {
-    return this.list.items.filter(x => !this.hideItem(x, undefined, true)).indexOf(item);
+  visualIndex(item: any, includeFiltered = false): number {
+    return this.visualIndexOf(this.list, item, includeFiltered)
+  }
+
+  visualIndexOf(list: any, item: any, includeFiltered = false): number {
+    return list.items.filter(x => !this.hideItem(x, undefined, includeFiltered, true)).indexOf(item);
   }
 
   countSubItems(item: any) {

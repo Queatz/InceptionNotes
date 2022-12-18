@@ -41,7 +41,7 @@
             (keydown.arrowUp)="onArrowUpDown($event, item, -1)"
             (keydown.arrowDown)="onArrowUpDown($event, item, 1)"
             [title]="getSubitemText(item)"
-            [attr.data-before]="!list?.options?.enumerate || isEmpty(item) ? '' : (visualIndex(item) + 1) + '. '"
+            [attr.data-before]="!list?.options?.enumerate || isEmpty(item) ? '' : (visualIndex(item, true) + 1) + '. '"
             [attr.data-after]="getAfterText(item)"
             class="sub-list-item"
             [ngClass]="{'item-name-checked': item.checked}"></div>
@@ -58,6 +58,7 @@
                 [contentEditable]="true"
                 [(contenteditableModel)]="i.name"
                 (contenteditableModelChange)="onItemChange(i)"
+                [attr.data-before]="!item?.options?.enumerate || isEmpty(i) ? '' : (visualIndexOf(item, i, true) + 1) + '. '"
                 [attr.data-after]="getAfterText(i)"></div>
             </div>
           </div>

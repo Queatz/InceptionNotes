@@ -4,6 +4,7 @@ import {ApiService} from '../api.service';
 import {UiService} from '../ui.service';
 
 import Util from '../util';
+import {FilterService} from '../filter.service';
 
 @Component({
   selector: 'sub-sub-list-item',
@@ -19,7 +20,7 @@ export class SubSubListItemComponent implements OnInit {
   isDroppingList: boolean;
   private dragCounter = 0;
 
-  constructor(public ui: UiService, private api: ApiService) {
+  constructor(public ui: UiService, private api: ApiService, private filter: FilterService) {
   }
 
   ngOnInit() {
@@ -71,6 +72,18 @@ export class SubSubListItemComponent implements OnInit {
 
   isExactSelectedNav(item: any) {
     return item === this.api.getShow();
+  }
+
+  visualIndex(item: any): number {
+    return this.item.items.filter(x => !this.hideItem(x, undefined, true)).indexOf(item);
+  }
+
+  hideItem(item: any, includeEmpty = true, internalCall = false) {
+    if (this.ui.getEnv().showOnly && (!internalCall && this.visualIndex(item)) >= this.ui.getEnv().showOnly) {
+      return true;
+    }
+
+    return (item.checked && this.ui.getEnv().hideDoneItems);
   }
 
   getAfterText(item: any) {

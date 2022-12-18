@@ -60,6 +60,11 @@
   opacity: 1;
 }
 
+.sub-item:before {
+  content: attr(data-before);
+  font-weight: bold;
+}
+
 .sub-item:after {
   content: attr(data-after);
   color: rgba(0, 0, 0, .25);
