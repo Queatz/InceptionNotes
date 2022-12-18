@@ -197,6 +197,11 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     return this.ui.getEnv();
   }
 
+  command(event: Event, command: string) {
+    event.preventDefault()
+    document.execCommand(command, false, null)
+  }
+
   @HostListener('contextmenu', ['$event'])
   menu(event: MouseEvent) {
     event.preventDefault();

@@ -15,6 +15,9 @@
      contenteditable
      [(contenteditableModel)]="getShow().description"
      (contenteditableModelChange)="saveDescription()"
+     (keydown.control.b)="command($event, 'bold')"
+     (keydown.control.i)="command($event, 'italic')"
+     (keydown.control.u)="command($event, 'underline')"
      data-placeholder="Add a description"
      (dblclick)="dontPropagate($event)"
      class="description"></div>
