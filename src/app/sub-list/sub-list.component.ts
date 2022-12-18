@@ -689,6 +689,14 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
 
+    this.isSelected = false
+    this.onSelectionChange.emit(this.isSelected)
+    this.selected.emit({
+      selected: this.isSelected,
+      ctrl: false,
+      shift: false
+    })
+
     this.isDroppingList = false;
     this.dropAt = null;
     this.dragCounter = 0;
