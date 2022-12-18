@@ -1,32 +1,33 @@
 import {
-  Component,
-  OnInit,
-  OnDestroy,
   AfterViewInit,
-  Input,
-  ElementRef,
-  ViewChild,
+  Component,
   ComponentFactoryResolver,
-  ViewContainerRef,
-  ComponentRef
-} from '@angular/core';
+  ComponentRef,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  Type,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core'
 
-import {Subject} from 'rxjs';
-import {Env} from 'app/ui.service';
+import {Subject} from 'rxjs'
+import {Env} from 'app/ui.service'
 
 export class DialogModel {
-  choice: string;
-  input: string;
+  choice: string
+  input: string
 }
 
 export class DialogConfig {
-  message?: string;
-  prefill?: string;
-  input?: boolean;
-  view?: any;
-  init?: (DialogComponent) => void;
-  ok?: (DialogModel) => void;
-  cancel?: () => void;
+  message?: string
+  prefill?: string
+  input?: boolean
+  view?: Type<any>
+  init?: (DialogComponent) => void
+  ok?: (DialogModel) => void
+  cancel?: () => void
 }
 
 @Component({
@@ -41,20 +42,20 @@ export class DialogConfig {
 })
 export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  @Input() config: DialogConfig;
-  @Input() clickout: () => void;
-  @Input() environment: Env;
+  @Input() config: DialogConfig
+  @Input() clickout: () => void
+  @Input() environment: Env
 
   @ViewChild('custom', {read: ViewContainerRef, static: true})
-  private custom: ViewContainerRef;
-  private component: ComponentRef<any>;
+  private custom: ViewContainerRef
+  private component: ComponentRef<any>
 
   model: DialogModel = {
     choice: null,
     input: ''
-  };
+  }
 
-  changes: Subject<string> = new Subject<string>();
+  changes: Subject<string> = new Subject<string>()
 
   constructor(private element: ElementRef,
               private resolver: ComponentFactoryResolver,
@@ -62,58 +63,58 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit() {
-    this.model.input = this.config.prefill || '';
+    this.model.input = this.config.prefill || ''
 
     if (this.config.view) {
-      this.component = this.custom.createComponent(this.resolver.resolveComponentFactory(this.config.view));
+      this.component = this.custom.createComponent(this.resolver.resolveComponentFactory(this.config.view))
     }
 
     if (this.config.init) {
-      this.config.init(this);
+      this.config.init(this)
     }
   }
 
   ngOnDestroy() {
     if (this.model.choice === null && this.config.cancel) {
-      this.config.cancel();
+      this.config.cancel()
     }
 
-    this.component?.destroy();
+    this.component?.destroy()
   }
 
   ngAfterViewInit() {
-    let first = this.element.nativeElement.querySelector('input');
+    let first = this.element.nativeElement.querySelector('input')
 
     if (!first) {
-      first = this.element.nativeElement.querySelector('button');
+      first = this.element.nativeElement.querySelector('button')
     }
 
     if (first) {
-      first.focus();
+      first.focus()
     }
   }
 
   onChanges() {
-    this.changes.next(this.model.input);
+    this.changes.next(this.model.input)
   }
 
   onClickInsideDialog(event: Event) {
-    event.stopPropagation();
+    event.stopPropagation()
   }
 
   back() {
     if (this.clickout) {
-      this.clickout();
+      this.clickout()
     }
   }
 
   clickOk() {
-    this.back();
+    this.back()
 
-    this.model.choice = 'ok';
+    this.model.choice = 'ok'
 
     if (this.config.ok) {
-      this.config.ok(this.model);
+      this.config.ok(this.model)
     }
   }
 }

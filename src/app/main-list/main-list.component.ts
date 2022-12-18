@@ -1,6 +1,6 @@
-import {Component, OnInit, Input, HostBinding} from '@angular/core';
-import {ApiService} from '../api.service';
-import {UiService} from 'app/ui.service';
+import {Component, HostBinding, Input, OnInit} from '@angular/core'
+import {ApiService} from '../api.service'
+import {UiService} from 'app/ui.service'
 
 @Component({
   selector: 'main-list',
@@ -13,7 +13,7 @@ import {UiService} from 'app/ui.service';
 })
 export class MainListComponent implements OnInit {
 
-  @Input() @HostBinding('class.is-showing') show: boolean;
+  @Input() @HostBinding('class.is-showing') show: boolean
 
   constructor(public api: ApiService, public ui: UiService) {
   }

@@ -1,6 +1,6 @@
-import {NgModule} from '@angular/core';
-import {RouterModule} from '@angular/router';
-import {AppComponent} from './app.component';
+import {NgModule} from '@angular/core'
+import {RouterModule} from '@angular/router'
+import {AppComponent} from './app.component'
 
 @NgModule({
   imports: [
@@ -13,7 +13,7 @@ import {AppComponent} from './app.component';
         path: '**',
         component: AppComponent
       }
-    ], { scrollPositionRestoration: 'enabled' })
+    ], {scrollPositionRestoration: 'enabled'})
   ],
   exports: [
     RouterModule

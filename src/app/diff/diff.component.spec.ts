@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { DiffComponent } from './diff.component';
+import {DiffComponent} from './diff.component';
 
 describe('DiffComponent', () => {
   let component: DiffComponent;
@@ -8,9 +8,9 @@ describe('DiffComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ DiffComponent ]
+      declarations: [DiffComponent]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

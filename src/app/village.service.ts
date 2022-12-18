@@ -1,44 +1,44 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Observable, Subject, of} from 'rxjs';
-import {map, first} from 'rxjs/operators';
+import {Injectable} from '@angular/core'
+import {HttpClient, HttpHeaders} from '@angular/common/http'
+import {Observable, of, Subject} from 'rxjs'
+import {first} from 'rxjs/operators'
 
-import {ApiService} from './api.service';
-import {UiService} from './ui.service';
-import {Config} from 'app/config.service';
-import {SyncService} from 'app/sync.service';
-import util from 'app/util';
+import {ApiService, Person} from './api.service'
+import {UiService} from './ui.service'
+import {Config} from 'app/config.service'
+import {SyncService} from 'app/sync.service'
+import util from 'app/util'
 
 @Injectable()
 export class VillageService {
 
-  private static VLLLAGE_ME_KEY = 'me';
+  private static VLLLAGE_ME_KEY = 'me'
 
-  private listener: any;
-  private villageFrame: any;
-  private interval: any;
-  private found: boolean;
-  private connected: boolean;
-  private data: any = null;
-  private meId: string = null;
+  private listener: any
+  private villageFrame: any
+  private interval: any
+  private found: boolean
+  private connected: boolean
+  private data: any = null
+  private meId: string = null
 
-  private friendsObservable: Subject<any[]>;
-  private backers: any[];
+  private friendsObservable: Subject<Person[]>
+  private backers: any[]
 
   constructor(private http: HttpClient,
               private config: Config,
               private api: ApiService,
               private ui: UiService,
               private syncService: SyncService) {
-    const local = JSON.parse(localStorage.getItem('village'));
+    const local = JSON.parse(localStorage.getItem('village'))
 
     if (local) {
-      this.data = local;
-      this.connected = true;
-      this.found = true;
+      this.data = local
+      this.connected = true
+      this.found = true
     }
 
-    this.friendsObservable = new Subject();
+    this.friendsObservable = new Subject()
   }
 
   /* Sync - see SYNC.md */
@@ -48,36 +48,36 @@ export class VillageService {
    */
   public check() {
     if (this.me()) {
-      this.sync();
+      this.sync()
     }
   }
 
   public sync() {
     this.get(VillageService.VLLLAGE_ME_KEY).subscribe((me: string) => me ? this.onMeAvailable(me) : this.setup(), err => {
       if (err.status === 404) {
-        this.setup();
+        this.setup()
       } else {
         this.ui.dialog({
           message: 'Village connection didn\'t work because of a server error.\n\nYou might want to try again after disconnecting Village from the options.'
-        });
+        })
       }
-    });
+    })
   }
 
   private setup() {
-    const me = util.newKey();
+    const me = util.newKey()
     this.put(VillageService.VLLLAGE_ME_KEY, JSON.stringify(me)).subscribe(success => {
-      this.onMeAvailable(me);
+      this.onMeAvailable(me)
     }, err => {
       this.ui.dialog({
         message: 'Village connection didn\'t work because of a server error.\n\nYou might want to try again after disconnecting Village from the options.'
-      });
-    });
+      })
+    })
   }
 
   private onMeAvailable(me: string) {
-    this.meId = me;
-    this.syncService.setPerson(me);
+    this.meId = me
+    this.syncService.setPerson(me)
   }
 
   public nuke() {
@@ -86,129 +86,129 @@ export class VillageService {
       ok: () => this.put(VillageService.VLLLAGE_ME_KEY, JSON.stringify(null)).subscribe(() => this.ui.dialog({
         message: 'Notes successfully unsync\'d from Village.\n\nTo access these notes on another device, use the file backup and load feature.'
       }))
-    });
+    })
   }
 
   /* Connect */
 
   public isConnected() {
-    return this.connected;
+    return this.connected
   }
 
   public disconnect() {
-    this.data = null;
-    this.connected = false;
+    this.data = null
+    this.connected = false
 
     if (this.listener) {
-      window.removeEventListener('message', this.listener, false);
-      this.listener = null;
+      window.removeEventListener('message', this.listener, false)
+      this.listener = null
     }
 
     if (this.interval) {
-      clearInterval(this.interval);
-      this.interval = null;
+      clearInterval(this.interval)
+      this.interval = null
     }
 
     if (this.villageFrame) {
-      this.villageFrame.remove();
-      this.villageFrame = null;
+      this.villageFrame.remove()
+      this.villageFrame = null
     }
 
-    localStorage.removeItem('village');
+    localStorage.removeItem('village')
   }
 
   public me() {
-    return this.data;
+    return this.data
   }
 
   public connect() {
-    this.found = undefined;
+    this.found = undefined
 
     if (this.connected) {
-      return;
+      return
     }
 
-    this.connected = true;
+    this.connected = true
 
     if (!this.villageFrame) {
-      this.villageFrame = document.createElement('iframe');
-      this.villageFrame.setAttribute('src', this.config.vlllageAuthenticateUrl());
-      this.villageFrame.style.width = '0';
-      this.villageFrame.style.height = '0';
-      this.villageFrame.style.visibility = 'hidden';
-      document.body.appendChild(this.villageFrame);
+      this.villageFrame = document.createElement('iframe')
+      this.villageFrame.setAttribute('src', this.config.vlllageAuthenticateUrl())
+      this.villageFrame.style.width = '0'
+      this.villageFrame.style.height = '0'
+      this.villageFrame.style.visibility = 'hidden'
+      document.body.appendChild(this.villageFrame)
     }
 
     if (!this.listener) {
       this.listener = event => {
         if (event.data && event.data.me !== undefined) {
           if (event.data.me) {
-            this.data = event.data.me;
-            this.sync();
-            localStorage.setItem('village', JSON.stringify(this.data));
+            this.data = event.data.me
+            this.sync()
+            localStorage.setItem('village', JSON.stringify(this.data))
 
             if (this.found) {
-              return;
+              return
             }
-            this.found = true;
+            this.found = true
             this.ui.dialog({
               message: 'Hey ' + event.data.me.firstName + '!',
-            });
+            })
           } else {
             if (this.found === false) {
-              return;
+              return
             }
-            this.found = false;
+            this.found = false
             this.ui.dialog({
               message: 'You are not currently signed into Village.',
-            });
+            })
           }
         }
-      };
+      }
 
-      window.addEventListener('message', this.listener, false);
+      window.addEventListener('message', this.listener, false)
 
-      var receiver = this.villageFrame.contentWindow;
+      const receiver = this.villageFrame.contentWindow
 
       if (receiver) {
         this.interval = () => {
-          receiver.postMessage('com.vlllage.message.hey', this.config.vlllageAuthenticateUrl());
-        };
-        setInterval(this.interval, 500);
+          receiver.postMessage('com.vlllage.message.hey', this.config.vlllageAuthenticateUrl())
+        }
+        setInterval(this.interval, 500)
       }
     }
   }
 
   /* Network */
 
-  public friends(k: string): Observable<any[]> {
-    k = k.toLowerCase();
+  public friends(k: string): Observable<Person[]> {
+    k = k.toLowerCase()
 
     if (this.backers) {
-      let backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1);
-      return of(backs);
+      const backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1)
+      return of(backs)
     } else {
       this.http.get(this.config.vlllageFriends(this.me().id, this.me().token), this.options()).subscribe((person: any) => {
-        this.backers = person.backs.map(back => back.source);
-        this.update(this.backers);
-        let backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1);
-        this.friendsObservable.next(backs);
-      });
+        this.backers = person.backs.map(back => back.source)
+        this.update(this.backers)
+        const backs = this.backers.filter(p => p.firstName.toLowerCase().indexOf(k) !== -1)
+        this.friendsObservable.next(backs)
+      })
     }
 
-    return this.friendsObservable.pipe(first());
+    return this.friendsObservable.pipe(first())
   }
 
   private update(people: any[]) {
-    people.forEach(p => this.api.updatePerson(p));
+    people.forEach(p => this.api.updatePerson(p))
   }
 
   private put(k: string, v: any) {
-    return this.http.post(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), v, this.options());
+    return this.http.post(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), v, this.options())
   }
 
   private get(k: string) {
-    return this.http.get(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), this.options());
+    return this.http.get(this.config.vlllageStoreUrl() + (k ? '?q=' + k : ''), this.options())
   }
 
   private options() {
@@ -217,6 +217,6 @@ export class VillageService {
         'Authorization': this.data.token,
         'Content-Type': 'application/json'
       })
-    };
+    }
   }
 }

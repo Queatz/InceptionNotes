@@ -1,12 +1,12 @@
-import {Component, ViewContainerRef, ComponentFactoryResolver} from '@angular/core';
-import {Location, LocationStrategy, PathLocationStrategy} from '@angular/common';
-import {ActivatedRoute} from '@angular/router';
-import {ApiService} from './api.service';
-import {UiService} from './ui.service';
-import {VillageService} from 'app/village.service';
-import {SyncService} from 'app/sync.service';
-import {Title} from '@angular/platform-browser';
-import Util from 'app/util';
+import {Component, ComponentFactoryResolver, ViewContainerRef} from '@angular/core'
+import {Location, LocationStrategy, PathLocationStrategy} from '@angular/common'
+import {ActivatedRoute} from '@angular/router'
+import {ApiService} from './api.service'
+import {UiService} from './ui.service'
+import {VillageService} from 'app/village.service'
+import {SyncService} from 'app/sync.service'
+import {Title} from '@angular/platform-browser'
+import Util from 'app/util'
 
 @Component({
   selector: 'app-root',
@@ -27,40 +27,40 @@ export class AppComponent {
     private route: ActivatedRoute,
     private title: Title
   ) {
-    this.ui.registerAppComponent(this);
-    this.sync.start();
-    this.village.check();
+    this.ui.registerAppComponent(this)
+    this.sync.start()
+    this.village.check()
 
     route.params.subscribe(params => {
       if (!params['id']) {
-        return;
+        return
       }
 
-      let note = this.api.search(params['id']);
+      let note = this.api.search(params['id'])
 
       if (!note) {
-        note = this.api.newBlankNote(true, params['id']);
+        note = this.api.newBlankNote(true, params['id'])
       }
 
-      this.title.setTitle(Util.htmlToText(note.name) || 'Inception Notes');
+      this.title.setTitle(Util.htmlToText(note.name) || 'Inception Notes')
 
       if (!this.api.getShow() || note.id !== this.api.getShow().id) {
-        this.api.setEye(note);
+        this.api.setEye(note)
       }
     })
   }
 
   escapePressed() {
     if (!this.ui.back()) {
-      const show = this.api.getShow();
-      this.api.up();
+      const show = this.api.getShow()
+      this.api.up()
       setTimeout(() => {
-        this.ui.locate.next({ list: show, animate: false })
+        this.ui.locate.next({list: show, animate: false})
       })
     }
   }
 
   getEnv() {
-    return this.ui.getEnv();
+    return this.ui.getEnv()
   }
 }

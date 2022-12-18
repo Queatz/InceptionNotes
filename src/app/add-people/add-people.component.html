@@ -1,6 +1,6 @@
 <div class="person-list">
   <div *ngFor="let person of results" class="person" (click)="select(person)">
-    <img [src]="person.imageUrl" class="person-img" />
+    <img [src]="person.imageUrl" class="person-img"/>
     <span class="person-name">{{ person.firstName }} {{ person.lastName }}</span>
   </div>
 </div>

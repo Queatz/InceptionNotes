@@ -1,31 +1,31 @@
 import {
   Component,
   ElementRef,
-  OnInit,
-  OnChanges,
-  Input,
-  Output,
   EventEmitter,
-  SimpleChanges,
-  HostListener,
   HostBinding,
-  ViewChild,
-  OnDestroy
-} from '@angular/core';
+  HostListener,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core'
 
-import Util from '../util';
-import {ApiService} from '../api.service';
-import {UiService, MenuOption} from '../ui.service';
-import {ColorPickerComponent} from '../color-picker/color-picker.component';
-import {SearchComponent} from '../search/search.component';
-import {VillageService} from 'app/village.service';
-import {AddPeopleComponent} from 'app/add-people/add-people.component';
-import {Config} from 'app/config.service';
+import Util from '../util'
+import {ApiService, Note, Person} from '../api.service'
+import {MenuOption, UiService} from '../ui.service'
+import {ColorPickerComponent} from '../color-picker/color-picker.component'
+import {SearchComponent} from '../search/search.component'
+import {VillageService} from 'app/village.service'
+import {AddPeopleComponent} from 'app/add-people/add-people.component'
+import {Config} from 'app/config.service'
 import {FilterService} from 'app/filter.service'
-import {filter as filterOp, Observable, Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
-import {formatDistanceToNow} from 'date-fns';
-import {formatDate} from '@angular/common';
+import {filter as filterOp, Observable, Subject} from 'rxjs'
+import {takeUntil} from 'rxjs/operators'
+import {formatDistanceToNow} from 'date-fns'
+import {formatDate} from '@angular/common'
 
 @Component({
   selector: 'sub-list',
@@ -41,27 +41,33 @@ import {formatDate} from '@angular/common';
 })
 export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
-  @Input() list: any;
-  @Input() useAsNavigation: boolean;
-  @Input() onSelection?: Observable<{ lastList: any | undefined, list: any | undefined, selected: boolean, ctrl: boolean, shift: boolean }>;
-  @Input() getSelectedListIds?: Array<string>;
-  @Output() modified = new EventEmitter();
-  @Output() removed = new EventEmitter();
-  @Output() selected = new EventEmitter<{ selected: boolean, ctrl: boolean, shift: boolean }>();
-  @Output() onSelectionChange = new EventEmitter<boolean>();
+  @Input() list: Note
+  @Input() useAsNavigation: boolean
+  @Input() onSelection?: Observable<{
+    lastList: Note | undefined,
+    list: Note | undefined,
+    selected: boolean,
+    ctrl: boolean,
+    shift: boolean
+  }>
+  @Input() getSelectedListIds?: Array<string>
+  @Output() modified = new EventEmitter()
+  @Output() removed = new EventEmitter()
+  @Output() selected = new EventEmitter<{ selected: boolean, ctrl: boolean, shift: boolean }>()
+  @Output() onSelectionChange = new EventEmitter<boolean>()
 
-  @ViewChild('element', {static: true}) nameElement: ElementRef;
-  @ViewChild('items', {static: false}) itemsElement: ElementRef;
+  @ViewChild('element', {static: true}) nameElement: ElementRef
+  @ViewChild('items', {static: false}) itemsElement: ElementRef
 
-  isDraggingList: boolean;
-  isSelected: boolean;
-  private isDroppingList: boolean;
-  public dropAt: string;
-  private isTouch: boolean;
-  private dragCounter = 0;
-  private mouseDownHack: boolean;
+  isDraggingList: boolean
+  isSelected: boolean
+  private isDroppingList: boolean
+  public dropAt: string
+  private isTouch: boolean
+  private dragCounter = 0
+  private mouseDownHack: boolean
 
-  private destroyed = new Subject<void>();
+  private destroyed = new Subject<void>()
 
   constructor(
     private ui: UiService,
@@ -73,7 +79,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit() {
-    this.initNext();
+    this.initNext()
 
     this.onSelection?.pipe(
       takeUntil(this.destroyed),
@@ -81,7 +87,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe(event => {
       if (!event.list) {
         this.isSelected = false
-        this.onSelectionChange.emit(this.isSelected);
+        this.onSelectionChange.emit(this.isSelected)
       } else if (event.shift) {
         if (this.list.parent && event.lastList && event.selected !== this.isSelected) {
           const startIndex = this.list.parent.items.indexOf(event.lastList)
@@ -90,42 +96,42 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           if (myIndex >= 0 && startIndex >= 0 && endIndex >= 0) {
             if (startIndex < endIndex) {
               if (myIndex >= startIndex && myIndex <= endIndex) {
-                this.isSelected = event.selected;
-                this.onSelectionChange.emit(this.isSelected);
+                this.isSelected = event.selected
+                this.onSelectionChange.emit(this.isSelected)
               }
             } else {
               if (myIndex >= endIndex && myIndex <= startIndex) {
-                this.isSelected = event.selected;
-                this.onSelectionChange.emit(this.isSelected);
+                this.isSelected = event.selected
+                this.onSelectionChange.emit(this.isSelected)
               }
             }
           }
         }
       } else if (!event.ctrl) {
-        this.isSelected = false;
-        this.onSelectionChange.emit(this.isSelected);
+        this.isSelected = false
+        this.onSelectionChange.emit(this.isSelected)
       }
     })
   }
 
   ngOnDestroy() {
-    this.destroyed.next();
-    this.destroyed.complete();
+    this.destroyed.next()
+    this.destroyed.complete()
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.list) {
-      this.isSelected = false;
-      this.initNext();
+      this.isSelected = false
+      this.initNext()
     }
   }
 
   @HostListener('contextmenu', ['$event'])
   showOptions(event: MouseEvent) {
-    event.preventDefault();
-    event.stopPropagation();
+    event.preventDefault()
+    event.stopPropagation()
 
-    const byLinksMenu = (this.list.items as Array<any>)
+    const byLinksMenu = (this.list.items)
       .map(item => item.ref || [])
       .flat()
       .map(ref => ref.parent)
@@ -135,43 +141,43 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         return {
           title: refParent.name,
           callback: () => {
-            this.list.items.sort((a: any, b: any) => {
-              const aRef = a.ref?.find(ref => ref.parent === refParent);
-              const bRef = b.ref?.find(ref => ref.parent === refParent);
+            this.list.items.sort((a: Note, b: Note) => {
+              const aRef = a.ref?.find(ref => ref.parent === refParent)
+              const bRef = b.ref?.find(ref => ref.parent === refParent)
 
 
               // Don't touch checked notes
               if (a.checked || b.checked) {
-                return 0;
+                return 0
               }
 
               // Notes without refs to the refParent don't get sorted
               if (!aRef && !bRef) {
-                return 0;
+                return 0
               }
 
               // Notes without refs to the refParent get moved down
               if (!aRef !== !bRef) {
-                return !aRef ? 1 : -1;
+                return !aRef ? 1 : -1
               }
 
-              const aPos = refParent.items.indexOf(aRef);
-              const bPos = refParent.items.indexOf(bRef);
+              const aPos = refParent.items.indexOf(aRef)
+              const bPos = refParent.items.indexOf(bRef)
 
-              return aPos === bPos ? 0 : aPos > bPos ? 1 : -1;
-            });
-            this.api.modified(this.list, 'items');
+              return aPos === bPos ? 0 : aPos > bPos ? 1 : -1
+            })
+            this.api.modified(this.list, 'items')
           }
-        } as MenuOption;
-      });
+        } as MenuOption
+      })
 
     const options: Array<MenuOption> = [
       {
         title: 'Link...',
         callback: () => this.addToNote(this.list),
         menu: this.getRecentsSubmenu(recent => {
-          this.api.addRecent('search', recent.id);
-          this.api.addRef(this.list, recent);
+          this.api.addRecent('search', recent.id)
+          this.api.addRef(this.list, recent)
           this.focusName()
         }, this.list)
       },
@@ -180,8 +186,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         callback: () => this.moveToNote(this.list),
         menu: [
           ...this.getRecentsSubmenu(recent => {
-            this.api.addRecent('search', recent.id);
-            this.api.moveList(this.list.id, recent.id);
+            this.api.addRecent('search', recent.id)
+            this.api.moveList(this.list.id, recent.id)
           }, this.list),
           ...(this.list.parent?.parent ? [{
             title: '↑ Up to parent',
@@ -212,27 +218,27 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           {
             title: 'Reverse',
             callback: () => {
-              this.list.items.reverse();
+              this.list.items.reverse()
               if (this.list.items.length && this.isEmpty(this.list.items[0])) {
                 this.moveItemToLastPosition(this.list.items[0])
               }
-              this.api.modified(this.list, 'items');
+              this.api.modified(this.list, 'items')
             }
           },
           {
             title: 'Done to bottom',
             callback: () => {
-              const lastItem = this.list.items[this.list.items.length - 1];
-              this.list.items.sort((a: any, b: any) => {
+              const lastItem = this.list.items[this.list.items.length - 1]
+              this.list.items.sort((a: Note, b: Note) => {
                 if (!a.name && a === lastItem) {
-                  return 1;
+                  return 1
                 } else if (!b.name && b === lastItem) {
-                  return -1;
+                  return -1
                 }
 
-                return a.checked === b.checked ? 0 : a.checked ? 1 : -1;
-              });
-              this.api.modified(this.list, 'items');
+                return a.checked === b.checked ? 0 : a.checked ? 1 : -1
+              })
+              this.api.modified(this.list, 'items')
             }
           }
         ]
@@ -240,15 +246,16 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       {
         title: 'Options',
         shortcut: '⯈',
-        callback: () => {},
+        callback: () => {
+        },
         menu: [
           {
             title: this.list.options?.enumerate ? 'Un-enumerate' : 'Enumerate', callback: () => {
               if (!this.list.options) {
-                this.list.options = {};
+                this.list.options = {}
               }
 
-              this.list.options.enumerate = !this.list.options.enumerate;
+              this.list.options.enumerate = !this.list.options.enumerate
 
               this.api.modified(this.list, 'options')
             }
@@ -256,10 +263,10 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           {
             title: 'Invert text color', callback: () => {
               if (!this.list.options) {
-                this.list.options = {};
+                this.list.options = {}
               }
 
-              this.list.options.invertText = !this.list.options.invertText;
+              this.list.options.invertText = !this.list.options.invertText
 
               this.api.modified(this.list, 'options')
             }
@@ -277,9 +284,9 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           title: color,
           color,
           callback: () => {
-            this.ui.addRecentColor(color);
-            this.list.color = color;
-            this.api.modified(this.list, 'color');
+            this.ui.addRecentColor(color)
+            this.list.color = color
+            this.api.modified(this.list, 'color')
           }
         }))
       },
@@ -293,8 +300,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       }] : []),
       {
         title: 'Info', callback: () => {
-          const created = this.list.created ? Date.parse(this.list.created) : null;
-          const updated = this.list.updated ? Date.parse(this.list.updated) : null;
+          const created = this.list.created ? Date.parse(this.list.created) : null
+          const updated = this.list.updated ? Date.parse(this.list.updated) : null
 
           const createdStr = !created ? 'Unknown creation date' : `Created ${formatDistanceToNow(created)} ago on ${formatDate(created, 'medium', 'en-US')}`
           const updatedStr = !updated ? 'Note has never been updated' : `Modified ${formatDistanceToNow(updated)} ago on ${formatDate(updated, 'medium', 'en-US')}`
@@ -312,53 +319,53 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
             }
           }
 
-          this.api.removeListFromParent(this.list);
+          this.api.removeListFromParent(this.list)
         }
       }
-    ];
+    ]
 
-    this.ui.menu(options, {x: event.clientX, y: event.clientY});
+    this.ui.menu(options, {x: event.clientX, y: event.clientY})
   }
 
-  addPeople(list: any) {
+  addPeople(list: Note) {
     this.ui.dialog({
       message: 'Add people',
       input: true,
       view: AddPeopleComponent,
       init: dialog => {
         dialog.changes.subscribe(input => {
-          (<AddPeopleComponent>dialog.component.instance).search(input);
+          (<AddPeopleComponent>dialog.component.instance).search(input)
         });
 
         (<AddPeopleComponent>dialog.component.instance).onSelection.subscribe(person => {
-          dialog.back();
-          this.api.addPersonToNote(this.list, person);
-        });
+          dialog.back()
+          this.api.addPersonToNote(this.list, person)
+        })
       }
-    });
+    })
   }
 
-  villageUrl(person: any) {
-    return this.config.vlllageUrl() + person.googleUrl;
+  villageUrl(person: Person) {
+    return this.config.vlllageUrl() + person.googleUrl
   }
 
-  showSubitemOptions(event: MouseEvent, item: any) {
-    event.preventDefault();
-    event.stopPropagation();
+  showSubitemOptions(event: MouseEvent, item: Note) {
+    event.preventDefault()
+    event.stopPropagation()
 
     this.ui.menu([
       {
         title: 'Link...', callback: () => this.addToNote(item), menu: this.getRecentsSubmenu(recent => {
-          this.api.addRecent('search', recent.id);
-          this.api.addRef(item, recent);
+          this.api.addRecent('search', recent.id)
+          this.api.addRef(item, recent)
           this.focusItem(this.visualIndex(item))
         }, item)
       },
       {
         title: 'Move...', callback: () => this.moveToNote(item), menu: [
           ...this.getRecentsSubmenu(recent => {
-            this.api.addRecent('search', recent.id);
-            this.api.moveList(item.id, recent.id);
+            this.api.addRecent('search', recent.id)
+            this.api.moveList(item.id, recent.id)
           }, item),
           {
             title: '↓ Out',
@@ -369,11 +376,11 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       ...(this.ui.getEnv().showEstimates ? [{
         title: 'Estimate...', callback: () => this.ui.dialog({
           message: 'Estimate (in days)',
-          prefill: item.estimate,
+          prefill: item.estimate.toString(),
           input: true,
           ok: r => {
-            item.estimate = Number(r.input);
-            this.api.modified(item, 'estimate');
+            item.estimate = Number(r.input)
+            this.api.modified(item, 'estimate')
           }
         })
       }] : []),
@@ -407,15 +414,15 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
             }
           }
 
-          this.api.removeListFromParent(item);
+          this.api.removeListFromParent(item)
         }
       },
-    ], {x: event.clientX, y: event.clientY});
+    ], {x: event.clientX, y: event.clientY})
   }
 
-  showRefOptions(event: MouseEvent, item: any, refItem: any) {
-    event.preventDefault();
-    event.stopPropagation();
+  showRefOptions(event: MouseEvent, item: Note, refItem: Note) {
+    event.preventDefault()
+    event.stopPropagation()
 
     this.ui.menu([
       {
@@ -435,8 +442,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           ...(refItem.parent?.items || []).filter(x => x !== refItem && x.name.trim()).map(refSibling => ({
             title: refSibling.name,
             callback: () => {
-              this.api.addRecent('search', refSibling.id);
-              this.api.changeRef(item, refItem, refSibling);
+              this.api.addRecent('search', refSibling.id)
+              this.api.changeRef(item, refItem, refSibling)
             }
           }))
         ]
@@ -456,74 +463,74 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           },
         ]
       }
-    ], {x: event.clientX, y: event.clientY});
+    ], {x: event.clientX, y: event.clientY})
   }
 
-  private toggleCollapse(list: any) {
-    list.collapsed = !list.collapsed;
-    this.api.modified(list, 'collapsed');
+  private toggleCollapse(list: Note) {
+    list.collapsed = !list.collapsed
+    this.api.modified(list, 'collapsed')
   }
 
-  private addToNote(item: any) {
+  private addToNote(item: Note) {
     this.ui.dialog({
       message: 'Link',
       input: true,
       view: SearchComponent,
       init: dialog => {
         dialog.changes.subscribe(val => {
-          dialog.component.instance.searchString = val;
-          dialog.component.instance.ngOnChanges(null);
-        });
+          dialog.component.instance.searchString = val
+          dialog.component.instance.ngOnChanges(null)
+        })
         dialog.component.instance.onSelection.subscribe(note => {
-          this.api.addRef(item, note);
+          this.api.addRef(item, note)
           if (!this.getEnv().showLinks) {
-            this.getEnv().showLinks = true;
-            setTimeout(() => this.ui.dialog({message: 'Show links enabled'}));
+            this.getEnv().showLinks = true
+            setTimeout(() => this.ui.dialog({message: 'Show links enabled'}))
           }
-          dialog.back();
-        });
+          dialog.back()
+        })
         dialog.component.instance.resultsChanged.subscribe(results => {
-          dialog.model.results = results;
-        });
+          dialog.model.results = results
+        })
       },
       ok: result => {
         if (result.results && result.results.length) {
-          this.api.addRecent('search', result.results[0].id);
-          this.api.addRef(item, result.results[0]);
+          this.api.addRecent('search', result.results[0].id)
+          this.api.addRef(item, result.results[0])
           if (!this.getEnv().showLinks) {
-            this.getEnv().showLinks = true;
-            setTimeout(() => this.ui.dialog({message: 'Show links enabled'}));
+            this.getEnv().showLinks = true
+            setTimeout(() => this.ui.dialog({message: 'Show links enabled'}))
           }
         }
       }
-    });
+    })
   }
 
-  private moveToNote(item: any) {
+  private moveToNote(item: Note) {
     this.ui.dialog({
       message: 'Move...',
       input: true,
       view: SearchComponent,
       init: dialog => {
         dialog.changes.subscribe(val => {
-          dialog.component.instance.searchString = val;
-          dialog.component.instance.ngOnChanges(null);
-        });
+          dialog.component.instance.searchString = val
+          dialog.component.instance.ngOnChanges(null)
+        })
         dialog.component.instance.onSelection.subscribe(note => {
-          dialog.back();
-          this.api.moveList(item.id, note.id);
-        });
+          dialog.back()
+          this.api.moveList(item.id, note.id)
+        })
         dialog.component.instance.resultsChanged.subscribe(results => {
-          dialog.model.results = results;
-        });
+          dialog.model.results = results
+        })
       },
       ok: result => {
         if (result.results && result.results.length) {
-          this.api.addRecent('search', result.results[0].id);
-          this.api.moveList(item.id, result.results[0].id);
+          this.api.addRecent('search', result.results[0].id)
+          this.api.moveList(item.id, result.results[0].id)
         }
       }
-    });
+    })
   }
 
   private changeColor() {
@@ -533,159 +540,159 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       prefill: this.list.color,
       view: ColorPickerComponent,
       init: dialog => {
-        dialog.component.instance.onColorSelected.subscribe(color => dialog.model.input = color);
-        dialog.component.instance.onColorConfirmed.subscribe(color => dialog.clickOk());
+        dialog.component.instance.onColorSelected.subscribe(color => dialog.model.input = color)
+        dialog.component.instance.onColorConfirmed.subscribe(color => dialog.clickOk())
       },
       ok: result => {
         if (result.input) {
-          this.ui.addRecentColor(result.input);
-          this.list.color = result.input;
-          this.api.modified(this.list, 'color');
+          this.ui.addRecentColor(result.input)
+          this.list.color = result.input
+          this.api.modified(this.list, 'color')
         }
       }
-    });
+    })
   }
 
   @HostListener('touchstart', ['$event'])
   setIsTouch() {
-    this.isTouch = true;
+    this.isTouch = true
   }
 
   @HostBinding('style.outline')
   get styleOutline() {
-    return !this.dropAt && this.isDroppingList ? '3px solid orange' : undefined;
+    return !this.dropAt && this.isDroppingList ? '3px solid orange' : undefined
   }
 
   @HostBinding('style.background-image')
   get styledNote() {
-    return !this.useAsNavigation && !this.getEnv().showFlat ? '-webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent)' : null;
+    return !this.useAsNavigation && !this.getEnv().showFlat ? '-webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent)' : null
   }
 
   @HostBinding('draggable')
   get draggable() {
-    return this.mouseDownHack && !this.useAsNavigation && !this.isTouch;
+    return this.mouseDownHack && !this.useAsNavigation && !this.isTouch
   }
 
   @HostBinding('class.is-selecting-multiple')
   get isSelectingMultipleClass() {
-    return this.isSelected;
+    return this.isSelected
   }
 
   // Hack for Firefox and Safari
   @HostListener('mousedown', ['$event'])
   mouseDownDraggable(event: Event) {
     if (event.target === this.elementRef.nativeElement) {
-      this.mouseDownHack = true;
+      this.mouseDownHack = true
     }
   }
 
   // Hack for Firefox and Safari
   @HostListener('mouseup', ['$event'])
   mouseUpDraggable(event: Event) {
-    this.mouseDownHack = false;
+    this.mouseDownHack = false
   }
 
   @HostListener('dragstart', ['$event'])
   startDrag(event: DragEvent) {
     if (this.useAsNavigation) {
-      return;
+      return
     }
 
-    event.stopPropagation();
+    event.stopPropagation()
 
-    this.isDraggingList = true;
+    this.isDraggingList = true
 
-    const ids = this.getSelectedListIds.length ? this.getSelectedListIds : [ this.list.id ]
+    const ids = this.getSelectedListIds.length ? this.getSelectedListIds : [this.list.id]
 
-    event.dataTransfer.setData('application/x-ids', ids.join(','));
+    event.dataTransfer.setData('application/x-ids', ids.join(','))
   }
 
   @HostListener('dragend', ['$event'])
   stopDrag(event: DragEvent) {
     if (this.useAsNavigation) {
-      return;
+      return
     }
 
-    event.stopPropagation();
+    event.stopPropagation()
 
-    this.isDraggingList = false;
+    this.isDraggingList = false
   }
 
   @HostListener('dragenter', ['$event'])
   dragOn(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
+    event.preventDefault()
+    event.stopPropagation()
 
-    this.dragCounter++;
+    this.dragCounter++
 
     if (!this.isDraggingList) {
-      this.isDroppingList = true;
+      this.isDroppingList = true
     }
 
-    this.setDropAt(event);
+    this.setDropAt(event)
   }
 
   @HostListener('dragleave', ['$event'])
   dragOff(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
+    event.preventDefault()
+    event.stopPropagation()
 
-    this.dragCounter--;
+    this.dragCounter--
 
     // This is here to prevent flickering
     if (this.dragCounter < 1) {
-      this.isDroppingList = false;
-      this.dropAt = null;
+      this.isDroppingList = false
+      this.dropAt = null
     }
   }
 
   @HostListener('dragover', ['$event'])
   nothing(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
+    event.preventDefault()
+    event.stopPropagation()
 
-    this.setDropAt(event);
-  };
+    this.setDropAt(event)
+  }
 
   @HostListener('drop', ['$event'])
   drop(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
+    event.preventDefault()
+    event.stopPropagation()
 
-    const ids = event.dataTransfer.getData('application/x-ids').split(',');
+    const ids = event.dataTransfer.getData('application/x-ids').split(',')
 
     if (ids.length) {
       if (ids.indexOf(this.list.id) !== -1) {
-        this.isDroppingList = false;
-        this.dropAt = null;
-        this.dragCounter = 0;
+        this.isDroppingList = false
+        this.dropAt = null
+        this.dragCounter = 0
         return
       }
 
       ids.sort((aId, bId) => {
-        const a = this.api.search(aId);
-        const b = this.api.search(bId);
+        const a = this.api.search(aId)
+        const b = this.api.search(bId)
         return a?.parent?.items?.indexOf(a) - b?.parent?.items?.indexOf(b)
       }).forEach(id => {
         if (!this.dropAt) {
-          this.api.moveList(id, this.list.id);
+          this.api.moveList(id, this.list.id)
         } else if (this.dropAt === 'left') {
           if (this.list.parent) {
-            this.api.moveListToPosition(id, this.list.parent.id, this.list.parent.items.indexOf(this.list));
+            this.api.moveListToPosition(id, this.list.parent.id, this.list.parent.items.indexOf(this.list))
           }
         } else if (this.dropAt === 'right') {
           if (this.list.parent) {
-            this.api.moveListToPosition(id, this.list.parent.id, this.list.parent.items.indexOf(this.list) + 1);
+            this.api.moveListToPosition(id, this.list.parent.id, this.list.parent.items.indexOf(this.list) + 1)
           }
         }
       })
     } else {
-      const text = event.dataTransfer.getData('text/plain');
+      const text = event.dataTransfer.getData('text/plain')
 
       if (text) {
-        const l = this.newBlankList();
-        l.name = text;
-        this.api.modified(l);
+        const l = this.newBlankList()
+        l.name = text
+        this.api.modified(l)
       }
     }
 
@@ -697,221 +704,221 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       shift: false
     })
 
-    this.isDroppingList = false;
-    this.dropAt = null;
-    this.dragCounter = 0;
+    this.isDroppingList = false
+    this.dropAt = null
+    this.dragCounter = 0
   }
 
   setDropAt(event: DragEvent) {
     if (this.isDraggingList) {
-      return;
+      return
     }
 
-    const element = this.elementRef.nativeElement;
+    const element = this.elementRef.nativeElement
 
     if (!element.getBoundingClientRect) {
-      return;
+      return
     }
 
-    const rect = element.getBoundingClientRect();
-    const percent = Math.max(0, Math.min(element.clientWidth, event.clientX - rect.left) / element.clientWidth);
+    const rect = element.getBoundingClientRect()
+    const percent = Math.max(0, Math.min(element.clientWidth, event.clientX - rect.left) / element.clientWidth)
 
     if (percent < .25) {
-      this.dropAt = 'left';
+      this.dropAt = 'left'
     } else if (percent < .75) {
-      this.dropAt = null;
+      this.dropAt = null
     } else {
-      this.dropAt = 'right';
+      this.dropAt = 'right'
     }
   }
 
   openList(event: Event) {
-    event.stopPropagation();
-    this.api.setEye(this.list);
+    event.stopPropagation()
+    this.api.setEye(this.list)
 
-    return false;
+    return false
   }
 
-  openItem(event: Event, item: any) {
-    event.stopPropagation();
-    this.api.setEye(item);
+  openItem(event: Event, item: Note) {
+    event.stopPropagation()
+    this.api.setEye(item)
 
-    return false;
+    return false
   }
 
-  showItem(dblclickEvent: Event, item: any) {
-    dblclickEvent.stopPropagation();
-    this.api.setShow(item);
+  showItem(dblclickEvent: Event, item: Note) {
+    dblclickEvent.stopPropagation()
+    this.api.setShow(item)
 
-    return false;
+    return false
   }
 
   onNameChange() {
-    this.api.modified(this.list, 'name');
+    this.api.modified(this.list, 'name')
 
     if (this.list.name) {
-      this.modified.emit(this.list);
+      this.modified.emit(this.list)
     }
   }
 
-  onItemChecked(item: any) {
-    item.checked = !item.checked;
-    this.api.modified(item, 'checked');
+  onItemChecked(item: Note) {
+    item.checked = !item.checked
+    this.api.modified(item, 'checked')
   }
 
-  isEmpty(item: any) {
-    return Util.isEmptyStr(item.name);
+  isEmpty(item: Note) {
+    return Util.isEmptyStr(item.name)
   }
 
-  getSubitemText(item: any) {
-    const c = this.countSubItems(item);
+  getSubitemText(item: Note) {
+    const c = this.countSubItems(item)
 
-    return c ? c + ' sub-item' + (c === 1 ? '' : 's') : 'No sub-items';
+    return c ? c + ' sub-item' + (c === 1 ? '' : 's') : 'No sub-items'
   }
 
-  getItemLinkText(item: any) {
-    let t = '';
-    let p = item.parent;
+  getItemLinkText(item: Note) {
+    let t = ''
+    let p = item.parent
 
     for (let i = 0; i < 3 && p; i++) {
-      t += ' → ' + p.name;
-      p = p.parent;
+      t += ' → ' + p.name
+      p = p.parent
     }
 
-    return Util.htmlToText(t);
+    return Util.htmlToText(t)
   }
 
-  getAfterText(item: any, ignoreShowSublistPreviews = false) {
-    const c = ignoreShowSublistPreviews || this.getEnv().showSublistPreviews ? this.countSubItems(item) : 0;
-    const d = this.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0;
+  getAfterText(item: Note, ignoreShowSublistPreviews = false) {
+    const c = ignoreShowSublistPreviews || this.getEnv().showSublistPreviews ? this.countSubItems(item) : 0
+    const d = this.getEnv().showEstimates ? this.api.getSubItemEstimates(item).reduce((acc: number, val: number) => +acc + +val, 0) : 0
 
-    const t = c || d ? ' ' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') : '';
+    const t = c || d ? ' ' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') : ''
 
-    return item.collapsed ? `${t}, collapsed` : t;
+    return item.collapsed ? `${t}, collapsed` : t
   }
 
   onNameBackspacePressed() {
     if (Util.isEmptyStr(this.list.name)) {
-      this.removed.emit();
+      this.removed.emit()
     }
   }
 
-  onNameEnterPressed(element: any) {
-    this.newBlankList(0);
+  onNameEnterPressed() {
+    this.newBlankList(0)
 
     setTimeout(() => {
-      this.focusItem(0);
-    });
+      this.focusItem(0)
+    })
 
-    return false;
+    return false
   }
 
-  onItemChange(item: any) {
-    this.api.modified(item, 'name');
+  onItemChange(item: Note) {
+    this.api.modified(item, 'name')
 
     if (item.name) {
-      this.initNext();
-      this.modified.emit(item);
+      this.initNext()
+      this.modified.emit(item)
     }
   }
 
-  moveItem(event: Event, item: any, move: number, list?: any, itemsElement?: any) {
-    event.stopPropagation();
-    event.preventDefault();
+  moveItem(event: Event, item: Note, move: number, list?: Note, itemsElement?: HTMLElement) {
+    event.stopPropagation()
+    event.preventDefault()
 
     const l = (list || this.list)
-    const location = l.items.indexOf(item);
+    const location = l.items.indexOf(item)
 
     if (location === -1 || move === 0) {
-      return;
+      return
     }
 
-    const dir = move < 0 ? -1 : 1;
+    const dir = move < 0 ? -1 : 1
 
     while (location + move > 0 && location + move < l.items.length - 1 && this.hideItem(l.items[location + move])) {
-      move += dir;
+      move += dir
     }
 
     if (move < 0 && location === 0) {
-      return;
+      return
     }
 
     if (move > 0 && location === l.items.length - 1) {
       if (l.parent) {
-        const pos = l.parent.items.indexOf(l);
+        const pos = l.parent.items.indexOf(l)
 
         if (pos >= 0 && pos <= l.parent.items.length - 1) {
-          this.api.moveListUp(item, pos + 1);
-          return;
+          this.api.moveListUp(item, pos + 1)
+          return
         }
       }
 
-      this.api.moveListUp(item);
+      this.api.moveListUp(item)
     } else {
-      l.items.splice(location, 1);
-      l.items.splice(location + move, 0, item);
-      this.api.modified(this.list, 'items');
+      l.items.splice(location, 1)
+      l.items.splice(location + move, 0, item)
+      this.api.modified(this.list, 'items')
     }
 
-    setTimeout(() => this.focusItem(this.visualIndexOf(l, item), list, itemsElement));
+    setTimeout(() => this.focusItem(this.visualIndexOf(l, item), list, itemsElement))
   }
 
-  onItemEnterPressed(element: any, item: any) {
-    const i = this.list.items.indexOf(item);
+  onItemEnterPressed(element: HTMLElement, item: Note) {
+    const i = this.list.items.indexOf(item)
 
     if (i === -1) {
-      return false;
+      return false
     }
 
-    const l = this.newBlankList(i + 1);
-    setTimeout(() => this.focusItem(this.visualIndex(l)));
+    const l = this.newBlankList(i + 1)
+    setTimeout(() => this.focusItem(this.visualIndex(l)))
 
-    return false;
+    return false
   }
 
-  onItemBackspacePressed(element: any, item: any) {
+  onItemBackspacePressed(element: HTMLElement, item: Note) {
     if (Util.isEmptyStr(item.name) && this.list.items.length > 1) {
-      const c = this.api.getSubItemNames(item);
+      const c = this.api.getSubItemNames(item)
 
       if (c.length) {
         this.ui.dialog({
           message: 'Also delete ' + c.length + ' sub-item' + (c.length === 1 ? '' : 's') + '?\n\n' + c.join('\n'),
           ok: () => {
-            this.deleteItem(this.itemsElement, this.list, item);
+            this.deleteItem(this.itemsElement.nativeElement, this.list, item)
           }
-        });
+        })
       } else {
-        this.deleteItem(this.itemsElement, this.list, item);
+        this.deleteItem(this.itemsElement.nativeElement, this.list, item)
       }
     }
   }
 
-  onSubItemEnterPressed(itemsElement: any, list: any, item: any) {
-    const i = list.items.indexOf(item);
+  onSubItemEnterPressed(itemsElement: HTMLElement, list: Note, item: Note) {
+    const i = list.items.indexOf(item)
 
     if (i === -1) {
-      return false;
+      return false
     }
 
-    const l = this.newBlankListInList(list, i + 1);
-    setTimeout(() => this.focusItem(this.visualIndexOf(list, l), list, itemsElement));
+    const l = this.newBlankListInList(list, i + 1)
+    setTimeout(() => this.focusItem(this.visualIndexOf(list, l), list, itemsElement))
 
-    return false;
+    return false
   }
 
-  onSubItemBackspacePressed(itemsElement: any, list: any, item: any) {
+  onSubItemBackspacePressed(itemsElement: HTMLElement, list: Note, item: Note) {
     if (Util.isEmptyStr(item.name) && list.items.length > 1) {
-      const c = this.api.getSubItemNames(item);
+      const c = this.api.getSubItemNames(item)
 
       if (c.length) {
         this.ui.dialog({
           message: 'Also delete ' + c.length + ' sub-item' + (c.length === 1 ? '' : 's') + '?\n\n' + c.join('\n'),
           ok: () => {
-            this.deleteItem(itemsElement, list, item);
+            this.deleteItem(itemsElement, list, item)
           }
-        });
+        })
       } else {
-        this.deleteItem(itemsElement, list, item);
+        this.deleteItem(itemsElement, list, item)
       }
     }
   }
@@ -921,59 +928,59 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     document.execCommand(command, false, null)
   }
 
-  hideItem(item: any, includeEmpty = true, includeFiltered = false, internalCall = false) {
+  hideItem(item: Note, includeEmpty = true, includeFiltered = false, internalCall = false) {
     if (this.getEnv().showOnly && (!internalCall && this.visualIndexOf(item.parent, item, includeFiltered)) >= this.getEnv().showOnly) {
-      return true;
+      return true
     }
 
     return (item.checked && this.ui.getEnv().hideDoneItems)
       || !includeFiltered && this.filter.byRef?.length && (item.name || includeEmpty)
-      && !item.ref?.find(x => this.filter.byRef.indexOf(x) !== -1);
+      && !item.ref?.find(x => this.filter.byRef.indexOf(x) !== -1)
   }
 
-  hideSubItem(list: any, item: any) {
-    return this.isLastAndEmpty(list, item) || (item.checked && this.ui.getEnv().hideDoneItems);
+  hideSubItem(list: Note, item: Note) {
+    return this.isLastAndEmpty(list, item) || (item.checked && this.ui.getEnv().hideDoneItems)
   }
 
-  isLastAndEmpty(list: any, item: any): boolean {
+  isLastAndEmpty(list: Note, item: Note): boolean {
     return this.isEmpty(item) && list.items.indexOf(item) === list.items.length - 1
   }
 
-  numberHidden(list: any) {
+  numberHidden(list: Note) {
     if (this.filter.byRef?.length < 1 && !this.ui.getEnv().hideDoneItems) {
-      return 0;
+      return 0
     }
 
-    return list.items.filter(x => this.hideItem(x, false)).length;
+    return list.items.filter(x => this.hideItem(x, false)).length
   }
 
-  visualIndex(item: any, includeFiltered = false): number {
+  visualIndex(item: Note, includeFiltered = false): number {
     return this.visualIndexOf(this.list, item, includeFiltered)
   }
 
-  visualIndexOf(list: any, item: any, includeFiltered = false): number {
-    return list.items.filter(x => !this.hideItem(x, undefined, includeFiltered, true)).indexOf(item);
+  visualIndexOf(list: Note, item: Note, includeFiltered = false): number {
+    return list.items.filter(x => !this.hideItem(x, undefined, includeFiltered, true)).indexOf(item)
   }
 
-  countSubItems(item: any) {
-    return this.api.getSubItemNames(item).length;
+  countSubItems(item: Note) {
+    return this.api.getSubItemNames(item).length
   }
 
   getEnv() {
-    return this.ui.getEnv();
+    return this.ui.getEnv()
   }
 
   @HostListener('click', ['$event'])
   dontPropagateClick(event: MouseEvent) {
-    event.stopPropagation();
+    event.stopPropagation()
 
     if (this.useAsNavigation) {
       return
     }
 
     if (event.target === this.elementRef.nativeElement) {
-      this.isSelected = !this.isSelected;
-      this.onSelectionChange.emit(this.isSelected);
+      this.isSelected = !this.isSelected
+      this.onSelectionChange.emit(this.isSelected)
       this.selected.emit({
         selected: this.isSelected,
         ctrl: event.ctrlKey,
@@ -984,110 +991,110 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
   @HostListener('dblclick', ['$event'])
   dontPropagateDblClick(event: Event) {
-    event.stopPropagation();
+    event.stopPropagation()
   }
 
-  public onArrowUpDown(event: Event, item: any, move: number, list?: any, itemsElement?: any) {
-    event.preventDefault();
+  public onArrowUpDown(event: Event, item: Note, move: number, list?: Note, itemsElement?: HTMLElement) {
+    event.preventDefault()
 
     const i = this.visualIndexOf(list || this.list, item)
 
     if (i === -1) {
-      return;
+      return
     }
 
     if (!this.focusItem(i + move, list, itemsElement)) {
       if (!list) {
-        this.focusName();
+        this.focusName()
       }
     }
   }
 
   private focusName() {
-    this.nameElement.nativeElement.focus();
+    this.nameElement.nativeElement.focus()
   }
 
-  public focusItem(index: number, list?: any, element?: HTMLElement) {
+  public focusItem(index: number, list?: Note, element?: HTMLElement) {
     if (index < 0 || index >= (list || this.list).items.length) {
-      return false;
+      return false
     }
 
     (element || this.itemsElement.nativeElement)
       .children[index]
       .querySelector('[contentEditable]')
-      .focus();
+      .focus()
 
-    return true;
+    return true
   }
 
   public up() {
     this.api.up()
   }
 
-  private getRecentsSubmenu(callback: (recent: any) => void, exclude: any): Array<MenuOption> {
-    const recents = this.api.getRecent('search');
+  private getRecentsSubmenu(callback: (recent: Note) => void, exclude: Note): Array<MenuOption> {
+    const recents = this.api.getRecent('search')
 
     return recents.length ? recents.filter(x => x !== exclude).map(recent => {
       return {
         title: Util.htmlToText(recent.name) +
           (recent.parent ? `<span class="note-parent"> → ${Util.htmlToText(recent.parent.name)}</span>` : ''),
         callback: () => {
-          callback(recent);
+          callback(recent)
         }
-      } as MenuOption;
-    }) : [];
+      } as MenuOption
+    }) : []
   }
 
-  private deleteItem(itemsElement: any, list: any, item: any) {
-    const i = list.items.indexOf(item);
-    const vi = this.visualIndexOf(list, item);
-    list.items.splice(i, 1);
-    this.api.modified(list, 'items');
+  private deleteItem(itemsElement: HTMLElement, list: Note, item: Note) {
+    const i = list.items.indexOf(item)
+    const vi = this.visualIndexOf(list, item)
+    list.items.splice(i, 1)
+    this.api.modified(list, 'items')
 
     if (i === 0) {
       if (!list) {
-        this.focusName();
+        this.focusName()
       } else {
         this.focusItem(this.visualIndex(list))
       }
     } else {
-      this.focusItem(vi - 1, list, itemsElement);
+      this.focusItem(vi - 1, list, itemsElement)
     }
   }
 
   private initNext(force?: boolean) {
     if (this.useAsNavigation) {
-      return;
+      return
     }
 
     if (!force && this.list.items.length && Util.isEmptyStr(this.list.items[this.list.items.length - 1].name)) {
-      return;
+      return
     }
 
-    this.newBlankList();
+    this.newBlankList()
   }
 
-  private moveItemToLastPosition(item: any) {
-    const location = this.list.items.indexOf(item);
+  private moveItemToLastPosition(item: Note) {
+    const location = this.list.items.indexOf(item)
 
     if (location === -1) {
-      return;
+      return
     }
 
-    this.list.items.splice(location, 1);
-    this.list.items.push(item);
+    this.list.items.splice(location, 1)
+    this.list.items.push(item)
   }
 
   private newBlankList(position: number = null) {
     return this.newBlankListInList(this.list, position)
   }
 
-  private newBlankListInList(list: any, position: number = null) {
-    const l = this.api.newBlankList(list, position);
-    l.color = list.color;
-    l.options = Object.assign({}, list.options);
-    this.api.modified(l);
-    this.api.setAllPropsSynced(l);
-    return l;
+  private newBlankListInList(list: Note, position: number = null) {
+    const l = this.api.newBlankList(list, position)
+    l.color = list.color
+    l.options = Object.assign({}, list.options)
+    this.api.modified(l)
+    this.api.setAllPropsSynced(l)
+    return l
   }
 }

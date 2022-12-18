@@ -1,77 +1,77 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Config} from 'app/config.service';
-import {SyncService} from 'app/sync.service';
-import {Subject} from 'rxjs';
+import {Injectable} from '@angular/core'
+import {HttpClient} from '@angular/common/http'
+import {Config} from 'app/config.service'
+import {SyncService} from 'app/sync.service'
+import {Subject} from 'rxjs'
 
 @Injectable()
 export class WsService {
 
-  private websocket: WebSocket;
-  private pending: any[] = [];
-  private lastReconnectAttempt: number;
-  private isInActiveHttpSync = false;
-  private shouldHttpSyncAgain = false;
+  private websocket: WebSocket
+  private pending: any[] = []
+  private lastReconnectAttempt: number
+  private isInActiveHttpSync = false
+  private shouldHttpSyncAgain = false
 
   // Injections
-  public syncService: SyncService;
+  public syncService: SyncService
 
   // Events
-  public onBeforeOpen: Subject<any> = new Subject();
+  public onBeforeOpen: Subject<any> = new Subject()
 
   constructor(private config: Config, private http: HttpClient) {
   }
 
   public active() {
-    return this.websocket && this.websocket.readyState === WebSocket.OPEN;
+    return this.websocket && this.websocket.readyState === WebSocket.OPEN
   }
 
   public reconnect() {
     if (new Date().getTime() - this.lastReconnectAttempt < 10000) {
-      return;
+      return
     }
 
-    this.lastReconnectAttempt = new Date().getTime();
+    this.lastReconnectAttempt = new Date().getTime()
 
     if (this.websocket) {
       if (this.websocket.readyState === WebSocket.OPEN || this.websocket.readyState === WebSocket.CONNECTING) {
-        return;
+        return
       }
     }
 
-    this.websocket = new WebSocket(this.config.getWebSocketUrl());
-    this.websocket.onmessage = message => this.onMessage(message.data);
-    this.websocket.onopen = () => this.onOpen();
-    this.websocket.onclose = () => this.onClose();
+    this.websocket = new WebSocket(this.config.getWebSocketUrl())
+    this.websocket.onmessage = message => this.onMessage(message.data)
+    this.websocket.onopen = () => this.onOpen()
+    this.websocket.onclose = () => this.onClose()
   }
 
   public close() {
     if (this.websocket) {
-      this.websocket.close();
+      this.websocket.close()
     }
   }
 
   public send(events: any, forceHttp = false): boolean {
     if (!this.websocket || this.websocket.readyState === WebSocket.CLOSED) {
-      this.reconnect();
+      this.reconnect()
     }
 
     if (this.websocket.readyState !== WebSocket.OPEN) {
-      this.pending.push(events);
+      this.pending.push(events)
 
-      return false;
+      return false
     }
 
-    const message = JSON.stringify(events);
+    const message = JSON.stringify(events)
 
     if (message.length < 1000 && !forceHttp) {
-      this.websocket.send(message);
+      this.websocket.send(message)
     } else {
       if (this.isInActiveHttpSync) {
-        this.shouldHttpSyncAgain = true;
+        this.shouldHttpSyncAgain = true
       } else {
-        this.isInActiveHttpSync = true;
-        this.shouldHttpSyncAgain = false;
+        this.isInActiveHttpSync = true
+        this.shouldHttpSyncAgain = false
         this.http.post(this.config.getHttpUrl(), message, {
           headers: {
             'Content-Type': 'application/json;charset=utf-8',
@@ -79,41 +79,41 @@ export class WsService {
           }
         }).subscribe({
           next: (m: any) => {
-            this.isInActiveHttpSync = false;
+            this.isInActiveHttpSync = false
             if (this.shouldHttpSyncAgain) {
-              this.send([], true);
+              this.send([], true)
             }
-            this.syncService.got(m);
+            this.syncService.got(m)
           },
           error: error => {
-            this.isInActiveHttpSync = false;
+            this.isInActiveHttpSync = false
             if (this.shouldHttpSyncAgain) {
-              this.send([], true);
+              this.send([], true)
             }
-            console.log(error);
+            console.log(error)
           }
-        });
+        })
       }
     }
 
-    return true;
+    return true
   }
 
   private onOpen() {
-    this.onBeforeOpen.next(null);
+    this.onBeforeOpen.next(null)
 
     while (this.pending.length) {
-      this.send(this.pending.shift());
+      this.send(this.pending.shift())
     }
 
-    this.syncService.open();
+    this.syncService.open()
   }
 
   private onClose() {
-    this.syncService.close();
+    this.syncService.close()
   }
 
   private onMessage(message: string) {
-    this.syncService.got(JSON.parse(message));
+    this.syncService.got(JSON.parse(message))
   }
 }

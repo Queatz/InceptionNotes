@@ -1,17 +1,17 @@
-import {Injectable} from '@angular/core';
-import {UiService} from './ui.service';
-import {ApiService} from './api.service';
+import {Injectable} from '@angular/core'
+import {UiService} from './ui.service'
+import {ApiService} from './api.service'
 
 import {
   CollaborativeJson,
   CollaborativeJsonAtom,
   CollaborativeJsonNode,
+  Conflict,
   ConflictResolution,
-  ConflictResolver,
-  Conflict
-} from './collaborative-json';
+  ConflictResolver
+} from './collaborative-json'
 
-const _sync = '_sync';
+const _sync = '_sync'
 
 export class CollaborativeJsonString extends CollaborativeJsonAtom {
 }
@@ -23,58 +23,58 @@ export class CollaborativeJsonArray implements CollaborativeJsonNode {
 
   sync(key: string, node: Object, foreign: Object): boolean {
     if (node[key].length === foreign[key].length) {
-      let equal = true;
+      let equal = true
       for (const i in node[key]) {
         if (node[key][i].id !== foreign[key][i].id) {
-          equal = false;
-          break;
+          equal = false
+          break
         }
       }
 
       if (equal) {
-        return true;
+        return true
       }
     }
 
-    return false;
+    return false
   }
 
   set(key: string, node: Object, foreign: Object) {
-    const all = this.api.getAllNotes();
+    const all = this.api.getAllNotes()
 
     for (const i in foreign[key]) {
-      const id = foreign[key][i].id;
+      const id = foreign[key][i].id
 
       if (id in all) {
-        node[key][i] = all[id];
+        node[key][i] = all[id]
       } else {
-        node[key][i] = foreign[key][i];
+        node[key][i] = foreign[key][i]
       }
     }
 
-    node[key].length = foreign[key].length;
+    node[key].length = foreign[key].length
   }
 }
 
 @Injectable()
 export class CollaborateService {
 
-  private collaborativeJson: CollaborativeJson;
-  private conflictResolver: ConflictResolver;
+  private collaborativeJson: CollaborativeJson
+  private conflictResolver: ConflictResolver
 
   constructor(private ui: UiService, private api: ApiService) {
-    this.collaborativeJson = new CollaborativeJson(_sync);
-    this.collaborativeJson.addRule('name', new CollaborativeJsonString());
-    this.collaborativeJson.addRule('description', new CollaborativeJsonAtom());
-    this.collaborativeJson.addRule('checked', new CollaborativeJsonString());
-    this.collaborativeJson.addRule('color', new CollaborativeJsonAtom());
-    this.collaborativeJson.addRule('estimate', new CollaborativeJsonAtom());
-    this.collaborativeJson.addRule('collapsed', new CollaborativeJsonAtom());
-    this.collaborativeJson.addRule('backgroundUrl', new CollaborativeJsonAtom());
-    this.collaborativeJson.addRule('items', new CollaborativeJsonArray(api));
-    this.collaborativeJson.addRule('ref', new CollaborativeJsonArray(api));
+    this.collaborativeJson = new CollaborativeJson(_sync)
+    this.collaborativeJson.addRule('name', new CollaborativeJsonString())
+    this.collaborativeJson.addRule('description', new CollaborativeJsonAtom())
+    this.collaborativeJson.addRule('checked', new CollaborativeJsonString())
+    this.collaborativeJson.addRule('color', new CollaborativeJsonAtom())
+    this.collaborativeJson.addRule('estimate', new CollaborativeJsonAtom())
+    this.collaborativeJson.addRule('collapsed', new CollaborativeJsonAtom())
+    this.collaborativeJson.addRule('backgroundUrl', new CollaborativeJsonAtom())
+    this.collaborativeJson.addRule('items', new CollaborativeJsonArray(api))
+    this.collaborativeJson.addRule('ref', new CollaborativeJsonArray(api))
 
-    const diffStr = this.diffStr;
+    const diffStr = this.diffStr
 
     this.conflictResolver = ({
       resolve(conflict: Conflict): Promise<ConflictResolution> {
@@ -83,46 +83,46 @@ export class CollaborateService {
             message: 'Resolve conflict on ' + conflict.property + ':\n\nLocal copy:\n\n' + diffStr(conflict.local[conflict.property]) + '\n\nvs.\n\nRemote copy:\n\n' + diffStr(conflict.foreign[conflict.property]),
             ok: () => resolve(new ConflictResolution(true, conflict)),
             cancel: () => resolve(new ConflictResolution(false, conflict))
-          });
-        });
+          })
+        })
       }
-    } as ConflictResolver);
+    } as ConflictResolver)
   }
 
   public setSynchronized(node: Object, prop: string) {
-    this.collaborativeJson.resolve(node, prop);
+    this.collaborativeJson.resolve(node, prop)
   }
 
   public sync(node: Object, foreign: Object) {
-    return this.collaborativeJson.sync(node, foreign, this.conflictResolver);
+    return this.collaborativeJson.sync(node, foreign, this.conflictResolver)
   }
 
   public syncAll(node: any, foreign: any) {
-    const needsMerge: Array<any> = [];
-    let promise: Promise<boolean> = Promise.resolve(true);
+    const needsMerge: Array<any> = []
+    let promise: Promise<boolean> = Promise.resolve(true)
 
     for (const key in foreign) {
       if (key in node) {
-        promise = promise.then(() => this.sync(node[key], foreign[key]));
+        promise = promise.then(() => this.sync(node[key], foreign[key]))
       } else {
-        node[key] = foreign[key];
+        node[key] = foreign[key]
 
         if (!node[key].parent && node[key].name.replace(/<(?:.|\n)*?>/gm, '').trim().length) {
-          this.api.moveList(node[key].id, this.api.getShow().id);
+          this.api.moveList(node[key].id, this.api.getShow().id)
         }
       }
     }
 
-    return promise;
+    return promise
   }
 
   public diffStr(obj: any) {
     if (typeof (obj) === 'string') {
-      return obj;
+      return obj
     } else if (Array.isArray(obj)) {
-      return obj.reduce((val, item) => val + '\n' + item.name, '');
+      return obj.reduce((val, item) => val + '\n' + item.name, '')
     } else {
-      return obj;
+      return obj
     }
   }
 }

@@ -1,103 +1,101 @@
-import {Injectable} from '@angular/core';
-import {Config} from 'app/config.service';
-import {WsService} from 'app/ws.service';
-import {Event, SyncEvent, IdentifyEvent, ServerEvent, ShowEvent} from 'app/sync/event';
-import {ApiService} from 'app/api.service';
-import util from 'app/util';
-import {UiService} from 'app/ui.service';
+import {Injectable} from '@angular/core'
+import {Config} from 'app/config.service'
+import {WsService} from 'app/ws.service'
+import {Event, IdentifyEvent, ShowEvent, SyncEvent} from 'app/sync/event'
+import {ApiService, Note} from 'app/api.service'
+import util from 'app/util'
+import {UiService} from 'app/ui.service'
 
 @Injectable()
 export class SyncService {
 
-  private me: string;
-  private event: Event;
-  private _clientKey = null;
+  private me: string
+  private event: Event
+  private _clientKey = null
 
   constructor(private ws: WsService, private api: ApiService, private ui: UiService, private config: Config) {
-    this.ws.syncService = this;
+    this.ws.syncService = this
 
     this.ws.onBeforeOpen.subscribe(() => {
-      this.send(new IdentifyEvent(this.clientKey(), this.me));
+      this.send(new IdentifyEvent(this.clientKey(), this.me))
 
       if (this.api.getShow()) {
-        this.send(new ShowEvent(this.api.getShow().id));
+        this.send(new ShowEvent(this.api.getShow().id))
       }
-    });
+    })
 
-    this.event = new Event();
+    this.event = new Event()
   }
 
   clientKey() {
     if (!this._clientKey) {
-      this._clientKey = localStorage.getItem('client-key');
+      this._clientKey = localStorage.getItem('client-key')
 
       if (!this._clientKey) {
-        this._clientKey = util.newKey();
-        localStorage.setItem('client-key', this._clientKey);
+        this._clientKey = util.newKey()
+        localStorage.setItem('client-key', this._clientKey)
       }
     }
 
-    return this._clientKey;
+    return this._clientKey
   }
 
   /**
    * Start syncing
    */
   public start() {
-    this.ws.reconnect();
+    this.ws.reconnect()
 
-    const syncAllEvent = new SyncEvent([]);
-    const an = this.api.getAllNotes();
+    const syncAllEvent = new SyncEvent([])
+    const an = this.api.getAllNotes()
 
-    for (const anItem of an) {
-      const n = anItem;
-
+    for (const n of an.values()) {
       if ('_sync' in n) {
-        const p: any = {};
+        const p: any = {}
         for (const k in n['sync']) {
           if (!n['sync'][k].synchronized) {
-            p[k] = n[k];
+            p[k] = n[k]
           }
         }
 
         if (Object.keys(p).length) {
-          p.id = n['id'];
-          syncAllEvent.notes.push(this.api.freezeNote(p));
+          p.id = n['id']
+          syncAllEvent.notes.push(this.api.freezeNote(p))
         }
       } else {
-        syncAllEvent.notes.push(this.api.freezeNote(n));
+        syncAllEvent.notes.push(this.api.freezeNote(n))
       }
     }
 
     if (syncAllEvent.notes.length) {
-      this.send(syncAllEvent);
+      this.send(syncAllEvent)
     }
 
     this.api.onNoteChangedObservable.subscribe(change => {
       if (!this.ws.active()) {
-        return;
+        return
       }
 
       if (change.note[change.property] === undefined) {
-        return;
+        return
       }
 
       this.send(new SyncEvent([this.api.freezeNote({
         id: change.note.id,
         [change.property]: change.note[change.property]
-      })]));
-    });
+      } as Note)]))
+    })
 
     this.api.onViewChangedObservable.subscribe(view => {
-      this.send(new ShowEvent(view.show.id));
-    });
+      this.send(new ShowEvent(view.show.id))
+    })
   }
 
   /**
    * Identify person
    */
-  setPerson(me: any) {
-    this.me = me;
+  setPerson(me: string) {
+    this.me = me
   }
 
   /**
@@ -105,9 +103,9 @@ export class SyncService {
    */
   public send(event: any) {
     if (this.config.logWs) {
-      console.log('send', event);
+      console.log('send', event)
     }
-    this.ws.send([[this.event.types.get(event.constructor), event]]);
+    this.ws.send([[this.event.types.get(event.constructor), event]])
   }
 
   /**
@@ -116,19 +114,19 @@ export class SyncService {
   public got(events: any[]) {
     events.forEach((event: any[]) => {
       if (this.config.logWs) {
-        console.log('got', event);
+        console.log('got', event)
       }
-      const t = this.event.actions.get(event[0]);
-      event[1].__proto__ = t.prototype;
-      event[1].got(this);
-    });
+      const t = this.event.actions.get(event[0])
+      event[1].__proto__ = t.prototype
+      event[1].got(this)
+    })
   }
 
   /**
    * Fetch events via HTTP
    */
   public fetch() {
-    this.ws.send([], true);
+    this.ws.send([], true)
   }
 
   /**
@@ -142,7 +140,7 @@ export class SyncService {
    */
   public close() {
     if (this.config.logWs) {
-      console.log('close()');
+      console.log('close()')
     }
   }
 
@@ -151,7 +149,7 @@ export class SyncService {
    */
   public open() {
     if (this.config.logWs) {
-      console.log('open()');
+      console.log('open()')
     }
   }
 
@@ -159,81 +157,81 @@ export class SyncService {
    * Set a note as sync'd
    */
   public setSynced(id: string, prop: string) {
-    this.api.setSynced(id, prop);
+    this.api.setSynced(id, prop)
   }
 
   /**
    * Handle note prop update from sever
    */
   public handleUpdateFromServer(noteId: string, prop: string, value: any) {
-    let note = this.api.search(noteId);
+    let note = this.api.search(noteId)
 
     if (!note) {
-      note = this.api.newBlankNote(true, noteId);
+      note = this.api.newBlankNote(true, noteId)
     }
 
-    const localProp = this.api.unfreezeProp(note, prop, value);
+    const localProp = this.api.unfreezeProp(note, prop, value)
     if (note[prop] === undefined || this.api.isSynced(note, prop)) {
-      this.setProp(note, prop, localProp);
-      this.api.setSynced(note.id, prop);
+      this.setProp(note, prop, localProp)
+      this.api.setSynced(note.id, prop)
     } else if (this.valEquals(note[prop], localProp)) {
-      this.api.setSynced(note.id, prop);
+      this.api.setSynced(note.id, prop)
     } else {
       this.ui.dialog({
         message: 'Overwrite ' + prop + ' "' + this.present(note[prop]) + '" with "' + this.present(localProp) + '"',
         ok: () => {
-          this.setProp(note, prop, localProp);
-          this.api.setSynced(note.id, prop);
+          this.setProp(note, prop, localProp)
+          this.api.setSynced(note.id, prop)
         },
         cancel: () => {
           this.send(new SyncEvent([this.api.freezeNote({
             id: note.id,
             [prop]: note[prop]
-          })]));
+          } as Note)]))
         }
-      });
+      })
     }
   }
 
-  setProp(note: any, prop: string, value: any) {
+  setProp(note: Note, prop: string, value: any) {
     if (Array.isArray(note[prop]) && Array.isArray(value)) {
-      note[prop].length = 0;
-      note[prop].push(...value);
+      note[prop].length = 0
+      note[prop].push(...value)
     } else {
-      note[prop] = value;
+      note[prop] = value
     }
   }
 
   /**
    * Return if a value is equal.
    */
-  public valEquals(a: any, b: any): boolean {
+  public valEquals(a: Note, b: Note): boolean {
     if (a === b) {
-      return true;
+      return true
     }
 
     if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
-      return a.every((v, i) => this.isSameOrTransient(a[i], b[i]));
+      return a.every((v, i) => this.isSameOrTransient(a[i], b[i]))
     }
 
-    return false;
+    return false
   }
 
   /**
    * Determine if a note prop is safe to overwrite
    */
-  isSameOrTransient(a: any, b: any) {
-    return a.id === b.id || ((!a.items || !a.items.length) && (!a.ref || !a.ref.length) && (!a.people || !a.people.length));
+  isSameOrTransient(a: Note, b: Note) {
+    return a.id === b.id || ((!a.items || !a.items.length) && (!a.ref || !a.ref.length) && (!a.people || !a.people.length))
   }
 
   /**
    * Show a string from a value
    */
-  public present(value: any) {
+  public present(value: Note) {
     if (Array.isArray(value)) {
-      return '\n * ' + value.map(item => item.name).join('\n * ') + '\n';
+      return '\n * ' + value.map(item => item.name).join('\n * ') + '\n'
     }
 
-    return value;
+    return value
   }
 }

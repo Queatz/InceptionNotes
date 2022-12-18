@@ -1,50 +1,66 @@
-<br />
+<br/>
 <form>
-  <b>Navigation</b><br />
-  <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.sidepane" (ngModelChange)="update()" /> Show side nav</label>
-  <br />
-  <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.dblClickToOpen" (ngModelChange)="update()" /> Enable double-click to jump inside notes</label>
-  <br />
-  <label><input type="checkbox" name="expandedNav" [(ngModel)]="env.expandedNav" (ngModelChange)="update()" /> Keep navigation expanded</label>
-  <br />
-  <br /><b>Appearance</b><br />
-  <label><input type="checkbox" name="useDarkTheme" [(ngModel)]="env.useDarkTheme" (ngModelChange)="update()" /> Use dark theme</label>
-  <br />
-  <label><input type="checkbox" name="showFlat" [(ngModel)]="env.showFlat" (ngModelChange)="update()" /> Use flat theme</label>
-  <br />
-  <label><input type="checkbox" name="showAsPriorityList" [(ngModel)]="env.showAsPriorityList" (ngModelChange)="update()" /> Show as priority list (ALT + P)</label>
-  <br />
-  <br /><b>Display</b><br />
-  <label><input type="checkbox" name="showListCheckboxes" [(ngModel)]="env.showListCheckboxes" (ngModelChange)="update()" /> Show list checkboxes</label>
-  <br />
-  <label><input type="checkbox" name="showSublistCheckboxes" [(ngModel)]="env.showSublistCheckboxes" (ngModelChange)="update()" /> Show sublist checkboxes</label>
-  <br />
-  <label><input type="checkbox" name="showSublistPreviews" [(ngModel)]="env.showSublistPreviews" (ngModelChange)="update()" /> Show sublist previews</label>
-  <br />
-  <label><input type="checkbox" name="showLinks" [(ngModel)]="env.showLinks" (ngModelChange)="update()" /> Show links</label>
-  <br />
-  <label><input type="checkbox" name="showEstimates" [(ngModel)]="env.showEstimates" (ngModelChange)="update()" /> Show estimates</label>
-  <br />
-  <label><input type="checkbox" name="showDescriptions" [(ngModel)]="env.showDescriptions" (ngModelChange)="update()" /> Show descriptions</label>
-  <br />
-  <label><input type="checkbox" name="hideDoneItems" [(ngModel)]="env.hideDoneItems" (ngModelChange)="update()" /> Hide done items</label>
-  <br />
-  <label><input type="number" name="showOnly" min="0" [(ngModel)]="env.showOnly" (ngModelChange)="update()" /> max items shown per note</label>
-  <br />
-  <br /><b>Extras</b><br />
-  <label><input type="checkbox" name="unlinkOnDelete" [(ngModel)]="env.unlinkOnDelete" (ngModelChange)="update()" /> Unlink links on delete</label>
+  <b>Navigation</b><br/>
+  <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.sidepane" (ngModelChange)="update()"/> Show side
+    nav</label>
+  <br/>
+  <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.dblClickToOpen" (ngModelChange)="update()"/>
+    Enable double-click to jump inside notes</label>
+  <br/>
+  <label><input type="checkbox" name="expandedNav" [(ngModel)]="env.expandedNav" (ngModelChange)="update()"/> Keep
+    navigation expanded</label>
+  <br/>
+  <br/><b>Appearance</b><br/>
+  <label><input type="checkbox" name="useDarkTheme" [(ngModel)]="env.useDarkTheme" (ngModelChange)="update()"/> Use dark
+    theme</label>
+  <br/>
+  <label><input type="checkbox" name="showFlat" [(ngModel)]="env.showFlat" (ngModelChange)="update()"/> Use flat
+    theme</label>
+  <br/>
+  <label><input type="checkbox" name="showAsPriorityList" [(ngModel)]="env.showAsPriorityList"
+                (ngModelChange)="update()"/> Show as priority list (ALT + P)</label>
+  <br/>
+  <br/><b>Display</b><br/>
+  <label><input type="checkbox" name="showListCheckboxes" [(ngModel)]="env.showListCheckboxes"
+                (ngModelChange)="update()"/> Show list checkboxes</label>
+  <br/>
+  <label><input type="checkbox" name="showSublistCheckboxes" [(ngModel)]="env.showSublistCheckboxes"
+                (ngModelChange)="update()"/> Show sublist checkboxes</label>
+  <br/>
+  <label><input type="checkbox" name="showSublistPreviews" [(ngModel)]="env.showSublistPreviews"
+                (ngModelChange)="update()"/> Show sublist previews</label>
+  <br/>
+  <label><input type="checkbox" name="showLinks" [(ngModel)]="env.showLinks" (ngModelChange)="update()"/> Show
+    links</label>
+  <br/>
+  <label><input type="checkbox" name="showEstimates" [(ngModel)]="env.showEstimates" (ngModelChange)="update()"/> Show
+    estimates</label>
+  <br/>
+  <label><input type="checkbox" name="showDescriptions" [(ngModel)]="env.showDescriptions" (ngModelChange)="update()"/>
+    Show descriptions</label>
+  <br/>
+  <label><input type="checkbox" name="hideDoneItems" [(ngModel)]="env.hideDoneItems" (ngModelChange)="update()"/> Hide
+    done items</label>
+  <br/>
+  <label><input type="number" name="showOnly" min="0" [(ngModel)]="env.showOnly" (ngModelChange)="update()"/> max items
+    shown per note</label>
+  <br/>
+  <br/><b>Extras</b><br/>
+  <label><input type="checkbox" name="unlinkOnDelete" [(ngModel)]="env.unlinkOnDelete" (ngModelChange)="update()"/>
+    Unlink links on delete</label>
 </form>
-<br />
+<br/>
 <span *ngIf="isVillageConnected()">
-  <span [ngClass]="{ 'dark': env.useDarkTheme }" class="green">Connected as <a target="_blank" [href]="villageUrl()">{{ villageName() }}</a> (Village)</span><br />
+  <span [ngClass]="{ 'dark': env.useDarkTheme }" class="green">Connected as <a target="_blank"
+                                                                               [href]="villageUrl()">{{ villageName() }}</a> (Village)</span><br/>
   <button (click)="disconnectVillage()">Disconnect</button>
   <button (click)="nukeVillage()">Delete notes</button>
-  <br /><br />
+  <br/><br/>
 </span>
 <div class="button-wrap">
   <button (click)="backup()">Download notes</button>
   <button (click)="unbackup()">Upload notes</button>
   <button (click)="syncAll()">Sync all notes</button>
 </div>
-<br />
+<br/>
 <span class="last-backup-date">{{ env.lastBackup ? 'Last downloaded on ' + env.lastBackup : '' }}</span>

@@ -1,6 +1,6 @@
-import {Component, OnInit, Input, HostListener, ElementRef, AfterViewInit, HostBinding} from '@angular/core';
-import {UiService, MenuOption, Env} from 'app/ui.service';
-import Util from 'app/util';
+import {AfterViewInit, Component, ElementRef, HostBinding, HostListener, Input, OnInit} from '@angular/core'
+import {Env, MenuOption, UiService} from 'app/ui.service'
+import Util from 'app/util'
 
 @Component({
   selector: 'app-menu',
@@ -13,12 +13,12 @@ import Util from 'app/util';
 })
 export class MenuComponent implements OnInit, AfterViewInit {
 
-  @Input() options: Array<MenuOption>;
-  @Input() clickout: () => void;
-  @Input() position: { x: number, y: number, w?: number };
-  @Input() environment: Env;
+  @Input() options: Array<MenuOption>
+  @Input() clickout: () => void
+  @Input() position: { x: number, y: number, w?: number }
+  @Input() environment: Env
 
-  private showing = false;
+  private showing = false
 
   constructor(private elementRef: ElementRef, private ui: UiService) {
   }
@@ -28,43 +28,43 @@ export class MenuComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     setTimeout(() => {
-      this.elementRef.nativeElement.querySelectorAll('.menu-option')?.[0]?.focus();
-      this.showing = true;
-    });
+      this.elementRef.nativeElement.querySelectorAll('.menu-option')?.[0]?.focus()
+      this.showing = true
+    })
   }
 
   @HostBinding('style.top')
   get styleTop() {
-    let invert = 0;
+    let invert = 0
 
     if (document.documentElement) {
       if (this.position.y + this.elementRef.nativeElement.offsetHeight - document.documentElement.scrollTop > window.innerHeight) {
-        invert = this.elementRef.nativeElement.clientHeight;
+        invert = this.elementRef.nativeElement.clientHeight
       }
     }
 
-    return Math.max(document.documentElement.scrollTop, this.position.y - invert) + 'px';
+    return Math.max(document.documentElement.scrollTop, this.position.y - invert) + 'px'
   }
 
   @HostBinding('style.left')
   get styleLeft() {
-    let invert = 0;
+    let invert = 0
 
     if (document.documentElement) {
       if (this.position.x + this.elementRef.nativeElement.offsetWidth > document.documentElement.offsetWidth) {
-        invert = this.elementRef.nativeElement.offsetWidth + (this.position.w || 0);
+        invert = this.elementRef.nativeElement.offsetWidth + (this.position.w || 0)
       }
     }
 
     const offset = (this.position.x - invert)
-    return (offset < 0 ? document.documentElement.offsetWidth - this.elementRef.nativeElement.offsetWidth : offset) + 'px';
+    return (offset < 0 ? document.documentElement.offsetWidth - this.elementRef.nativeElement.offsetWidth : offset) + 'px'
   }
 
   @HostListener('window:keydown.esc', ['$event'])
   escapePressed(event: Event) {
-    event.stopPropagation();
-    event.preventDefault();
-    this.back();
+    event.stopPropagation()
+    event.preventDefault()
+    this.back()
   }
 
 
@@ -72,16 +72,16 @@ export class MenuComponent implements OnInit, AfterViewInit {
   @HostListener('window:contextmenu')
   back(event?: Event) {
     if (event && this.elementRef.nativeElement.contains((<HTMLElement>event.target))) {
-      return;
+      return
     }
 
     if (this.showing && this.clickout) {
-      this.clickout();
+      this.clickout()
     }
   }
 
   hovered(event: Event, option: MenuOption) {
-    (event.target as HTMLElement).focus();
+    (event.target as HTMLElement).focus()
 
     if (option.menu) {
       this.ui.menu(option.menu, {
@@ -90,18 +90,18 @@ export class MenuComponent implements OnInit, AfterViewInit {
         w: this.elementRef.nativeElement.clientWidth
       }, option)
     } else {
-      this.ui.clearMenus(option);
+      this.ui.clearMenus(option)
     }
   }
 
   clicked(event: Event, option: MenuOption) {
-    event.stopPropagation();
-    option.callback();
+    event.stopPropagation()
+    option.callback()
     this.clear()
   }
 
   clear() {
-    this.clickout();
-    this.ui.clearMenus();
+    this.clickout()
+    this.ui.clearMenus()
   }
 }

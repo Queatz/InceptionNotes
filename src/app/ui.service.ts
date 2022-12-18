@@ -1,57 +1,58 @@
-import {Injectable, ComponentFactoryResolver} from '@angular/core';
+import {ComponentFactoryResolver, Injectable} from '@angular/core'
 import {Subject} from 'rxjs'
 
-import {AppComponent} from './app.component';
-import {DialogComponent, DialogConfig} from './dialog/dialog.component';
-import {MenuComponent} from './menu/menu.component';
+import {AppComponent} from './app.component'
+import {DialogComponent, DialogConfig} from './dialog/dialog.component'
+import {MenuComponent} from './menu/menu.component'
+import {Note} from './api.service'
 
 @Injectable()
 export class UiService {
 
-  readonly locate = new Subject<{ list: any, animate?: boolean }>()
+  readonly locate = new Subject<{ list: Note, animate?: boolean }>()
 
-  private appComponent: AppComponent;
-  private dialogs = [];
-  private lastMenu: Array<MenuStackEntry> = [];
+  private appComponent: AppComponent
+  private dialogs = []
+  private lastMenu: Array<MenuStackEntry> = []
 
-  private env: Env;
+  private env: Env
 
   constructor(private resolver: ComponentFactoryResolver) {
   }
 
   public registerAppComponent(app: AppComponent) {
-    this.appComponent = app;
-    this.load();
+    this.appComponent = app
+    this.load()
   }
 
   public back() {
     if (!this.dialogs.length) {
-      return false;
+      return false
     }
 
-    const top = this.dialogs.pop();
-    top.hostView.destroy();
+    const top = this.dialogs.pop()
+    top.hostView.destroy()
 
-    return true;
+    return true
   }
 
   public getEnv() {
-    return this.env;
+    return this.env
   }
 
   public save() {
-    localStorage.setItem('env', JSON.stringify(this.env));
+    localStorage.setItem('env', JSON.stringify(this.env))
   }
 
   public load() {
-    this.env = JSON.parse(localStorage.getItem('env'));
+    this.env = JSON.parse(localStorage.getItem('env'))
 
     if (!this.env) {
-      this.intro();
+      this.intro()
     }
 
     if (!this.env.recentColors) {
-      this.env.recentColors = [];
+      this.env.recentColors = []
     }
   }
 
@@ -74,92 +75,92 @@ export class UiService {
       expandedNav: false,
       showOnly: 0,
       recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff']
-    };
+    }
   }
 
   public dialog(config: DialogConfig) {
     const dialog = this.appComponent.view
-      .createComponent(this.resolver.resolveComponentFactory(DialogComponent));
+      .createComponent(this.resolver.resolveComponentFactory(DialogComponent))
 
     this.dialogs.push(dialog);
 
     (dialog.instance as DialogComponent).config = config;
     (dialog.instance as DialogComponent).environment = this.env;
-    (dialog.instance as DialogComponent).clickout = () => this.back();
+    (dialog.instance as DialogComponent).clickout = () => this.back()
   }
 
   public clearMenus(menuOption?: MenuOption): void {
     const depth = menuOption ? this.lastMenu.findIndex(x => {
       return x.component.options.indexOf(menuOption) !== -1
-    }) : -2;
+    }) : -2
 
     if (depth === -1) {
-      return;
+      return
     }
 
     while (this.lastMenu.length > depth + 1 && !!this.lastMenu.length) {
-      const option = this.lastMenu.pop();
-      option.component.clickout();
+      const option = this.lastMenu.pop()
+      option.component.clickout()
       if (option.parent) {
-        option.parent.isOpen = false;
+        option.parent.isOpen = false
       }
     }
   }
 
   public menu(options: Array<MenuOption>, position: { x: number, y: number, w?: number }, parentMenuOption?: MenuOption) {
     if (parentMenuOption?.isOpen) {
-      return;
+      return
     }
 
     const menu = this.appComponent.view
-      .createComponent(this.resolver.resolveComponentFactory(MenuComponent));
+      .createComponent(this.resolver.resolveComponentFactory(MenuComponent))
 
     if (this.lastMenu.length && !parentMenuOption) {
-      this.lastMenu.pop().component.clickout();
+      this.lastMenu.pop().component.clickout()
     } else if (parentMenuOption) {
-      parentMenuOption.isOpen = true;
+      parentMenuOption.isOpen = true
     }
 
     if (parentMenuOption) {
-      this.clearMenus(parentMenuOption);
+      this.clearMenus(parentMenuOption)
     }
 
-    const component = menu.instance as MenuComponent;
+    const component = menu.instance as MenuComponent
 
     this.lastMenu.push({
       component,
       parent: parentMenuOption,
       depth: this.lastMenu.length
-    } as MenuStackEntry);
+    } as MenuStackEntry)
 
     if (!parentMenuOption) {
-      position.y += window.scrollY;
+      position.y += window.scrollY
     }
 
-    component.options = options;
-    component.position = position;
-    component.environment = this.env;
-    component.clickout = () => menu.hostView.destroy();
+    component.options = options
+    component.position = position
+    component.environment = this.env
+    component.clickout = () => menu.hostView.destroy()
   }
 
   public addRecentColor(color: string) {
-    const exists = this.env.recentColors.indexOf(color);
+    const exists = this.env.recentColors.indexOf(color)
 
     if (exists !== -1) {
-      this.env.recentColors.splice(exists, 1);
+      this.env.recentColors.splice(exists, 1)
     }
 
-    this.env.recentColors.unshift(color);
+    this.env.recentColors.unshift(color)
 
     if (this.env.recentColors.length > 6) {
-      this.env.recentColors.pop();
+      this.env.recentColors.pop()
     }
 
-    this.save();
+    this.save()
   }
 
   public isAnyDialogOpened() {
-    return this.dialogs.length > 0;
+    return this.dialogs.length > 0
   }
 }
 
@@ -191,7 +192,7 @@ export interface MenuOption {
   shortcut?: string,
   menu?: Array<MenuOption>,
 
-  isOpen?: boolean;
+  isOpen?: boolean
 }
 
 interface MenuStackEntry {

@@ -1,107 +1,160 @@
-import {Injectable} from '@angular/core';
-import {Router} from '@angular/router';
-import {UiService} from './ui.service';
-import {Subject} from 'rxjs';
-import {Config} from 'app/config.service';
+// tslint:disable:max-line-length
+
+import {Injectable} from '@angular/core'
+import {Router} from '@angular/router'
+import {UiService} from './ui.service'
+import {Subject} from 'rxjs'
+import {Config} from 'app/config.service'
+
+export class Person {
+  id: string
+  imageUrl: string
+  googleUrl: string
+  firstName: string
+  lastName: string
+}
+
+export class NoteOptions {
+  enumerate?: boolean
+  invertText?: boolean
+}
+
+export class Note {
+  id: string
+  parent?: Note
+  name: string
+  description: string
+  checked: boolean
+  color: string
+  items: Note[]
+  ref: Note[]
+  people: Person[]
+  options: NoteOptions
+  backgroundUrl: string
+  collapsed: boolean
+  estimate: number
+  created: string
+  updated?: string
+  _sync?: any
+}
+
+export class FrozenNote {
+  id: string
+  parent?: FrozenNote
+  name: string
+  description: string
+  checked: boolean
+  color: string
+  items: string[]
+  ref: string[]
+  people: string[]
+  options: NoteOptions
+  backgroundUrl: string
+  collapsed: boolean
+  estimate: number
+  created: string
+  updated?: string
+  _sync: any
+}
 
 export class NoteChanges {
-  public note: any;
-  public property: string;
+  public note: Note
+  public property: string
 
   constructor(note: any, property: string) {
-    this.note = note;
-    this.property = property;
+    this.note = note
+    this.property = property
   }
 }
 
 export class ViewConfig {
-  eye: any;
-  show: any;
-  parents: any[];
+  eye: Note
+  show: Note
+  parents: Note[]
 }
 
 @Injectable()
 export class ApiService {
 
-  private top: any;
-  private notes: Map<string, any>;
-  private people: Map<string, any>;
+  private top: Note
+  private notes: Map<string, Note>
+  private people: Map<string, Person>
 
   private view: ViewConfig = {
     eye: null,
     show: null,
     parents: []
-  };
+  }
 
-  public onNoteChangedObservable: Subject<NoteChanges> = new Subject<NoteChanges>();
-  public onViewChangedObservable: Subject<ViewConfig> = new Subject<ViewConfig>();
+  public onNoteChangedObservable: Subject<NoteChanges> = new Subject<NoteChanges>()
+  public onViewChangedObservable: Subject<ViewConfig> = new Subject<ViewConfig>()
 
   constructor(private ui: UiService, private config: Config, private router: Router) {
-    this.people = new Map<string, any>();
-    this.load();
+    this.people = new Map<string, Person>()
+    this.load()
   }
 
   /* Persistence */
 
   public save() {
-    localStorage.setItem('top', this.top.id);
+    localStorage.setItem('top', this.top.id)
   }
 
   public load() {
-    const version = +localStorage.getItem('version');
-    let root = null;
+    const version = +localStorage.getItem('version')
+    let root = null
 
     if (version < 1) {
-      root = JSON.parse(localStorage.getItem('root'));
+      root = JSON.parse(localStorage.getItem('root'))
     }
 
     if (root) {
-      this.backupToFile(localStorage.getItem('root'));
-      this.migrateRoot(root);
+      this.backupToFile(localStorage.getItem('root'))
+      this.migrateRoot(root)
 
       setTimeout(() => {
         this.ui.dialog({
           message: 'Inception Notes has received an update.\n\nA backup copy of notes have been downloaded. If all else fails, check Right Click -> Inspect -> Application (tab) -> Local Storage -> \'root\''
-        });
-      }, 1000);
+        })
+      }, 1000)
     }
 
     if (version < 2) {
-      localStorage.setItem('version', '2');
-      this.notes = this.unfreeze(localStorage.getItem('notes'));
-      this.saveAll();
+      localStorage.setItem('version', '2')
+      this.notes = this.unfreeze(localStorage.getItem('notes'))
+      this.saveAll()
     }
 
-    const localNotes = new Map<string, any>();
+    const localNotes = new Map<string, FrozenNote | Note>()
 
     for (const n in localStorage) {
       if (n.substring(0, 5) === 'note:') {
-        const n2 = JSON.parse(localStorage.getItem(n));
-        localNotes.set(n2.id, n2);
+        const n2 = JSON.parse(localStorage.getItem(n))
+        localNotes.set(n2.id, n2)
       } else if (n.substring(0, 7) === 'person:') {
-        this.updatePerson(JSON.parse(localStorage.getItem(n)));
+        this.updatePerson(JSON.parse(localStorage.getItem(n)))
       }
     }
 
     if (localNotes.size) {
       for (const n of localNotes.values()) {
-        localNotes.set(n.id, this.unfreezeNote(n, localNotes));
+        this.unfreezeNote(n as FrozenNote, localNotes)
       }
 
-      this.notes = localNotes;
-      this.resetView();
+      this.notes = localNotes as Map<string, Note>
+      this.resetView()
     } else {
-      this.intro();
+      this.intro()
     }
   }
 
   public saveAll() {
     if (!this.notes) {
-      return;
+      return
     }
 
     for (const note of this.notes.values()) {
-      this.saveNote(note);
+      this.saveNote(note)
     }
   }
 
@@ -115,71 +168,68 @@ export class ApiService {
   /**
    * Save a single note
    */
-  public saveNote(note: any) {
-    localStorage.setItem('note:' + note.id, JSON.stringify(this.freezeNote(note)));
+  public saveNote(note: Note) {
+    localStorage.setItem('note:' + note.id, JSON.stringify(this.freezeNote(note)))
   }
 
-  private freeze(animal: Map<string, any>): string {
+  private freeze(animal: Map<string, Note>): string {
     if (!animal) {
-      return null;
+      return null
     }
 
-    const fossil = {};
+    const fossil = {}
 
     for (const a of animal.values()) {
-      fossil[a.id] = this.freezeNote(a);
+      fossil[a.id] = this.freezeNote(a)
     }
 
-    return JSON.stringify(fossil);
+    return JSON.stringify(fossil)
   }
 
-  public unfreeze(fossil: any): Map<string, any> {
+  public unfreeze(fossil: object | string): Map<string, Note> {
     if (typeof (fossil) === 'string') {
-      fossil = JSON.parse(fossil);
+      fossil = JSON.parse(fossil)
     }
 
     if (!fossil) {
-      return null;
+      return null
     }
 
-    const map = new Map<string, any>();
+    const map = new Map<string, FrozenNote | Note>()
 
     for (const x of Object.keys(fossil)) {
-      map.set(x, fossil[x]);
+      map.set(x, fossil[x])
     }
 
     for (const a of map.values()) {
-      this.unfreezeNote(a, map);
+      this.unfreezeNote(a as FrozenNote, map)
     }
 
-    return map;
+    return map as Map<string, Note>
   }
 
   /**
    * Semi-freeze a single note
    */
-  public freezeNote(a: any): any {
-    let items;
+  public freezeNote(a: Note): FrozenNote {
+    const items: string[] = []
     if (a.items) {
-      items = [];
       for (const item of a.items) {
-        items.push(item.id);
+        items.push(item.id)
       }
     }
 
-    let ref;
+    const ref: string[] = []
     if (a.ref) {
-      ref = [];
       for (const item of a.ref) {
-        ref.push(item.id);
+        ref.push(item.id)
       }
     }
 
-    let people;
+    const people: string[] = []
     if (a.people) {
-      people = [];
       for (const person of a.people) {
-        people.push(person.id);
+        people.push(person.id)
       }
     }
 
@@ -197,8 +247,9 @@ export class ApiService {
       collapsed: a.collapsed,
       estimate: a.estimate,
       created: a.created,
+      updated: a.updated,
       _sync: a._sync
-    };
+    }
   }
 
   /**
@@ -207,94 +258,88 @@ export class ApiService {
    * @param a The currently semi-frozen note
    * @param fossils A pool of semi-frozen notes
    */
-  public unfreezeNote(a: any, fossils: Map<string, any>): any {
-    const items = [];
+  public unfreezeNote(a: FrozenNote | Note, fossils: Map<string, FrozenNote | Note>) {
+    const note: Note = a as Note
 
-    if (!a.items) {
-      a.items = [];
-    }
+    const items = a.items
+    a.items = []
 
-    for (const id of a.items) {
-      let n = fossils.get(id);
-
-      if (!n) {
-        if (this.config.beta) {
-          console.log('unfreeze error: missing note \'' + id + '\'');
-        }
-        n = this.newBlankNote(true, id);
-      }
-
-      items.push(n);
-      n.parent = a;
-    }
-
-    a.items = items;
-
-    if (a.ref) {
-      const ref = [];
-
-      for (const id of a.ref) {
-        let n = fossils.get(id);
+    if (items) {
+      for (const id of items) {
+        let n = fossils.get(id as string)
 
         if (!n) {
           if (this.config.beta) {
-            console.log('unfreeze error: missing note \'' + id + '\'');
+            console.log('unfreeze error: missing note \'' + id + '\'')
           }
-          n = this.newBlankNote(true, id);
+          n = this.newBlankNote(true, id as string)
         }
 
-        ref.push(n);
+        note.items.push(n as Note)
+        n.parent = note
       }
+    }
 
-      a.ref = ref;
+    const ref = a.ref
+
+    if (ref) {
+      note.ref = []
+      for (const id of ref) {
+        let n = fossils.get(id as string)
+
+        if (!n) {
+          if (this.config.beta) {
+            console.log('unfreeze error: missing note \'' + id + '\'')
+          }
+          n = this.newBlankNote(true, id as string)
+        }
+
+        note.ref.push(n as Note)
+      }
     }
 
     if (a.people) {
-      const people = [];
-
-      for (const id of a.people) {
-        const n = this.person(id);
-        people.push(n)
+      const people = a.people
+      note.people = []
+      for (const id of people) {
+        const n = this.person(id as string)
+        note.people.push(n)
       }
-
-      a.people = people;
     }
-
-    return a;
   }
 
   /**
    * Unfreeze a property
    */
-  unfreezeProp(note: any, prop: string, value: any) {
+  unfreezeProp(note: Note, prop: string, value: any) {
     if (['people', 'ref', 'items'].indexOf(prop) !== -1) {
       if (!value) {
-        return [];
+        return []
       }
 
-      const a = [];
+      const a = []
       for (const id of value) {
-        let n = this.search(id);
+        let n = this.search(id)
 
         if (!n) {
-          n = this.newBlankNote(true, id);
+          n = this.newBlankNote(true, id)
           if (note) {
-            n.color = note.color;
+            n.color = note.color
           }
-          this.saveNote(n);
+          this.saveNote(n)
         }
 
-        a.push(n);
+        a.push(n)
 
         if (prop === 'items') {
-          n.parent = note;
+          n.parent = note
         }
       }
 
-      return a;
+      return a
     }
 
-    return value;
+    return value
   }
 
   /* People */
@@ -304,358 +349,358 @@ export class ApiService {
    */
   public person(id: string) {
     if (this.people.has(id)) {
-      return this.people.get(id);
+      return this.people.get(id)
     }
 
-    const p = {id: id};
-    this.people.set(id, p);
-    return p;
+    const p: Person = {id: id} as Person
+    this.people.set(id, p)
+    return p
   }
 
-  public updatePerson(person: any) {
+  public updatePerson(person: Person) {
     if (!person || !person.id) {
-      return;
+      return
     }
 
-    const p = this.person(person.id);
-    Object.assign(p, person);
-    localStorage.setItem('person:' + person.id, JSON.stringify(p));
+    const p = this.person(person.id)
+    Object.assign(p, person)
+    localStorage.setItem('person:' + person.id, JSON.stringify(p))
   }
 
-  public addPersonToNote(note: any, person: any) {
-    person = this.person(person.id);
+  public addPersonToNote(note: Note, person: Person) {
+    person = this.person(person.id)
 
     if (!note.people) {
-      note.people = [];
+      note.people = []
     }
 
     if (note.people.indexOf(person) !== -1) {
-      return;
+      return
     }
 
-    note.people.push(person);
-    this.modified(note, 'people');
+    note.people.push(person)
+    this.modified(note, 'people')
   }
 
   /* View */
 
   public up() {
     if (this.view.eye === this.view.show) {
-      const eye = this.search(this.view.show.id);
+      const eye = this.search(this.view.show.id)
 
       if (!eye || !this.parents(eye).length) {
         this.ui.dialog({
           message: 'Create new list containing this one?',
           ok: () => this.breakCeiling()
-        });
-        return;
+        })
+        return
       }
 
-      const parents = this.parents(eye);
-      const show = parents[parents.length - 1];
-      this.view.eye = show;
-      this.view.show = show;
+      const parents = this.parents(eye)
+      const show = parents[parents.length - 1]
+      this.view.eye = show
+      this.view.show = show
     } else {
-      const show = this.search(this.view.show.id);
+      const show = this.search(this.view.show.id)
 
       if (!show || !show.parent) {
-        return;
+        return
       }
 
-      this.view.show = show.parent;
+      this.view.show = show.parent
     }
 
-    this.saveView();
+    this.saveView()
   }
 
   resetView() {
-    const top = localStorage.getItem('top');
+    const top = localStorage.getItem('top')
 
     if (top) {
-      this.top = this.notes.get(top);
+      this.top = this.notes.get(top)
     } else {
       for (const note of this.notes.values()) {
-        this.top = note;
-        break;
+        this.top = note
+        break
       }
     }
 
-    let view: any = localStorage.getItem('view');
-    let show: any = localStorage.getItem('view-show') || view;
+    const viewId = localStorage.getItem('view')
+    const showId = localStorage.getItem('view-show') || viewId
 
-    view = this.search(view);
-    show = this.search(show);
+    const view = this.search(viewId)
+    const show = this.search(showId)
 
     if (view) {
-      this.view.eye = view;
-      this.view.show = show;
+      this.view.eye = view
+      this.view.show = show
     } else {
-      this.view.eye = this.view.show = this.top;
+      this.view.eye = this.view.show = this.top
     }
   }
 
   public getEye() {
-    return this.view.eye;
+    return this.view.eye
   }
 
-  public setEye(eye: any) {
-    this.view.eye = eye;
-    this.view.show = this.view.eye;
-    this.saveView();
+  public setEye(eye: Note) {
+    this.view.eye = eye
+    this.view.show = this.view.eye
+    this.saveView()
   }
 
   public getShow() {
-    return this.view.show;
+    return this.view.show
   }
 
-  public setShow(show: any) {
-    this.view.show = show;
-    this.saveView();
+  public setShow(show: Note) {
+    this.view.show = show
+    this.saveView()
   }
 
   private saveView() {
-    this.router.navigate(['n', this.view.show.id]);
-    localStorage.setItem('view', this.view.eye.id);
-    localStorage.setItem('view-show', this.view.show.id);
+    this.router.navigate(['n', this.view.show.id])
+    localStorage.setItem('view', this.view.eye.id)
+    localStorage.setItem('view-show', this.view.show.id)
 
-    this.onViewChangedObservable.next(this.view);
+    this.onViewChangedObservable.next(this.view)
   }
 
   /* Etc */
 
-  public getAllNotes(): Map<string, any> {
-    return this.notes;
+  public getAllNotes(): Map<string, Note> {
+    return this.notes
   }
 
   public getFrozenNotes() {
-    return this.freeze(this.notes);
+    return this.freeze(this.notes)
   }
 
   public getRoot() {
-    return this.top;
+    return this.top
   }
 
   public getLists() {
-    return this.top.items;
+    return this.top.items
   }
 
-  public search(id: string) {
-    return this.notes.get(id);
+  public search(id: string): Note {
+    return this.notes.get(id)
   }
 
-  private parents(note: any) {
-    const list = [];
+  private parents(note: Note) {
+    const list = []
 
     if (!note) {
-      return list;
+      return list
     }
 
     while (note.parent && !list.includes(note.parent)) {
-      list.unshift(note.parent);
-      note = note.parent;
+      list.unshift(note.parent)
+      note = note.parent
     }
 
-    return list;
+    return list
   }
 
-  public contains(id: string, note: any, exclude: any[] = null) {
+  public contains(id: string, note: Note, exclude: Note[] = null) {
     if (!note || !note.items) {
-      return false;
+      return false
     }
 
     if (note.id === id) {
-      return true;
+      return true
     }
 
     if (!exclude) {
-      exclude = [];
+      exclude = []
     }
 
     if (exclude.indexOf(note) !== -1) {
-      return true;
+      return true
     }
 
-    exclude.push(note);
+    exclude.push(note)
 
     for (const subItem of note.items) {
       if (this.contains(id, subItem, exclude)) {
-        return true;
+        return true
       }
     }
 
-    return false;
+    return false
   }
 
-  public getSubItemEstimates(item: any, exclude: any[] = null): Array<number> {
-    let result: Array<number> = [];
+  public getSubItemEstimates(item: Note, exclude: Note[] = null): Array<number> {
+    let result: Array<number> = []
 
     if (!exclude) {
-      exclude = [];
+      exclude = []
     }
 
     if (exclude.indexOf(item) !== -1) {
-      return result;
+      return result
     }
 
     if (item.estimate) {
-      result.push(item.estimate);
+      result.push(item.estimate)
     }
 
-    exclude.push(item);
+    exclude.push(item)
 
     for (const subItem of item.items) {
-      result = result.concat(this.getSubItemEstimates(subItem, exclude));
+      result = result.concat(this.getSubItemEstimates(subItem, exclude))
     }
 
-    return result;
+    return result
   }
 
-  public getSubItemNames(item: any, exclude: any[] = null): Array<string> {
-    let result: Array<string> = [];
+  public getSubItemNames(item: Note, exclude: Note[] = null): Array<string> {
+    let result: Array<string> = []
 
     if (!exclude) {
-      exclude = [];
+      exclude = []
     }
 
     if (exclude.indexOf(item) !== -1) {
-      return result;
+      return result
     }
 
-    exclude.push(item);
+    exclude.push(item)
 
     for (const subItem of item.items) {
       if (!subItem.name) {
-        continue;
+        continue
       }
 
-      result.push(subItem.name);
-      result = result.concat(this.getSubItemNames(subItem, exclude));
+      result.push(subItem.name)
+      result = result.concat(this.getSubItemNames(subItem, exclude))
     }
 
-    return result;
+    return result
   }
 
   /* Synchronization */
 
   public loadFrozenNotes(notes: string): void {
-    const n = this.unfreeze(notes);
+    const n = this.unfreeze(notes)
 
     for (const note of n.keys()) {
-      const nn = n.get(note);
-      this.notes.set(note, nn);
+      const nn = n.get(note)
+      this.notes.set(note, nn)
 
       if (nn.name.replace(/<(?:.|\n)*?>/gm, '').trim().length && !nn.parent) {
-        this.getEye().items.push(nn);
+        this.getEye().items.push(nn)
       }
     }
 
-    this.saveAll();
-    this.resetView();
+    this.saveAll()
+    this.resetView()
   }
 
   /* Backup */
 
   public backup() {
-    this.backupToFile(this.freeze(this.notes));
+    this.backupToFile(this.freeze(this.notes))
 
-    this.ui.getEnv().lastBackup = new Date().toLocaleDateString();
-    this.ui.save();
+    this.ui.getEnv().lastBackup = new Date().toLocaleDateString()
+    this.ui.save()
   }
 
   public unbackup() {
     this.ui.dialog({
       message: 'Notes will be loaded to their previous state.\n\nYou may lose notes.\n\nProceed?',
       ok: () => this.performUnbackup()
-    });
+    })
   }
 
   private performUnbackup() {
-    const dlAnchorElem = (document.createElement('INPUT') as HTMLInputElement);
-    dlAnchorElem.type = 'file';
+    const dlAnchorElem = (document.createElement('INPUT') as HTMLInputElement)
+    dlAnchorElem.type = 'file'
     dlAnchorElem.onchange = () => {
-      const fr = new FileReader();
+      const fr = new FileReader()
       fr.onloadend = () => {
-        this.loadFrozenNotes(fr.result as string);
-      };
-      fr.readAsText(dlAnchorElem.files[0]);
+        this.loadFrozenNotes(fr.result as string)
+      }
+      fr.readAsText(dlAnchorElem.files[0])
     }
-    dlAnchorElem.click();
+    dlAnchorElem.click()
   }
 
   public backupToFile(str: string) {
-    const dateStr = new Date().toLocaleDateString();
-    const dataStr = new Blob([str], {type: 'application/json'});
-    const dlAnchorElem = (document.createElement('A') as HTMLAnchorElement);
-    dlAnchorElem.href = window.URL.createObjectURL(dataStr);
-    dlAnchorElem.setAttribute('download', 'Inception Notes (' + dateStr + ').json');
-    document.body.appendChild(dlAnchorElem);
-    dlAnchorElem.click();
-    document.body.removeChild(dlAnchorElem);
+    const dateStr = new Date().toLocaleDateString()
+    const dataStr = new Blob([str], {type: 'application/json'})
+    const dlAnchorElem = (document.createElement('A') as HTMLAnchorElement)
+    dlAnchorElem.href = window.URL.createObjectURL(dataStr)
+    dlAnchorElem.setAttribute('download', 'Inception Notes (' + dateStr + ').json')
+    document.body.appendChild(dlAnchorElem)
+    dlAnchorElem.click()
+    document.body.removeChild(dlAnchorElem)
   }
 
   /* Edit */
 
-  public modified(note: any, prop: string = null) {
+  public modified(note: Note, prop: string = null) {
     if (prop === null) {
-      delete note['_sync'];
+      delete note['_sync']
     } else if ('_sync' in note) {
       if (prop in note['_sync']) {
-        note['_sync'][prop].synchronized = false;
+        note['_sync'][prop].synchronized = false
       }
     }
 
     note.updated = new Date().toISOString()
-    this.saveNote(note);
-    this.onNoteChangedObservable.next(new NoteChanges(note, prop));
+    this.saveNote(note)
+    this.onNoteChangedObservable.next(new NoteChanges(note, prop))
   }
 
   /**
    * Set a note as synced.
    */
   public setSynced(id: string, prop: string) {
-    const note = this.search(id);
+    const note = this.search(id)
 
     if (!note) {
       if (this.config.beta) {
-        console.log('Cannot set note as synced: ' + id);
+        console.log('Cannot set note as synced: ' + id)
       }
-      return;
+      return
     }
 
-    this.setPropSynced(note, prop);
-    this.saveNote(note);
+    this.setPropSynced(note, prop)
+    this.saveNote(note)
   }
 
   /**
    * Set all props synced
    */
-  public setAllPropsSynced(note: any) {
+  public setAllPropsSynced(note: Note) {
     Object.keys(note).forEach(prop => {
       if (prop === 'id') {
-        return;
+        return
       }
-      this.setPropSynced(note, prop);
-    });
+      this.setPropSynced(note, prop)
+    })
   }
 
   /**
    * setPropSynced
    */
-  public setPropSynced(note: any, prop: string) {
-    if (!('_sync' in note)) {
-      note['_sync'] = {};
+  public setPropSynced(note: Note, prop: string) {
+    if (!note._sync) {
+      note._sync = {}
     }
 
-    if (!(prop in note['_sync'])) {
-      note['_sync'][prop] = {};
+    if (!(prop in note._sync)) {
+      note._sync[prop] = {}
     }
 
-    note['_sync'][prop].time = new Date().getTime();
-    note['_sync'][prop].synchronized = true;
+    note._sync[prop].time = new Date().getTime()
+    note._sync[prop].synchronized = true
   }
 
-  isSynced(note: any, prop: string): boolean {
-    return ('_sync' in note) && (prop in note['_sync']) && note['_sync'][prop].synchronized;
+  isSynced(note: Note, prop: string): boolean {
+    return note._sync && (prop in note._sync) && note._sync[prop].synchronized
   }
 
   /**
@@ -663,7 +708,7 @@ export class ApiService {
    */
   public setAllNotesUnsynced() {
     for (const note of this.notes.values()) {
-      this.modified(note);
+      this.modified(note)
     }
   }
 
@@ -671,685 +716,791 @@ export class ApiService {
    *
    */
   private breakCeiling() {
-    const id = this.newId();
+    const id = this.newId()
 
-    const newTop = {
+    const newTop: Note = {
       id: id,
       name: 'New Master List',
       description: '',
       color: '#ffffff',
       items: [this.top]
-    };
+    } as Note
 
-    this.top.parent = newTop;
-    this.top = newTop;
+    this.top.parent = newTop
+    this.top = newTop
 
-    this.notes.set(id, this.top);
+    this.notes.set(id, this.top)
 
-    this.view.eye = this.view.show = this.top;
-    this.saveView();
-    this.modified(newTop);
+    this.view.eye = this.view.show = this.top
+    this.saveView()
+    this.modified(newTop)
   }
 
-  public moveListUp(list: any, position: number = -1) {
-    const parents = this.parents(list);
-    const parent = parents.length >= 2 ? parents[parents.length - 2] : null;
+  public moveListUp(list: Note, position: number = -1) {
+    const parents = this.parents(list)
+    const parent = parents.length >= 2 ? parents[parents.length - 2] : null
 
     if (!parent) {
-      return;
+      return
     }
 
     if (position !== -1) {
-      this.moveListToPosition(list.id, parent.id, position);
+      this.moveListToPosition(list.id, parent.id, position)
     } else {
-      this.moveList(list.id, parent.id);
+      this.moveList(list.id, parent.id)
     }
   }
 
   public moveList(listId: string, toListId: string) {
-    this.moveListToPosition(listId, toListId, -1);
+    this.moveListToPosition(listId, toListId, -1)
   }
 
   public moveListToPosition(listId: string, toListId: string, position: number) {
     if (listId === toListId) {
-      return;
+      return
     }
 
-    const list = this.search(listId);
-    const toList = this.search(toListId);
+    const list = this.search(listId)
+    const toList = this.search(toListId)
 
     if (!list || !toList) {
       this.ui.dialog({
         message: 'List could not be found.'
-      });
+      })
 
-      return;
+      return
     }
 
-    const listParents = this.parents(list);
-    const toListParents = this.parents(toList);
+    const listParents = this.parents(list)
+    const toListParents = this.parents(toList)
 
-    const listParent = listParents.length ? listParents[listParents.length - 1] : null;
+    const listParent = listParents.length ? listParents[listParents.length - 1] : null
 
     if (listParent !== toList) {
       for (const parent of toListParents) {
         if (parent.id === listId) {
           this.ui.dialog({
             message: 'List cannot be moved into a child of itself.'
-          });
+          })
 
-          return;
+          return
         }
       }
     }
 
-    let oldPos = null;
+    let oldPos = null
 
     if (listParent) {
-      oldPos = listParent.items.indexOf(list);
+      oldPos = listParent.items.indexOf(list)
 
-      listParent.items.splice(oldPos, 1);
-      this.modified(listParent, 'items');
+      listParent.items.splice(oldPos, 1)
+      this.modified(listParent, 'items')
     }
 
     if (toList === listParent && oldPos < position) {
-      position--;
+      position--
     }
 
     if (position < 0) {
-      position = toList.items.findLastIndex((item: any) => !item.name)
+      // @ts-ignore findLastIndex
+      position = toList.items.findLastIndex((item: Note) => !item.name)
     }
 
     if (position >= 0 && position < toList.items.length) {
-      toList.items.splice(position, 0, list);
+      toList.items.splice(position, 0, list)
     } else {
-      toList.items.push(list);
+      toList.items.push(list)
     }
 
-    this.modified(toList, 'items');
+    this.modified(toList, 'items')
 
-    list.parent = toList;
+    list.parent = toList
   }
 
-  public removeListFromParent(list: any) {
+  public removeListFromParent(list: Note) {
     if (list.parent) {
-      const pos = list.parent.items.indexOf(list);
+      const pos = list.parent.items.indexOf(list)
       if (pos >= 0) {
-        list.parent.items.splice(pos, 1);
-        this.modified(list.parent, 'items');
-        list.parent = null;
+        list.parent.items.splice(pos, 1)
+        this.modified(list.parent, 'items')
+        list.parent = null
       }
     }
   }
 
-  public duplicateList(list: any) {
+  public duplicateList(list: Note) {
     if (!list.parent) {
-      return;
+      return
     }
 
-    const newList = this.newBlankList(list.parent, list.parent.items.indexOf(list) + 1);
+    const newList = this.newBlankList(list.parent, list.parent.items.indexOf(list) + 1)
 
-    this.copyFromNote(newList, list, true);
+    this.copyFromNote(newList, list, true)
 
-    this.modified(list.parent, 'items');
-    this.modified(newList);
+    this.modified(list.parent, 'items')
+    this.modified(newList)
 
-    return newList;
+    return newList
   }
 
-  public copyFromNote(note: any, referenceNote: any, includeItems = false) {
-    note.name = referenceNote.name;
-    note.description = referenceNote.description;
-    note.color = referenceNote.color;
-    note.estimate = referenceNote.estimate;
-    note.checked = referenceNote.checked;
-    note.backgroundUrl = referenceNote.backgroundUrl;
-    note.collapsed = referenceNote.collapsed;
-    note.options = Object.assign({}, referenceNote.options);
+  public copyFromNote(note: Note, referenceNote: Note, includeItems = false) {
+    note.name = referenceNote.name
+    note.description = referenceNote.description
+    note.color = referenceNote.color
+    note.estimate = referenceNote.estimate
+    note.checked = referenceNote.checked
+    note.backgroundUrl = referenceNote.backgroundUrl
+    note.collapsed = referenceNote.collapsed
+    note.options = Object.assign({}, referenceNote.options)
 
     if (referenceNote.ref?.length) {
       referenceNote.ref.forEach(ref => {
-        this.addRef(note, ref);
-      });
+        this.addRef(note, ref)
+      })
     }
 
     if (includeItems) {
       referenceNote.items.forEach(item => {
-        const newItem = this.newBlankList(note);
-        this.copyFromNote(newItem, item, includeItems);
-      });
+        const newItem = this.newBlankList(note)
+        this.copyFromNote(newItem, item, includeItems)
+      })
     }
 
-    this.modified(note);
+    this.modified(note)
   }
 
-  public newBlankList(list: any = null, position: number = null) {
-    const note: any = this.newBlankNote();
+  public newBlankList(list: Note = null, position: number = null) {
+    const note: Note = this.newBlankNote()
 
     if (list) {
-      note.parent = list;
+      note.parent = list
 
       if (position === null) {
-        list.items.push(note);
+        list.items.push(note)
       } else {
-        list.items.splice(position, 0, note);
+        list.items.splice(position, 0, note)
       }
 
-      const synced = this.isSynced(list, 'items');
-      this.modified(list, 'items');
+      const synced = this.isSynced(list, 'items')
+      this.modified(list, 'items')
       if (synced) {
-        this.setPropSynced(list, 'items');
+        this.setPropSynced(list, 'items')
       }
     }
 
-    return note;
+    return note
   }
 
 
-  public newBlankNote(fromServer?: boolean, id?: string): any {
+  public newBlankNote(fromServer?: boolean, id?: string): Note {
     if (!id) {
-      id = this.newId();
+      id = this.newId()
     }
 
-    const note = {
+    const note: Note = {
       id: id,
       name: '',
       description: '',
       color: '#ffffff',
       items: [],
       created: new Date().toISOString()
-    };
+    } as Note
 
     if (this.notes) {
-      this.notes.set(note.id, note);
+      this.notes.set(note.id, note)
     }
 
     if (fromServer) {
-      this.setAllPropsSynced(note);
+      this.setAllPropsSynced(note)
     }
 
-    return note;
+    return note
   }
 
   /* Relationships */
 
-  public addRef(list: any, toList: any) {
+  public addRef(list: Note, toList: Note) {
     if (list === toList) {
-      return;
+      return
     }
 
     if (!toList.ref) {
-      toList.ref = [];
+      toList.ref = []
     }
 
     if (!list.ref) {
-      list.ref = [];
+      list.ref = []
     }
 
     if (toList.ref.indexOf(list) !== -1) {
-      return;
+      return
     }
 
     if (list.ref.indexOf(toList) !== -1) {
-      return;
+      return
     }
 
-    toList.ref.push(list);
-    this.modified(toList, 'ref');
+    toList.ref.push(list)
+    this.modified(toList, 'ref')
 
-    list.ref.push(toList);
-    this.modified(list, 'ref');
+    list.ref.push(toList)
+    this.modified(list, 'ref')
   }
 
-  public removeRef(list: any, toList: any) {
+  public removeRef(list: Note, toList: Note) {
     if (list === toList) {
-      return;
+      return
     }
 
     if (toList.ref) {
-      const idx = toList.ref.indexOf(list);
+      const idx = toList.ref.indexOf(list)
 
       if (idx !== -1) {
-        toList.ref.splice(idx, 1);
-        this.modified(toList, 'ref');
+        toList.ref.splice(idx, 1)
+        this.modified(toList, 'ref')
       }
     }
 
     if (list.ref) {
-      const idx = list.ref.indexOf(toList);
+      const idx = list.ref.indexOf(toList)
 
       if (idx !== -1) {
-        list.ref.splice(idx, 1);
-        this.modified(list, 'ref');
+        list.ref.splice(idx, 1)
+        this.modified(list, 'ref')
       }
     }
   }
 
-  public orderRef(list: any, toList: any, position: number) {
+  public orderRef(list: Note, toList: Note, position: number) {
     if (list === toList) {
-      return;
+      return
     }
 
     if (list.ref) {
-      const idx = list.ref.indexOf(toList);
+      const idx = list.ref.indexOf(toList)
 
       if (idx !== -1) {
-        list.ref.splice(idx, 1);
+        list.ref.splice(idx, 1)
 
         if (position < 0) {
-          list.ref.splice(list.ref.length - position, 0, toList);
+          list.ref.splice(list.ref.length - position, 0, toList)
         } else {
-          list.ref.splice(position, 0, toList);
+          list.ref.splice(position, 0, toList)
         }
 
-        this.modified(list, 'ref');
+        this.modified(list, 'ref')
       }
     }
   }
 
-  changeRef(list: any, refToRemove: any, newRef: any) {
+  changeRef(list: Note, refToRemove: Note, newRef: Note) {
     if (list === newRef) {
-      return;
+      return
     }
 
     if (!newRef.ref) {
-      newRef.ref = [];
+      newRef.ref = []
     }
 
     if (!list.ref) {
-      list.ref = [];
+      list.ref = []
     }
 
     if (newRef.ref.indexOf(list) !== -1) {
-      return;
+      return
     }
 
     if (list.ref.indexOf(newRef) !== -1) {
-      return;
+      return
     }
 
-    const listPos = list.ref.indexOf(refToRemove);
+    const listPos = list.ref.indexOf(refToRemove)
 
     if (listPos === -1) {
-      return;
+      return
     }
 
-    const listPosOldRef = refToRemove.ref.indexOf(list);
+    const listPosOldRef = refToRemove.ref.indexOf(list)
 
     if (listPosOldRef === -1) {
-      return;
+      return
     }
 
-    list.ref.splice(listPos, 1, newRef);
-    this.modified(list, 'ref');
+    list.ref.splice(listPos, 1, newRef)
+    this.modified(list, 'ref')
 
-    newRef.ref.push(list);
-    this.modified(newRef, 'ref');
+    newRef.ref.push(list)
+    this.modified(newRef, 'ref')
 
-    refToRemove.ref.splice(listPosOldRef, 1);
-    this.modified(refToRemove, 'ref');
+    refToRemove.ref.splice(listPosOldRef, 1)
+    this.modified(refToRemove, 'ref')
   }
 
   /* Recents */
 
-  public getRecent(which: string): any[] {
-    const recent = localStorage.getItem('recent::' + which);
+  public getRecent(which: string): Note[] {
+    const recent = localStorage.getItem('recent::' + which)
 
     if (!recent) {
-      return [];
+      return []
     }
 
     return recent.split(',').map(noteId => this.search(noteId)).filter(note => !!note)
   }
 
   public addRecent(which: string, noteId: string) {
-    const recents = (localStorage.getItem('recent::' + which) || '').split(',').filter(n => n !== noteId);
-    recents.unshift(noteId);
+    const recents = (localStorage.getItem('recent::' + which) || '').split(',').filter(n => n !== noteId)
+    recents.unshift(noteId)
     if (recents.length > 3) {
-      recents.length = 3;
+      recents.length = 3
     }
-    localStorage.setItem('recent::' + which, recents.join(','));
+    localStorage.setItem('recent::' + which, recents.join(','))
   }
 
   /* Util */
 
   public newId() {
-    let id;
+    let id
 
     do {
       id = this.rawNewId()
-    } while (this.notes?.has(id));
+    } while (this.notes?.has(id))
 
-    return id;
+    return id
   }
 
   public rawNewId() {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
   }
 
   private intro() {
-    const notes = this.unfreeze({
-      '9ecal36r08qsegt2q7ruar': {
-        'id': '9ecal36r08qsegt2q7ruar',
-        'name': 'My Notes',
-        'description': 'Take notes here...',
-        'color': '#80d8ff',
-        'items': ['ezyw5zl0s7k5ky66oz7368', 'tprx0gv41gepcofy7yia', 'tpot361b974p1mn3jxbr4', '7fv55sy73d7epp5kqnguul'],
-        'ref': []
-      },
-      'ezyw5zl0s7k5ky66oz7368': {
-        'id': 'ezyw5zl0s7k5ky66oz7368',
-        'name': 'Welcome to Inception Notes!',
-        'description': '',
-        'color': '#ff80ab',
-        'items': ['3ooxxyu6ko97smbzcigvza', '7llyfbgu4eb9rae6kb074l', 's3flakxhf2mb8pixx0w1l', 'isqms385v5batkjoztpn15'],
-        'ref': []
-      },
-      '3ooxxyu6ko97smbzcigvza': {
-        'id': '3ooxxyu6ko97smbzcigvza',
-        'name': '<b>Right-click</b> on the background to get help',
-        'description': '',
-        'color': '#ff8a80',
-        'items': ['r8um73em8ikjy1847ituem'],
-        'ref': []
-      },
-      'r8um73em8ikjy1847ituem': {
-        'id': 'r8um73em8ikjy1847ituem',
-        'name': '',
-        'color': '#ffffff',
-        'items': ['do7uegwh31lf6qu8lxpye'],
-        'ref': []
-      },
-      'do7uegwh31lf6qu8lxpye': {'id': 'do7uegwh31lf6qu8lxpye', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      's3flakxhf2mb8pixx0w1l': {
-        'id': 's3flakxhf2mb8pixx0w1l',
-        'name': 'Have fun!',
-        'description': '',
-        'color': '#ea80fc',
-        'items': ['rjq9391912ae63xb2e8y'],
-        'ref': []
-      },
-      'rjq9391912ae63xb2e8y': {
-        'id': 'rjq9391912ae63xb2e8y',
-        'name': '',
-        'color': '#ffffff',
-        'items': ['rgmgxz8fabchssd0j75acb'],
-        'ref': []
-      },
-      'rgmgxz8fabchssd0j75acb': {'id': 'rgmgxz8fabchssd0j75acb', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      'isqms385v5batkjoztpn15': {
-        'id': 'isqms385v5batkjoztpn15',
-        'name': '',
-        'color': '#ffffff',
-        'items': ['w0ok2ypdxqugorshz54l'],
-        'ref': []
-      },
-      'w0ok2ypdxqugorshz54l': {'id': 'w0ok2ypdxqugorshz54l', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      'tprx0gv41gepcofy7yia': {
-        'id': 'tprx0gv41gepcofy7yia',
-        'name': 'Main Projects',
-        'description': '',
-        'color': '#ffd180',
-        'items': ['bxw7hfpcmytcq0738o31ef', 'rbcx2x3og4b2ty3efm4aux', 'whfs7lj4i5gzrdyifbt4td', '7oknreb5imgufsn1ohxcib', 'ialkx35n6mo697qcqaulvl'],
-        'ref': []
-      },
-      'bxw7hfpcmytcq0738o31ef': {
-        'id': 'bxw7hfpcmytcq0738o31ef',
-        'name': 'My First Project',
-        'description': '',
-        'color': '#E6E3D7',
-        'items': ['di8colqbb8lyyvf5gidqqj'],
-        'ref': []
-      },
-      'di8colqbb8lyyvf5gidqqj': {
-        'id': 'di8colqbb8lyyvf5gidqqj',
-        'name': '',
-        'color': '#ffffff',
-        'items': ['t6tdhnfx3ydzbvul20lti'],
-        'ref': []
-      },
-      't6tdhnfx3ydzbvul20lti': {'id': 't6tdhnfx3ydzbvul20lti', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      'rbcx2x3og4b2ty3efm4aux': {
-        'id': 'rbcx2x3og4b2ty3efm4aux',
-        'name': 'My Other Project',
-        'description': '',
-        'color': '#E6E3D7',
-        'items': ['pl7mhv8mjxqs48qw1n3ku'],
-        'ref': []
-      },
-      'pl7mhv8mjxqs48qw1n3ku': {
-        'id': 'pl7mhv8mjxqs48qw1n3ku',
-        'name': '',
-        'color': '#ffffff',
-        'items': ['yvnljwa9yhhqk3pqztuwh'],
-        'ref': []
-      },
-      'yvnljwa9yhhqk3pqztuwh': {'id': 'yvnljwa9yhhqk3pqztuwh', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      'whfs7lj4i5gzrdyifbt4td': {
-        'id': 'whfs7lj4i5gzrdyifbt4td',
-        'name': 'Big project!',
-        'color': '#ff80ab',
-        'items': ['0xbh8qf3zrnfjfl0ibldk1', 'eeg9e8s76diffzstgsuch', 'ci0zuqdnygdbqbcw7g74tp', 'ftard0ob3qvu6yeinge5hr', '977zrwrwinb41yjrncg0et'],
-        'ref': []
-      },
-      '0xbh8qf3zrnfjfl0ibldk1': {
-        'id': '0xbh8qf3zrnfjfl0ibldk1',
-        'name': 'First task',
-        'color': '#ffffff',
-        'items': ['ycwwxs46gwnzama41koc'],
-        'ref': [],
-        'estimate': 2
-      },
-      'tpot361b974p1mn3jxbr4': {
-        'id': 'tpot361b974p1mn3jxbr4',
-        'name': 'My Reminders',
-        'description': '',
-        'color': '#b9f6ca ',
-        'items': ['uc54p4plm19f9sgnnwux3i', 'isfiozt8g5ppt4y4u9hni', '2b05yurzcc6z0au55zknfc'],
-        'ref': []
-      },
-      'uc54p4plm19f9sgnnwux3i': {
-        'id': 'uc54p4plm19f9sgnnwux3i',
-        'name': 'Clean room',
-        'description': '',
-        'color': '#D7E6D9',
-        'items': ['1pxfcxl9yxpop7cu9nnu2e'],
-        'ref': []
-      },
-      '1pxfcxl9yxpop7cu9nnu2e': {
-        'id': '1pxfcxl9yxpop7cu9nnu2e',
-        'name': '',
-        'color': '#ffffff',
-        'items': ['tut1poxh5ejbn9429bc9'],
-        'ref': []
-      },
-      'tut1poxh5ejbn9429bc9': {'id': 'tut1poxh5ejbn9429bc9', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      'isfiozt8g5ppt4y4u9hni': {
-        'id': 'isfiozt8g5ppt4y4u9hni',
-        'name': 'Go for a run',
-        'description': '',
-        'color': '#D7E6D9',
-        'items': ['mhnttcm1ca3hd7cnvxg8a'],
-        'ref': []
-      },
-      'mhnttcm1ca3hd7cnvxg8a': {
-        'id': 'mhnttcm1ca3hd7cnvxg8a',
-        'name': '',
-        'color': '#ffffff',
-        'items': ['zuo967kb1dsecaunq3eszq'],
-        'ref': []
-      },
-      'zuo967kb1dsecaunq3eszq': {'id': 'zuo967kb1dsecaunq3eszq', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      '2b05yurzcc6z0au55zknfc': {
-        'id': '2b05yurzcc6z0au55zknfc',
-        'name': '',
-        'color': '#ffffff',
-        'items': ['qc12atkaitmosp34yv95c'],
-        'ref': []
-      },
-      'qc12atkaitmosp34yv95c': {'id': 'qc12atkaitmosp34yv95c', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      '7oknreb5imgufsn1ohxcib': {
-        'id': '7oknreb5imgufsn1ohxcib',
-        'name': 'My Categories',
-        'color': '#ffffff',
-        'items': ['9vk9ywmx4szziub8qxqo', 'ez1lvoo3dwkwmhdrh9s77', '9ywa2zu4zgtbqz8v7sa2j'],
-        'ref': []
-      },
-      '9vk9ywmx4szziub8qxqo': {
-        'id': '9vk9ywmx4szziub8qxqo',
-        'name': '🐊 Fun',
-        'color': '#80d8ff',
-        'items': ['34606nw061xmm5vbsi9r6c'],
-        'ref': ['7llyfbgu4eb9rae6kb074l']
-      },
-      'jugi69kmkhdq0k459wehn': {
-        'id': 'jugi69kmkhdq0k459wehn',
-        'name': '',
-        'description': '',
-        'color': '#ffd180',
-        'items': ['ym01shouprrrrfsnxmzh'],
-        'ref': []
-      },
-      'ym01shouprrrrfsnxmzh': {'id': 'ym01shouprrrrfsnxmzh', 'name': '', 'description': '', 'color': '#ffd180', 'items': [], 'ref': []},
-      'ftard0ob3qvu6yeinge5hr': {
-        'id': 'ftard0ob3qvu6yeinge5hr',
-        'name': 'Bonus task!',
-        'description': '',
-        'color': '#ff80ab',
-        'items': ['4a07xdt072df7qw4tzvrjt'],
-        'ref': [],
-        'estimate': 1
-      },
-      'eeg9e8s76diffzstgsuch': {
-        'id': 'eeg9e8s76diffzstgsuch',
-        'name': 'Second task',
-        'description': '',
-        'color': '#ff80ab',
-        'items': ['8o3pww4qn1xq2luyz717c'],
-        'ref': [],
-        'estimate': 2
-      },
-      'ci0zuqdnygdbqbcw7g74tp': {
-        'id': 'ci0zuqdnygdbqbcw7g74tp',
-        'name': 'Third task',
-        'description': '',
-        'color': '#ff80ab',
-        'items': ['yyuay36cjzf57s18hg0d5t'],
-        'ref': [],
-        'estimate': 4
-      },
-      '163j3kckevih3kmtfqkstf9': {
-        'id': '163j3kckevih3kmtfqkstf9',
-        'name': '<br>',
-        'description': '',
-        'color': '#80d8ff',
-        'items': ['djzte0aqmudbb88jo448qe'],
-        'ref': []
-      },
-      '977zrwrwinb41yjrncg0et': {
-        'id': '977zrwrwinb41yjrncg0et',
-        'name': '',
-        'description': '',
-        'color': '#ff80ab',
-        'items': ['bmdf45dmf5jfz96rxkq10h'],
-        'ref': []
-      },
-      'ycwwxs46gwnzama41koc': {'id': 'ycwwxs46gwnzama41koc', 'name': '', 'description': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      '8o3pww4qn1xq2luyz717c': {'id': '8o3pww4qn1xq2luyz717c', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
-      'yyuay36cjzf57s18hg0d5t': {'id': 'yyuay36cjzf57s18hg0d5t', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
-      '4a07xdt072df7qw4tzvrjt': {'id': '4a07xdt072df7qw4tzvrjt', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
-      'djzte0aqmudbb88jo448qe': {'id': 'djzte0aqmudbb88jo448qe', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
-      'bmdf45dmf5jfz96rxkq10h': {'id': 'bmdf45dmf5jfz96rxkq10h', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
-      '7llyfbgu4eb9rae6kb074l': {
-        'id': '7llyfbgu4eb9rae6kb074l',
-        'name': 'I\'m a task with links!',
-        'description': '',
-        'color': '#ff80ab',
-        'items': ['jc0m3uxidpb1krerkvh3v2'],
-        'ref': ['9vk9ywmx4szziub8qxqo', 'ez1lvoo3dwkwmhdrh9s77']
-      },
-      '7fv55sy73d7epp5kqnguul': {
-        'id': '7fv55sy73d7epp5kqnguul',
-        'name': '',
-        'description': '',
-        'color': '#80d8ff',
-        'items': ['v52993i59eby59317v6ejc'],
-        'ref': []
-      },
-      'v52993i59eby59317v6ejc': {'id': 'v52993i59eby59317v6ejc', 'name': '', 'description': '', 'color': '#80d8ff', 'items': [], 'ref': []},
-      '9ywa2zu4zgtbqz8v7sa2j': {
-        'id': '9ywa2zu4zgtbqz8v7sa2j',
-        'name': '',
-        'description': '',
-        'color': '#ffffff',
-        'items': ['7khopamf94pri5sb56dtwr'],
-        'ref': []
-      },
-      'ez1lvoo3dwkwmhdrh9s77': {
-        'id': 'ez1lvoo3dwkwmhdrh9s77',
-        'name': '🐟 Easy',
-        'description': '',
-        'color': '#ffd180',
-        'items': ['nmhbxh86d9gpf3zgxcv0e'],
-        'ref': ['7llyfbgu4eb9rae6kb074l']
-      },
-      '34606nw061xmm5vbsi9r6c': {'id': '34606nw061xmm5vbsi9r6c', 'name': '', 'description': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      'nmhbxh86d9gpf3zgxcv0e': {'id': 'nmhbxh86d9gpf3zgxcv0e', 'name': '', 'description': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      '7khopamf94pri5sb56dtwr': {'id': '7khopamf94pri5sb56dtwr', 'name': '', 'description': '', 'color': '#ffffff', 'items': [], 'ref': []},
-      'jc0m3uxidpb1krerkvh3v2': {
-        'id': 'jc0m3uxidpb1krerkvh3v2',
-        'name': '',
-        'description': '',
-        'color': '#ff80ab',
-        'items': ['uw92fsodzs8scqpxraedd'],
-        'ref': []
-      },
-      'uw92fsodzs8scqpxraedd': {'id': 'uw92fsodzs8scqpxraedd', 'name': '', 'description': '', 'color': '#ff80ab', 'items': [], 'ref': []},
-      'ialkx35n6mo697qcqaulvl': {
-        'id': 'ialkx35n6mo697qcqaulvl',
-        'name': '',
-        'description': '',
-        'color': '#ffd180',
-        'items': ['jb9zpt8uecbm04vlm2hg2h'],
-        'ref': []
-      },
-      'jb9zpt8uecbm04vlm2hg2h': {'id': 'jb9zpt8uecbm04vlm2hg2h', 'name': '', 'description': '', 'color': '#ffd180', 'items': [], 'ref': []}
-    });
+    const notes = this.unfreeze(
+      {
+        '9ecal36r08qsegt2q7ruar': {
+          'id': '9ecal36r08qsegt2q7ruar',
+          'name': 'My Notes',
+          'description': 'Take notes here...',
+          'color': '#80d8ff',
+          'items': ['ezyw5zl0s7k5ky66oz7368', 'tprx0gv41gepcofy7yia', 'tpot361b974p1mn3jxbr4', '7fv55sy73d7epp5kqnguul'],
+          'ref': []
+        } as FrozenNote,
+        'ezyw5zl0s7k5ky66oz7368': {
+          'id': 'ezyw5zl0s7k5ky66oz7368',
+          'name': 'Welcome to Inception Notes!',
+          'description': '',
+          'color': '#ff80ab',
+          'items': ['3ooxxyu6ko97smbzcigvza', '7llyfbgu4eb9rae6kb074l', 's3flakxhf2mb8pixx0w1l', 'isqms385v5batkjoztpn15'],
+          'ref': []
+        } as FrozenNote,
+        '3ooxxyu6ko97smbzcigvza': {
+          'id': '3ooxxyu6ko97smbzcigvza',
+          'name': '<b>Right-click</b> on the background to get help',
+          'description': '',
+          'color': '#ff8a80',
+          'items': ['r8um73em8ikjy1847ituem'],
+          'ref': []
+        } as FrozenNote,
+        'r8um73em8ikjy1847ituem': {
+          'id': 'r8um73em8ikjy1847ituem',
+          'name': '',
+          'color': '#ffffff',
+          'items': ['do7uegwh31lf6qu8lxpye'],
+          'ref': []
+        } as FrozenNote,
+        'do7uegwh31lf6qu8lxpye': {'id': 'do7uegwh31lf6qu8lxpye', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []} as FrozenNote,
+        's3flakxhf2mb8pixx0w1l': {
+          'id': 's3flakxhf2mb8pixx0w1l',
+          'name': 'Have fun!',
+          'description': '',
+          'color': '#ea80fc',
+          'items': ['rjq9391912ae63xb2e8y'],
+          'ref': []
+        } as FrozenNote,
+        'rjq9391912ae63xb2e8y': {
+          'id': 'rjq9391912ae63xb2e8y',
+          'name': '',
+          'color': '#ffffff',
+          'items': ['rgmgxz8fabchssd0j75acb'],
+          'ref': []
+        } as FrozenNote,
+        'rgmgxz8fabchssd0j75acb': {
+          'id': 'rgmgxz8fabchssd0j75acb',
+          'name': '',
+          'color': '#ffffff',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        'isqms385v5batkjoztpn15': {
+          'id': 'isqms385v5batkjoztpn15',
+          'name': '',
+          'color': '#ffffff',
+          'items': ['w0ok2ypdxqugorshz54l'],
+          'ref': []
+        } as FrozenNote,
+        'w0ok2ypdxqugorshz54l': {'id': 'w0ok2ypdxqugorshz54l', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []} as FrozenNote,
+        'tprx0gv41gepcofy7yia': {
+          'id': 'tprx0gv41gepcofy7yia',
+          'name': 'Main Projects',
+          'description': '',
+          'color': '#ffd180',
+          'items': ['bxw7hfpcmytcq0738o31ef', 'rbcx2x3og4b2ty3efm4aux', 'whfs7lj4i5gzrdyifbt4td', '7oknreb5imgufsn1ohxcib', 'ialkx35n6mo697qcqaulvl'],
+          'ref': []
+        } as FrozenNote,
+        'bxw7hfpcmytcq0738o31ef': {
+          'id': 'bxw7hfpcmytcq0738o31ef',
+          'name': 'My First Project',
+          'description': '',
+          'color': '#E6E3D7',
+          'items': ['di8colqbb8lyyvf5gidqqj'],
+          'ref': []
+        } as FrozenNote,
+        'di8colqbb8lyyvf5gidqqj': {
+          'id': 'di8colqbb8lyyvf5gidqqj',
+          'name': '',
+          'color': '#ffffff',
+          'items': ['t6tdhnfx3ydzbvul20lti'],
+          'ref': []
+        } as FrozenNote,
+        't6tdhnfx3ydzbvul20lti': {'id': 't6tdhnfx3ydzbvul20lti', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []} as FrozenNote,
+        'rbcx2x3og4b2ty3efm4aux': {
+          'id': 'rbcx2x3og4b2ty3efm4aux',
+          'name': 'My Other Project',
+          'description': '',
+          'color': '#E6E3D7',
+          'items': ['pl7mhv8mjxqs48qw1n3ku'],
+          'ref': []
+        } as FrozenNote,
+        'pl7mhv8mjxqs48qw1n3ku': {
+          'id': 'pl7mhv8mjxqs48qw1n3ku',
+          'name': '',
+          'color': '#ffffff',
+          'items': ['yvnljwa9yhhqk3pqztuwh'],
+          'ref': []
+        } as FrozenNote,
+        'yvnljwa9yhhqk3pqztuwh': {'id': 'yvnljwa9yhhqk3pqztuwh', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []} as FrozenNote,
+        'whfs7lj4i5gzrdyifbt4td': {
+          'id': 'whfs7lj4i5gzrdyifbt4td',
+          'name': 'Big project!',
+          'color': '#ff80ab',
+          'items': ['0xbh8qf3zrnfjfl0ibldk1', 'eeg9e8s76diffzstgsuch', 'ci0zuqdnygdbqbcw7g74tp', 'ftard0ob3qvu6yeinge5hr', '977zrwrwinb41yjrncg0et'],
+          'ref': []
+        } as FrozenNote,
+        '0xbh8qf3zrnfjfl0ibldk1': {
+          'id': '0xbh8qf3zrnfjfl0ibldk1',
+          'name': 'First task',
+          'color': '#ffffff',
+          'items': ['ycwwxs46gwnzama41koc'],
+          'ref': [],
+          'estimate': 2
+        } as FrozenNote,
+        'tpot361b974p1mn3jxbr4': {
+          'id': 'tpot361b974p1mn3jxbr4',
+          'name': 'My Reminders',
+          'description': '',
+          'color': '#b9f6ca ',
+          'items': ['uc54p4plm19f9sgnnwux3i', 'isfiozt8g5ppt4y4u9hni', '2b05yurzcc6z0au55zknfc'],
+          'ref': []
+        } as FrozenNote,
+        'uc54p4plm19f9sgnnwux3i': {
+          'id': 'uc54p4plm19f9sgnnwux3i',
+          'name': 'Clean room',
+          'description': '',
+          'color': '#D7E6D9',
+          'items': ['1pxfcxl9yxpop7cu9nnu2e'],
+          'ref': []
+        } as FrozenNote,
+        '1pxfcxl9yxpop7cu9nnu2e': {
+          'id': '1pxfcxl9yxpop7cu9nnu2e',
+          'name': '',
+          'color': '#ffffff',
+          'items': ['tut1poxh5ejbn9429bc9'],
+          'ref': []
+        } as FrozenNote,
+        'tut1poxh5ejbn9429bc9': {'id': 'tut1poxh5ejbn9429bc9', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []} as FrozenNote,
+        'isfiozt8g5ppt4y4u9hni': {
+          'id': 'isfiozt8g5ppt4y4u9hni',
+          'name': 'Go for a run',
+          'description': '',
+          'color': '#D7E6D9',
+          'items': ['mhnttcm1ca3hd7cnvxg8a'],
+          'ref': []
+        } as FrozenNote,
+        'mhnttcm1ca3hd7cnvxg8a': {
+          'id': 'mhnttcm1ca3hd7cnvxg8a',
+          'name': '',
+          'color': '#ffffff',
+          'items': ['zuo967kb1dsecaunq3eszq'],
+          'ref': []
+        } as FrozenNote,
+        'zuo967kb1dsecaunq3eszq': {
+          'id': 'zuo967kb1dsecaunq3eszq',
+          'name': '',
+          'color': '#ffffff',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        '2b05yurzcc6z0au55zknfc': {
+          'id': '2b05yurzcc6z0au55zknfc',
+          'name': '',
+          'color': '#ffffff',
+          'items': ['qc12atkaitmosp34yv95c'],
+          'ref': []
+        } as FrozenNote,
+        'qc12atkaitmosp34yv95c': {'id': 'qc12atkaitmosp34yv95c', 'name': '', 'color': '#ffffff', 'items': [], 'ref': []} as FrozenNote,
+        '7oknreb5imgufsn1ohxcib': {
+          'id': '7oknreb5imgufsn1ohxcib',
+          'name': 'My Categories',
+          'color': '#ffffff',
+          'items': ['9vk9ywmx4szziub8qxqo', 'ez1lvoo3dwkwmhdrh9s77', '9ywa2zu4zgtbqz8v7sa2j'],
+          'ref': []
+        } as FrozenNote,
+        '9vk9ywmx4szziub8qxqo': {
+          'id': '9vk9ywmx4szziub8qxqo',
+          'name': '🐊 Fun',
+          'color': '#80d8ff',
+          'items': ['34606nw061xmm5vbsi9r6c'],
+          'ref': ['7llyfbgu4eb9rae6kb074l']
+        } as FrozenNote,
+        'jugi69kmkhdq0k459wehn': {
+          'id': 'jugi69kmkhdq0k459wehn',
+          'name': '',
+          'description': '',
+          'color': '#ffd180',
+          'items': ['ym01shouprrrrfsnxmzh'],
+          'ref': []
+        } as FrozenNote,
+        'ym01shouprrrrfsnxmzh': {
+          'id': 'ym01shouprrrrfsnxmzh',
+          'name': '',
+          'description': '',
+          'color': '#ffd180',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        'ftard0ob3qvu6yeinge5hr': {
+          'id': 'ftard0ob3qvu6yeinge5hr',
+          'name': 'Bonus task!',
+          'description': '',
+          'color': '#ff80ab',
+          'items': ['4a07xdt072df7qw4tzvrjt'],
+          'ref': [],
+          'estimate': 1
+        } as FrozenNote,
+        'eeg9e8s76diffzstgsuch': {
+          'id': 'eeg9e8s76diffzstgsuch',
+          'name': 'Second task',
+          'description': '',
+          'color': '#ff80ab',
+          'items': ['8o3pww4qn1xq2luyz717c'],
+          'ref': [],
+          'estimate': 2
+        } as FrozenNote,
+        'ci0zuqdnygdbqbcw7g74tp': {
+          'id': 'ci0zuqdnygdbqbcw7g74tp',
+          'name': 'Third task',
+          'description': '',
+          'color': '#ff80ab',
+          'items': ['yyuay36cjzf57s18hg0d5t'],
+          'ref': [],
+          'estimate': 4
+        } as FrozenNote,
+        '163j3kckevih3kmtfqkstf9': {
+          'id': '163j3kckevih3kmtfqkstf9',
+          'name': '<br>',
+          'description': '',
+          'color': '#80d8ff',
+          'items': ['djzte0aqmudbb88jo448qe'],
+          'ref': []
+        } as FrozenNote,
+        '977zrwrwinb41yjrncg0et': {
+          'id': '977zrwrwinb41yjrncg0et',
+          'name': '',
+          'description': '',
+          'color': '#ff80ab',
+          'items': ['bmdf45dmf5jfz96rxkq10h'],
+          'ref': []
+        } as FrozenNote,
+        'ycwwxs46gwnzama41koc': {
+          'id': 'ycwwxs46gwnzama41koc',
+          'name': '',
+          'description': '',
+          'color': '#ffffff',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        '8o3pww4qn1xq2luyz717c': {
+          'id': '8o3pww4qn1xq2luyz717c',
+          'name': '',
+          'description': '',
+          'color': '#ff80ab',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        'yyuay36cjzf57s18hg0d5t': {
+          'id': 'yyuay36cjzf57s18hg0d5t',
+          'name': '',
+          'description': '',
+          'color': '#ff80ab',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        '4a07xdt072df7qw4tzvrjt': {
+          'id': '4a07xdt072df7qw4tzvrjt',
+          'name': '',
+          'description': '',
+          'color': '#ff80ab',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        'djzte0aqmudbb88jo448qe': {
+          'id': 'djzte0aqmudbb88jo448qe',
+          'name': '',
+          'description': '',
+          'color': '#ff80ab',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        'bmdf45dmf5jfz96rxkq10h': {
+          'id': 'bmdf45dmf5jfz96rxkq10h',
+          'name': '',
+          'description': '',
+          'color': '#ff80ab',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        '7llyfbgu4eb9rae6kb074l': {
+          'id': '7llyfbgu4eb9rae6kb074l',
+          'name': 'I\'m a task with links!',
+          'description': '',
+          'color': '#ff80ab',
+          'items': ['jc0m3uxidpb1krerkvh3v2'],
+          'ref': ['9vk9ywmx4szziub8qxqo', 'ez1lvoo3dwkwmhdrh9s77']
+        } as FrozenNote,
+        '7fv55sy73d7epp5kqnguul': {
+          'id': '7fv55sy73d7epp5kqnguul',
+          'name': '',
+          'description': '',
+          'color': '#80d8ff',
+          'items': ['v52993i59eby59317v6ejc'],
+          'ref': []
+        } as FrozenNote,
+        'v52993i59eby59317v6ejc': {
+          'id': 'v52993i59eby59317v6ejc',
+          'name': '',
+          'description': '',
+          'color': '#80d8ff',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        '9ywa2zu4zgtbqz8v7sa2j': {
+          'id': '9ywa2zu4zgtbqz8v7sa2j',
+          'name': '',
+          'description': '',
+          'color': '#ffffff',
+          'items': ['7khopamf94pri5sb56dtwr'],
+          'ref': []
+        } as FrozenNote,
+        'ez1lvoo3dwkwmhdrh9s77': {
+          'id': 'ez1lvoo3dwkwmhdrh9s77',
+          'name': '🐟 Easy',
+          'description': '',
+          'color': '#ffd180',
+          'items': ['nmhbxh86d9gpf3zgxcv0e'],
+          'ref': ['7llyfbgu4eb9rae6kb074l']
+        } as FrozenNote,
+        '34606nw061xmm5vbsi9r6c': {
+          'id': '34606nw061xmm5vbsi9r6c',
+          'name': '',
+          'description': '',
+          'color': '#ffffff',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        'nmhbxh86d9gpf3zgxcv0e': {
+          'id': 'nmhbxh86d9gpf3zgxcv0e',
+          'name': '',
+          'description': '',
+          'color': '#ffffff',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        '7khopamf94pri5sb56dtwr': {
+          'id': '7khopamf94pri5sb56dtwr',
+          'name': '',
+          'description': '',
+          'color': '#ffffff',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        'jc0m3uxidpb1krerkvh3v2': {
+          'id': 'jc0m3uxidpb1krerkvh3v2',
+          'name': '',
+          'description': '',
+          'color': '#ff80ab',
+          'items': ['uw92fsodzs8scqpxraedd'],
+          'ref': []
+        } as FrozenNote,
+        'uw92fsodzs8scqpxraedd': {
+          'id': 'uw92fsodzs8scqpxraedd',
+          'name': '',
+          'description': '',
+          'color': '#ff80ab',
+          'items': [],
+          'ref': []
+        } as FrozenNote,
+        'ialkx35n6mo697qcqaulvl': {
+          'id': 'ialkx35n6mo697qcqaulvl',
+          'name': '',
+          'description': '',
+          'color': '#ffd180',
+          'items': ['jb9zpt8uecbm04vlm2hg2h'],
+          'ref': []
+        } as FrozenNote,
+        'jb9zpt8uecbm04vlm2hg2h': {
+          'id': 'jb9zpt8uecbm04vlm2hg2h',
+          'name': '',
+          'description': '',
+          'color': '#ffd180',
+          'items': [],
+          'ref': []
+        } as FrozenNote
+      }
+    )
 
-    this.view.eye = this.view.show = this.top = notes.get('9ecal36r08qsegt2q7ruar');
+    this.view.eye = this.view.show = this.top = notes.get('9ecal36r08qsegt2q7ruar')
 
-    const localify = this.rawNewId();
+    const localify = this.rawNewId()
 
     for (const n of notes.values()) {
-      n.id = n.id + localify;
+      n.id = n.id + localify
     }
 
-    this.notes = new Map<string, any>();
+    this.notes = new Map<string, Note>()
 
     for (const n of notes.values()) {
-      this.notes.set(n.id, n);
+      this.notes.set(n.id, n)
     }
 
-    this.saveAll();
-    this.save();
+    this.saveAll()
+    this.save()
   }
 
-  private migrateRoot(root: any) {
-    this.notes = new Map<string, any>();
+  private migrateRoot(root: Note) {
+    this.notes = new Map<string, Note>()
 
-    this.top = root;
-    this.migrateRootAdd(root);
+    this.top = root
+    this.migrateRootAdd(root)
 
-    this.saveAll();
-    localStorage.setItem('version', '1');
+    this.saveAll()
+    localStorage.setItem('version', '1')
   }
 
-  private migrateRootAdd(note: any) {
-    this.notes.set(note.id, note);
+  private migrateRootAdd(note: Note) {
+    this.notes.set(note.id, note)
 
     for (const subItem of note.items) {
-      subItem.parent = note;
-      this.migrateRootAdd(subItem);
+      subItem.parent = note
+      this.migrateRootAdd(subItem)
     }
   }
 }

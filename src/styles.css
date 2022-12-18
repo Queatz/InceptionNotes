@@ -2,12 +2,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Livvic:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap');
 
 body {
-	height: 100%;
-	margin: 0;
-	font-family: 'Livvic', 'Bellota', sans-serif;
+  height: 100%;
+  margin: 0;
+  font-family: 'Livvic', 'Bellota', sans-serif;
 }
 
-[hidden] { display: none !important;}
+[hidden] {
+  display: none !important;
+}
 
 textarea, input {
   font: inherit;

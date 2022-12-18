@@ -42,20 +42,17 @@
 
 
 /** Evergreen browsers require these. **/
-//import 'core-js/proposals/reflect-metadata';
-
+// import 'core-js/proposals/reflect-metadata';
 
 
 /** ALL Firefox browsers require the following to support `@angular/animation`. **/
 // import 'web-animations-js';  // Run `npm install --save web-animations-js`.
 
 
-
 /***************************************************************************************************
  * Zone JS is required by Angular itself.
  */
-import 'zone.js';  // Included with Angular CLI.
-
+import 'zone.js' // Included with Angular CLI.
 
 
 /***************************************************************************************************

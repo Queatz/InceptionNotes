@@ -1,8 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import {UiService} from '../ui.service';
-import {ApiService} from '../api.service';
-import {VillageService} from '../village.service';
-import {Config} from 'app/config.service';
+import {Component, OnInit} from '@angular/core'
+import {Env, UiService} from '../ui.service'
+import {ApiService} from '../api.service'
+import {VillageService} from '../village.service'
+import {Config} from 'app/config.service'
 
 @Component({
   selector: 'app-options',
@@ -11,10 +11,10 @@ import {Config} from 'app/config.service';
 })
 export class OpComponent implements OnInit {
 
-  env: any;
+  env: Env
 
   constructor(private ui: UiService, private api: ApiService, private village: VillageService, private config: Config) {
-    this.env = this.ui.getEnv();
+    this.env = this.ui.getEnv()
   }
 
   ngOnInit() {
@@ -22,46 +22,46 @@ export class OpComponent implements OnInit {
   }
 
   update() {
-    this.ui.save();
+    this.ui.save()
   }
 
   isVillageConnected() {
-    return !!this.village.me();
+    return !!this.village.me()
   }
 
   disconnectVillage() {
-    this.village.disconnect();
+    this.village.disconnect()
   }
 
   nukeVillage() {
-    this.village.nuke();
+    this.village.nuke()
   }
 
   villageName() {
-    return this.village.me() && this.village.me().firstName;
+    return this.village.me() && this.village.me().firstName
   }
 
   villageUrl() {
-    return this.config.vlllageUrl() + (this.village.me() && this.village.me().googleUrl);
+    return this.config.vlllageUrl() + (this.village.me() && this.village.me().googleUrl)
   }
 
   backup() {
-    this.api.backup();
+    this.api.backup()
   }
 
   unbackup() {
-    this.api.unbackup();
+    this.api.unbackup()
   }
 
   syncAll() {
     this.ui.dialog({
       message: 'Sync all notes?\n\nThis operation is potentially dangerous, however if you\'re having trouble getting notes to sync, click OK.',
       ok: () => {
-        this.api.setAllNotesUnsynced();
+        this.api.setAllNotesUnsynced()
         this.ui.dialog({
           message: 'All notes marked as unsynced.'
-        });
+        })
       }
-    });
+    })
   }
 }
