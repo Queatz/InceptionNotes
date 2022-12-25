@@ -45,6 +45,7 @@
                (click)="useAsNavigation ? showItem($event, item) : undefined"
                (dblclick)="getEnv().dblClickToOpen ? openItem($event, item) : dontPropagateDblClick($event)"
                (keydown.enter)="onItemEnterPressed(element, item)"
+               (keydown.control.enter)="onItemControlEnterPressed(element, item)"
                (keydown.backspace)="onItemBackspacePressed(element, item)"
                (keydown.control.arrowUp)="moveItem($event, item, -1)"
                (keydown.control.arrowDown)="moveItem($event, item, 1)"

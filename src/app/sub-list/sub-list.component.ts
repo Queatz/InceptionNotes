@@ -876,6 +876,23 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     return false
   }
 
+  onItemControlEnterPressed(element: HTMLElement, item: Note) {
+    const l = this.newBlankListInList(item, 0)
+
+    // Find sneak peek items container
+    let itemsElement: Element = element
+    for (let i = 0; i < 3; i++) {
+      itemsElement = itemsElement.nextElementSibling
+      if (itemsElement.classList.contains('sneak-peek')) {
+        break
+      }
+    }
+
+    setTimeout(() => this.focusItem(this.visualIndexOf(item, l), item, itemsElement as HTMLElement))
+
+    return false
+  }
+
   onItemBackspacePressed(element: HTMLElement, item: Note) {
     if (Util.isEmptyStr(item.name) && this.list.items.length > 1) {
       const c = this.api.getSubItemNames(item)
