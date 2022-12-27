@@ -12,10 +12,9 @@ import {
 } from '@angular/core'
 import {ApiService, Note} from '../api.service'
 import {MenuOption, UiService} from '../ui.service'
-import {VillageService} from '../village.service'
+import {CollaborationService} from '../collaboration.service'
 import {OpComponent} from '../op/op.component'
 import {SearchComponent} from '../search/search.component'
-import {AddPeopleComponent} from 'app/add-people/add-people.component'
 import Util from 'app/util'
 import {FilterService} from 'app/filter.service'
 import {Subject} from 'rxjs'
@@ -52,7 +51,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     public api: ApiService,
     public filter: FilterService,
-    public village: VillageService,
+    public village: CollaborationService,
     public ui: UiService,
     private elementRef: ElementRef) {
   }
@@ -111,8 +110,21 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onItemSelected(list: Note, event: { selected: boolean, ctrl: boolean, shift: boolean }) {
-    this.onSelection.next({lastList: this.lastListSelected, list, selected: event.selected, ctrl: event.ctrl, shift: event.shift})
+    this.onSelection.next(
+      {
+        lastList: this.lastListSelected,
+        list,
+        selected: event.selected,
+        ctrl: event.ctrl,
+        shift: event.shift
+      }
+    )
     this.lastListSelected = list
+
+    if (!event.selected && !event.ctrl && !event.shift) {
+      this.lastListSelected = null
+      this.selectedListIds.clear()
+    }
   }
 
   private removeItem(item: Note) {
@@ -139,24 +151,6 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
           this.list.backgroundUrl = result.input
           this.api.modified(this.list, 'backgroundUrl')
         }
-      }
-    })
-  }
-
-  addPeople(list: Note) {
-    this.ui.dialog({
-      message: 'Add people',
-      input: true,
-      view: AddPeopleComponent,
-      init: dialog => {
-        dialog.changes.subscribe(input => {
-          (<AddPeopleComponent>dialog.component.instance).search(input)
-        });
-
-        (<AddPeopleComponent>dialog.component.instance).onSelection.subscribe(person => {
-          dialog.back()
-          this.api.addPersonToNote(this.list, person)
-        })
       }
     })
   }
@@ -202,6 +196,14 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     document.execCommand(command, false, null)
   }
 
+  removeDescriptionIfEmpty(event: Event) {
+    if (this.list.description.replace('<br>', '') === '') {
+      event.preventDefault()
+      this.list.description = null
+      this.api.modified(this.list, 'description')
+    }
+  }
+
   @HostListener('contextmenu', ['$event'])
   menu(event: MouseEvent) {
     event.preventDefault()
@@ -214,7 +216,6 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
         {title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null)},
         {title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null)},
         {title: 'Change background...', callback: () => this.changeBackground()},
-        // { title: 'Connect with Village...', callback: () => this.village.connect() },
         {title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null)}
       ]
     } else {
@@ -222,13 +223,22 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
         {title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null)},
         {title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null)},
         {title: 'Change background...', callback: () => this.changeBackground()},
-        // { title: 'Add people...', callback: () => this.addPeople(this.list) },
         {title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null)},
       ]
     }
 
     this.ui.menu([
-      {title: 'New note...', callback: () => this.newNoteAtPosition(event.pageX, event.pageY)},
+      {title: 'New note', callback: () => this.newNoteAtPosition(event.pageX, event.pageY)},
+      ...(this.list.description === null ? [
+        {
+          title: 'Add description', callback: () => {
+            if (this.list.description === null) {
+              this.list.description = ''
+              this.api.modified(this.list, 'description')
+            }
+          }
+        }
+      ] : []),
       ...opts
     ], {x: event.clientX, y: event.clientY})
   }
@@ -244,7 +254,6 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.ui.dialog({
-      message: 'How to use Inception Notes\n\n1. Right-click on a note to change it\'s color\n3. Double-click on a note to enter that note\n4. Press escape to go to the parent note\n5. Double-click on the background to show/hide the sidepane\n6. Use Ctrl+Up/Down to move items\n7. Use Ctrl+Down to "snip" off the last item of a list\n8. Use ALT+S to search\n9. Use ALT+F to filter by links',
       view: OpComponent
     })
   }
@@ -344,13 +353,15 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     this.dontPropagate(event)
 
     if (this.getLists().length > 0) {
-      this.onSelection.next({
-        lastList: undefined,
-        list: undefined,
-        selected: false,
-        ctrl: false,
-        shift: false
-      })
+      this.onSelection.next(
+        {
+          lastList: undefined,
+          list: undefined,
+          selected: false,
+          ctrl: false,
+          shift: false
+        }
+      )
     }
   }
 

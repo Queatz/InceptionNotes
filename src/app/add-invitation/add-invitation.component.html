@@ -1,0 +1,5 @@
+<div class="invitation-list">
+  <div *ngFor="let invitation of results" class="invitation" (click)="select(invitation)">
+    <span class="invitation-name">{{ invitation.username }}</span>
+  </div>
+</div>

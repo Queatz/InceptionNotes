@@ -1,5 +1,19 @@
-<br/>
 <form>
+  <b>Collaboration</b><br/>
+  <ng-container *ngIf="!isSyncConnected()">
+    Not connected
+  </ng-container>
+  <ng-container *ngIf="isSyncConnected()">
+    Connected as <b>Jacob Ferrero</b>
+    <br/>
+    <button (click)="disconnectSync()">Disconnect</button>
+  </ng-container>
+  <ng-container *ngIf="'i am owner'">
+    <br/>
+    <button (click)="showInvitationsModal()">Show invitations</button>
+  </ng-container>
+  <br/>
+  <br/>
   <b>Navigation</b><br/>
   <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.sidepane" (ngModelChange)="update()"/> Show side
     nav</label>
@@ -36,9 +50,6 @@
   <label><input type="checkbox" name="showEstimates" [(ngModel)]="env.showEstimates" (ngModelChange)="update()"/> Show
     estimates</label>
   <br/>
-  <label><input type="checkbox" name="showDescriptions" [(ngModel)]="env.showDescriptions" (ngModelChange)="update()"/>
-    Show descriptions</label>
-  <br/>
   <label><input type="checkbox" name="hideDoneItems" [(ngModel)]="env.hideDoneItems" (ngModelChange)="update()"/> Hide
     done items</label>
   <br/>
@@ -50,17 +61,9 @@
     Unlink links on delete</label>
 </form>
 <br/>
-<span *ngIf="isVillageConnected()">
-  <span [ngClass]="{ 'dark': env.useDarkTheme }" class="green">Connected as <a target="_blank"
-                                                                               [href]="villageUrl()">{{ villageName() }}</a> (Village)</span><br/>
-  <button (click)="disconnectVillage()">Disconnect</button>
-  <button (click)="nukeVillage()">Delete notes</button>
-  <br/><br/>
-</span>
 <div class="button-wrap">
   <button (click)="backup()">Download notes</button>
   <button (click)="unbackup()">Upload notes</button>
-  <button (click)="syncAll()">Sync all notes</button>
 </div>
 <br/>
 <span class="last-backup-date">{{ env.lastBackup ? 'Last downloaded on ' + env.lastBackup : '' }}</span>

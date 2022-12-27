@@ -1,43 +1,63 @@
 import {Injectable} from '@angular/core'
 import {Config} from 'app/config.service'
 import {WsService} from 'app/ws.service'
-import {Event, IdentifyEvent, ShowEvent, SyncEvent} from 'app/sync/event'
-import {ApiService, Note} from 'app/api.service'
+import {Event, StateEvent} from 'app/sync/event'
+import {ApiService, FrozenNote, Invitation, Note} from 'app/api.service'
 import util from 'app/util'
 import {UiService} from 'app/ui.service'
+
+export class IdentifyOutgoingEvent {
+  device: string
+
+  constructor(device: string) {
+    this.device = device
+  }
+}
+
+export class StateOutgoingEvent {
+  notes: Array<[string, string]>
+
+  constructor(notes: Array<[string, string]>) {
+    this.notes = notes
+  }
+}
+
+export class SyncOutgoingEvent {
+  notes: FrozenNote[]
+
+  constructor(notes: FrozenNote[]) {
+    this.notes = notes
+  }
+}
 
 @Injectable()
 export class SyncService {
 
-  private me: string
+  private me: Invitation
   private event: Event
-  private _clientKey = null
+  private device?: string
 
   constructor(private ws: WsService, private api: ApiService, private ui: UiService, private config: Config) {
     this.ws.syncService = this
 
     this.ws.onBeforeOpen.subscribe(() => {
-      this.send(new IdentifyEvent(this.clientKey(), this.me))
-
-      if (this.api.getShow()) {
-        this.send(new ShowEvent(this.api.getShow().id))
-      }
+      this.send(new IdentifyOutgoingEvent(this.deviceToken()))
     })
 
     this.event = new Event()
   }
 
-  clientKey() {
-    if (!this._clientKey) {
-      this._clientKey = localStorage.getItem('client-key')
+  deviceToken(): string {
+    if (!this.device) {
+      this.device = localStorage.getItem('device')
 
-      if (!this._clientKey) {
-        this._clientKey = util.newKey()
-        localStorage.setItem('client-key', this._clientKey)
+      if (!this.device) {
+        this.device = util.newKey()
+        localStorage.setItem('device', this.device)
       }
     }
 
-    return this._clientKey
+    return this.device
   }
 
   /**
@@ -45,31 +65,6 @@ export class SyncService {
    */
   public start() {
     this.ws.reconnect()
-
-    const syncAllEvent = new SyncEvent([])
-    const an = this.api.getAllNotes()
-
-    for (const n of an.values()) {
-      if ('_sync' in n) {
-        const p: any = {}
-        for (const k in n['sync']) {
-          if (!n['sync'][k].synchronized) {
-            p[k] = n[k]
-          }
-        }
-
-        if (Object.keys(p).length) {
-          p.id = n['id']
-          syncAllEvent.notes.push(this.api.freezeNote(p))
-        }
-      } else {
-        syncAllEvent.notes.push(this.api.freezeNote(n))
-      }
-    }
-
-    if (syncAllEvent.notes.length) {
-      this.send(syncAllEvent)
-    }
 
     this.api.onNoteChangedObservable.subscribe(change => {
       if (!this.ws.active()) {
@@ -80,21 +75,50 @@ export class SyncService {
         return
       }
 
-      this.send(new SyncEvent([this.api.freezeNote({
-        id: change.note.id,
-        [change.property]: change.note[change.property]
-      } as Note)]))
-    })
-
-    this.api.onViewChangedObservable.subscribe(view => {
-      this.send(new ShowEvent(view.show.id))
+      this.send(new SyncOutgoingEvent([
+        this.api.freezeNote(
+          {
+            id: change.note.id,
+            rev: change.note.rev,
+            [change.property]: change.note[change.property]
+          },
+          true
+        )
+      ]))
     })
   }
 
   /**
-   * Identify person
+   * Sync all new notes and changed props
    */
-  setPerson(me: string) {
+  syncLocalProps() {
+    const syncAllEvent = new SyncOutgoingEvent([])
+
+    for (const n of this.api.getAllNotes().values()) {
+      if (!n._local) {
+        syncAllEvent.notes.push(this.api.freezeNote(n, true))
+      } else if (n._local.length > 0) {
+        const p: Partial<Note> = {
+          id: n.id,
+          rev: n.rev,
+        }
+        for (const k of n._local) {
+          p[k] = n[k]
+        }
+
+        syncAllEvent.notes.push(this.api.freezeNote(p, true))
+      }
+    }
+
+    if (syncAllEvent.notes.length) {
+      this.send(syncAllEvent)
+    }
+  }
+
+  /**
+   * Identify with invitation
+   */
+  setInvitation(me: Invitation) {
     this.me = me
   }
 
@@ -102,17 +126,14 @@ export class SyncService {
    * Send
    */
   public send(event: any) {
-    if (this.config.logWs) {
-      console.log('send', event)
-    }
-    this.ws.send([[this.event.types.get(event.constructor), event]])
+    this.ws.send([[this.event.outgoingTypes.get(event.constructor), event]])
   }
 
   /**
    * Called on got
    */
-  public got(events: any[]) {
-    events.forEach((event: any[]) => {
+  public got(events: [[string, any]]) {
+    events.forEach((event: [string, any]) => {
       if (this.config.logWs) {
         console.log('got', event)
       }
@@ -123,45 +144,8 @@ export class SyncService {
   }
 
   /**
-   * Fetch events via HTTP
-   */
-  public fetch() {
-    this.ws.send([], true)
-  }
-
-  /**
-   * Successful identification from server
-   */
-  public identified() {
-  }
-
-  /**
-   * Called on close
-   */
-  public close() {
-    if (this.config.logWs) {
-      console.log('close()')
-    }
-  }
-
-  /**
-   * Called on open
-   */
-  public open() {
-    if (this.config.logWs) {
-      console.log('open()')
-    }
-  }
-
-  /**
-   * Set a note as sync'd
-   */
-  public setSynced(id: string, prop: string) {
-    this.api.setSynced(id, prop)
-  }
-
-  /**
    * Handle note prop update from sever
+   * todo
    */
   public handleUpdateFromServer(noteId: string, prop: string, value: any) {
     let note = this.api.search(noteId)
@@ -184,10 +168,14 @@ export class SyncService {
           this.api.setSynced(note.id, prop)
         },
         cancel: () => {
-          this.send(new SyncEvent([this.api.freezeNote({
-            id: note.id,
-            [prop]: note[prop]
-          } as Note)]))
+          this.send(new SyncOutgoingEvent([this.api.freezeNote(
+            {
+              id: note.id,
+              rev: note.rev,
+              [prop]: note[prop]
+            },
+            true
+          )]))
         }
       })
     }
@@ -204,6 +192,7 @@ export class SyncService {
 
   /**
    * Return if a value is equal.
+   * todo
    */
   public valEquals(a: Note, b: Note): boolean {
     if (a === b) {
@@ -219,13 +208,15 @@ export class SyncService {
 
   /**
    * Determine if a note prop is safe to overwrite
+   * todo
    */
   isSameOrTransient(a: Note, b: Note) {
-    return a.id === b.id || ((!a.items || !a.items.length) && (!a.ref || !a.ref.length) && (!a.people || !a.people.length))
+    return a.id === b.id || ((!a.items || !a.items.length) && (!a.ref || !a.ref.length) && (!a.invitations || !a.invitations.length))
   }
 
   /**
    * Show a string from a value
+   * todo
    */
   public present(value: Note) {
     if (Array.isArray(value)) {
@@ -233,5 +224,21 @@ export class SyncService {
     }
 
     return value
+  }
+
+  setNoteRev(id: string, rev: string) {
+    this.api.setNoteRev(id, rev)
+  }
+
+  sendState() {
+    const notes: Array<[string, string]> = []
+
+    for (const note of this.api.getAllNotes().values()) {
+      if (note.rev) {
+        notes.push([note.id, note.rev])
+      }
+    }
+
+    this.send(new StateOutgoingEvent(notes))
   }
 }

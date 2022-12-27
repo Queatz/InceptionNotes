@@ -8,8 +8,7 @@ import {MainListComponent} from './main-list/main-list.component'
 import {MainDeskComponent} from './main-desk/main-desk.component'
 import {ApiService} from './api.service'
 import {UiService} from './ui.service'
-import {VillageService} from './village.service'
-import {CollaborateService} from './collaborate.service'
+import {CollaborationService} from './collaboration.service'
 import {SubListComponent} from './sub-list/sub-list.component'
 import {ContenteditableModelDirective} from './contenteditable-model.directive'
 import {DialogComponent} from './dialog/dialog.component'
@@ -22,7 +21,7 @@ import {SearchComponent} from './search/search.component'
 import {SyncService} from 'app/sync.service'
 import {WsService} from 'app/ws.service'
 import {Config} from 'app/config.service'
-import {AddPeopleComponent} from './add-people/add-people.component'
+import {AddInvitationComponent} from './add-invitation/add-invitation.component'
 import {AppRoutingModule} from './app.routes'
 import {WindowComponent} from './window/window.component'
 import {FilterService} from './filter.service'
@@ -43,7 +42,7 @@ enableProdMode()
     ColorPickerComponent,
     DiffComponent,
     SearchComponent,
-    AddPeopleComponent,
+    AddInvitationComponent,
     WindowComponent
   ],
   imports: [
@@ -56,8 +55,7 @@ enableProdMode()
     ApiService,
     FilterService,
     UiService,
-    VillageService,
-    CollaborateService,
+    CollaborationService,
     SyncService,
     WsService,
     Config

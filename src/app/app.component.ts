@@ -1,9 +1,9 @@
-import {Component, ComponentFactoryResolver, ViewContainerRef} from '@angular/core'
+import {Component, ViewContainerRef} from '@angular/core'
 import {Location, LocationStrategy, PathLocationStrategy} from '@angular/common'
 import {ActivatedRoute} from '@angular/router'
 import {ApiService} from './api.service'
 import {UiService} from './ui.service'
-import {VillageService} from 'app/village.service'
+import {CollaborationService} from 'app/collaboration.service'
 import {SyncService} from 'app/sync.service'
 import {Title} from '@angular/platform-browser'
 import Util from 'app/util'
@@ -19,17 +19,16 @@ export class AppComponent {
   constructor(
     public api: ApiService,
     public ui: UiService,
-    public village: VillageService,
+    public collab: CollaborationService,
     public sync: SyncService,
     public view: ViewContainerRef,
-    public resolver: ComponentFactoryResolver,
     private location: Location,
     private route: ActivatedRoute,
     private title: Title
   ) {
     this.ui.registerAppComponent(this)
     this.sync.start()
-    this.village.check()
+    this.collab.connect()
 
     route.params.subscribe(params => {
       if (!params['id']) {

@@ -14,12 +14,12 @@ import {
 } from '@angular/core'
 
 import Util from '../util'
-import {ApiService, Note, Person} from '../api.service'
+import {ApiService, Note, Invitation} from '../api.service'
 import {MenuOption, UiService} from '../ui.service'
 import {ColorPickerComponent} from '../color-picker/color-picker.component'
 import {SearchComponent} from '../search/search.component'
-import {VillageService} from 'app/village.service'
-import {AddPeopleComponent} from 'app/add-people/add-people.component'
+import {CollaborationService} from 'app/collaboration.service'
+import {AddInvitationComponent} from 'app/add-invitation/add-invitation.component'
 import {Config} from 'app/config.service'
 import {FilterService} from 'app/filter.service'
 import {filter as filterOp, Observable, Subject} from 'rxjs'
@@ -74,7 +74,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     private api: ApiService,
     private filter: FilterService,
     private elementRef: ElementRef,
-    private village: VillageService,
+    private village: CollaborationService,
     private config: Config) {
   }
 
@@ -196,6 +196,10 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         ]
       },
       {
+        title: 'Invite...',
+        callback: () => this.addInvitation(this.list),
+      },
+      {
         title: 'Sort',
         shortcut: '⯈',
         callback: () => {
@@ -273,12 +277,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           }
         ]
       },
-      ...(this.village.me() ? [{
-        title: 'Add people...',
-        callback: () => this.addPeople(this.list),
-      }] : []),
       {
-        title: 'Change color...',
+        title: 'Color...',
         callback: () => this.changeColor(),
         menu: (this.getEnv().recentColors || []).slice(0, 3).map(color => ({
           title: color,
@@ -327,26 +327,22 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     this.ui.menu(options, {x: event.clientX, y: event.clientY})
   }
 
-  addPeople(list: Note) {
+  addInvitation(list: Note) {
     this.ui.dialog({
-      message: 'Add people',
+      message: 'Invite',
       input: true,
-      view: AddPeopleComponent,
+      view: AddInvitationComponent,
       init: dialog => {
         dialog.changes.subscribe(input => {
-          (<AddPeopleComponent>dialog.component.instance).search(input)
+          (<AddInvitationComponent>dialog.component.instance).search(input)
         });
 
-        (<AddPeopleComponent>dialog.component.instance).onSelection.subscribe(person => {
+        (<AddInvitationComponent>dialog.component.instance).onSelection.subscribe(invitation => {
           dialog.back()
-          this.api.addPersonToNote(this.list, person)
+          this.api.addInvitationToNote(list, invitation)
         })
       }
     })
-  }
-
-  villageUrl(person: Person) {
-    return this.config.vlllageUrl() + person.googleUrl
   }
 
   showSubitemOptions(event: MouseEvent, item: Note) {
@@ -376,7 +372,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       ...(this.ui.getEnv().showEstimates ? [{
         title: 'Estimate...', callback: () => this.ui.dialog({
           message: 'Estimate (in days)',
-          prefill: item.estimate.toString(),
+          prefill: item.estimate?.toString(),
           input: true,
           ok: r => {
             item.estimate = Number(r.input)
@@ -535,7 +531,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
   private changeColor() {
     this.ui.dialog({
-      message: 'Change color',
+      message: 'Color',
       input: true,
       prefill: this.list.color,
       view: ColorPickerComponent,
@@ -1113,5 +1109,32 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     this.api.modified(l)
     this.api.setAllPropsSynced(l)
     return l
+  }
+
+  showInvitationMenu(event: MouseEvent, item: Note, invitation: Invitation) {
+    event.stopPropagation()
+    event.preventDefault()
+
+    if (!'i am the note owner or i am the connected') {
+      return
+    }
+
+    this.ui.menu(
+      [
+        {
+          title: 'Remove', callback: () => {
+            const i = item.invitations.indexOf(invitation)
+
+            if (i === -1) {
+              return
+            }
+
+            item.invitations.splice(i, 1)
+            this.api.modified(item, 'invitations')
+          }
+        }
+      ],
+      {x: event.clientX, y: event.clientY}
+    )
   }
 }

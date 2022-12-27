@@ -13,14 +13,15 @@
   </div>
 </div>
 <div *ngIf="hasEvents()" class="calendar"></div>
-<div *ngIf="getEnv().showDescriptions"
+<div *ngIf="getShow().description !== null"
      contenteditable
      [(contenteditableModel)]="getShow().description"
      (contenteditableModelChange)="saveDescription()"
      (keydown.control.b)="command($event, 'bold')"
      (keydown.control.i)="command($event, 'italic')"
      (keydown.control.u)="command($event, 'underline')"
-     data-placeholder="Add a description"
+     (keydown.backspace)="removeDescriptionIfEmpty($event)"
+     data-placeholder="Description"
      (dblclick)="dontPropagate($event)"
      class="description"></div>
 <div class="items" [ngClass]="{'priority-list': getEnv().showAsPriorityList}" #listsContainer>

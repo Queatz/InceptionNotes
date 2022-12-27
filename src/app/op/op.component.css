@@ -23,7 +23,10 @@
 input[type='number'] {
   width: 3rem;
   max-width: 3rem;
+  margin: .25rem;
+}
+
+input[type='number'],input[type='text'],input[type='password'],input:not([type]) {
   border: 1px solid lightgray;
   border-radius: 4px;
-  margin: .25rem;
 }

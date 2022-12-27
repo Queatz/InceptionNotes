@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core'
 import {Env, UiService} from '../ui.service'
 import {ApiService} from '../api.service'
-import {VillageService} from '../village.service'
+import {CollaborationService} from '../collaboration.service'
 import {Config} from 'app/config.service'
 
 @Component({
@@ -13,7 +13,7 @@ export class OpComponent implements OnInit {
 
   env: Env
 
-  constructor(private ui: UiService, private api: ApiService, private village: VillageService, private config: Config) {
+  constructor(private ui: UiService, private api: ApiService, private village: CollaborationService, private config: Config) {
     this.env = this.ui.getEnv()
   }
 
@@ -25,24 +25,12 @@ export class OpComponent implements OnInit {
     this.ui.save()
   }
 
-  isVillageConnected() {
+  isSyncConnected() {
     return !!this.village.me()
   }
 
-  disconnectVillage() {
+  disconnectSync() {
     this.village.disconnect()
-  }
-
-  nukeVillage() {
-    this.village.nuke()
-  }
-
-  villageName() {
-    return this.village.me() && this.village.me().firstName
-  }
-
-  villageUrl() {
-    return this.config.vlllageUrl() + (this.village.me() && this.village.me().googleUrl)
   }
 
   backup() {
@@ -53,15 +41,6 @@ export class OpComponent implements OnInit {
     this.api.unbackup()
   }
 
-  syncAll() {
-    this.ui.dialog({
-      message: 'Sync all notes?\n\nThis operation is potentially dangerous, however if you\'re having trouble getting notes to sync, click OK.',
-      ok: () => {
-        this.api.setAllNotesUnsynced()
-        this.ui.dialog({
-          message: 'All notes marked as unsynced.'
-        })
-      }
-    })
+  showInvitationsModal() {
   }
 }

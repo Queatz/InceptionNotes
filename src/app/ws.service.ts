@@ -22,12 +22,12 @@ export class WsService {
   constructor(private config: Config, private http: HttpClient) {
   }
 
-  public active() {
-    return this.websocket && this.websocket.readyState === WebSocket.OPEN
+  public active(): boolean {
+    return this.websocket?.readyState === WebSocket.OPEN
   }
 
   public reconnect() {
-    if (new Date().getTime() - this.lastReconnectAttempt < 10000) {
+    if (new Date().getTime() - this.lastReconnectAttempt < 15000) {
       return
     }
 
@@ -46,12 +46,14 @@ export class WsService {
   }
 
   public close() {
-    if (this.websocket) {
-      this.websocket.close()
-    }
+    this.websocket?.close()
   }
 
-  public send(events: any, forceHttp = false): boolean {
+  public send(events: any[], forceHttp = false): boolean {
+    if (this.config.logWs) {
+      console.log('send', events)
+    }
+
     if (!this.websocket || this.websocket.readyState === WebSocket.CLOSED) {
       this.reconnect()
     }
@@ -72,27 +74,29 @@ export class WsService {
       } else {
         this.isInActiveHttpSync = true
         this.shouldHttpSyncAgain = false
-        this.http.post(this.config.getHttpUrl(), message, {
+        this.http.post(this.config.getUrl('http'), message, {
           headers: {
             'Content-Type': 'application/json;charset=utf-8',
-            Authorization: this.syncService.clientKey()
+            'Authorization': `Bearer ${this.syncService.deviceToken()}`
           }
-        }).subscribe({
-          next: (m: any) => {
-            this.isInActiveHttpSync = false
-            if (this.shouldHttpSyncAgain) {
-              this.send([], true)
+        }).subscribe(
+          {
+            next: (m: [[string, any]]) => {
+              this.isInActiveHttpSync = false
+              if (this.shouldHttpSyncAgain) {
+                this.send([], true) // todo should it actually be []?
+              }
+              this.syncService.got(m)
+            },
+            error: error => {
+              this.isInActiveHttpSync = false
+              if (this.shouldHttpSyncAgain) {
+                this.send([], true) // todo should it actually be []?
+              }
+              console.log(error)
             }
-            this.syncService.got(m)
-          },
-          error: error => {
-            this.isInActiveHttpSync = false
-            if (this.shouldHttpSyncAgain) {
-              this.send([], true)
-            }
-            console.log(error)
           }
-        })
+        )
       }
     }
 
@@ -105,12 +109,10 @@ export class WsService {
     while (this.pending.length) {
       this.send(this.pending.shift())
     }
-
-    this.syncService.open()
   }
 
   private onClose() {
-    this.syncService.close()
+    this.reconnect()
   }
 
   private onMessage(message: string) {

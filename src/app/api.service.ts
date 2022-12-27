@@ -6,12 +6,10 @@ import {UiService} from './ui.service'
 import {Subject} from 'rxjs'
 import {Config} from 'app/config.service'
 
-export class Person {
+export class Invitation {
   id: string
-  imageUrl: string
-  googleUrl: string
-  firstName: string
-  lastName: string
+  name: string
+  isSteward: boolean
 }
 
 export class NoteOptions {
@@ -21,25 +19,27 @@ export class NoteOptions {
 
 export class Note {
   id: string
+  rev: string
   parent?: Note
   name: string
-  description: string
+  description: string | null
   checked: boolean
   color: string
   items: Note[]
   ref: Note[]
-  people: Person[]
+  invitations: Invitation[]
   options: NoteOptions
   backgroundUrl: string
   collapsed: boolean
   estimate: number
   created: string
   updated?: string
-  _sync?: any
+  _local?: string[]
 }
 
 export class FrozenNote {
   id: string
+  rev: string
   parent?: FrozenNote
   name: string
   description: string
@@ -47,14 +47,14 @@ export class FrozenNote {
   color: string
   items: string[]
   ref: string[]
-  people: string[]
+  invitations: string[]
   options: NoteOptions
   backgroundUrl: string
   collapsed: boolean
   estimate: number
   created: string
   updated?: string
-  _sync: any
+  _local?: string[]
 }
 
 export class NoteChanges {
@@ -78,7 +78,7 @@ export class ApiService {
 
   private top: Note
   private notes: Map<string, Note>
-  private people: Map<string, Person>
+  private invitations: Map<string, Invitation>
 
   private view: ViewConfig = {
     eye: null,
@@ -90,7 +90,7 @@ export class ApiService {
   public onViewChangedObservable: Subject<ViewConfig> = new Subject<ViewConfig>()
 
   constructor(private ui: UiService, private config: Config, private router: Router) {
-    this.people = new Map<string, Person>()
+    this.invitations = new Map<string, Invitation>()
     this.load()
   }
 
@@ -131,8 +131,8 @@ export class ApiService {
       if (n.substring(0, 5) === 'note:') {
         const n2 = JSON.parse(localStorage.getItem(n))
         localNotes.set(n2.id, n2)
-      } else if (n.substring(0, 7) === 'person:') {
-        this.updatePerson(JSON.parse(localStorage.getItem(n)))
+      } else if (n.substring(0, 7) === 'invitation:') {
+        this.updateInvitation(JSON.parse(localStorage.getItem(n)))
       }
     }
 
@@ -146,6 +146,16 @@ export class ApiService {
     } else {
       this.intro()
     }
+
+    this.observeStorage()
+  }
+
+  private observeStorage() {
+    window.addEventListener('storage', (event: StorageEvent) => {
+      if (event.key.startsWith('note:')) {
+        this.loadNote(event.newValue)
+      }
+    })
   }
 
   public saveAll() {
@@ -162,7 +172,45 @@ export class ApiService {
    * Load a single note.
    */
   public loadNote(note: string) {
+    const n = JSON.parse(note)
+    const existingNote = this.notes.get(n.id)
 
+    if (!n.id) {
+      return
+    }
+
+    this.unfreezeNote(n as FrozenNote, this.notes)
+
+    if (existingNote) {
+      this.updateNote(existingNote, n)
+    } else {
+      this.notes.set(n.id, n)
+    }
+  }
+
+  private updateNote(note: Note, referenceNote: Note) {
+    note.name = referenceNote.name
+    note.rev = referenceNote.rev
+    note.description = referenceNote.description
+    note.color = referenceNote.color
+    note.estimate = referenceNote.estimate
+    note.checked = referenceNote.checked
+    note.backgroundUrl = referenceNote.backgroundUrl
+    note.collapsed = referenceNote.collapsed
+    note.ref = referenceNote.ref
+    note.invitations = referenceNote.invitations
+    note.items = referenceNote.items
+    note.options = Object.assign({}, referenceNote.options)
+    note.created = referenceNote.created
+    note.updated = referenceNote.updated
+    note._local = referenceNote._local ? Object.assign({}, referenceNote._local) : undefined
+
+    // Update parent references, note that 'ref' should be updated by the other note anyway
+    note.items.forEach(n => {
+      n.parent = note
+    })
+
+    // Don't mark note as modified, since this flow is only used for cross-tab sync
   }
 
   /**
@@ -211,44 +259,48 @@ export class ApiService {
   /**
    * Semi-freeze a single note
    */
-  public freezeNote(a: Note): FrozenNote {
-    const items: string[] = []
+  public freezeNote(a: Partial<Note>, forServer = false): FrozenNote {
+    let items: string[]
     if (a.items) {
+      items = []
       for (const item of a.items) {
         items.push(item.id)
       }
     }
 
-    const ref: string[] = []
+    let ref: string[]
     if (a.ref) {
+      ref = []
       for (const item of a.ref) {
         ref.push(item.id)
       }
     }
 
-    const people: string[] = []
-    if (a.people) {
-      for (const person of a.people) {
-        people.push(person.id)
+    let invitations: string[]
+    if (a.invitations) {
+      invitations = []
+      for (const invitation of a.invitations) {
+        invitations.push(invitation.id)
       }
     }
 
     return {
       id: a.id,
+      rev: a.rev,
       name: a.name,
       description: a.description,
       checked: a.checked,
       color: a.color,
-      items: items,
-      ref: ref,
-      people: people,
+      items,
+      ref,
+      invitations,
       options: a.options,
       backgroundUrl: a.backgroundUrl,
       collapsed: a.collapsed,
       estimate: a.estimate,
       created: a.created,
       updated: a.updated,
-      _sync: a._sync
+      ...(!forServer ? { _local: a._local } : {})
     }
   }
 
@@ -298,12 +350,12 @@ export class ApiService {
       }
     }
 
-    if (a.people) {
-      const people = a.people
-      note.people = []
-      for (const id of people) {
-        const n = this.person(id as string)
-        note.people.push(n)
+    if (a.invitations) {
+      const invitations = a.invitations
+      note.invitations = []
+      for (const id of invitations) {
+        const n = this.invitation(id as string)
+        note.invitations.push(n)
       }
     }
   }
@@ -312,7 +364,7 @@ export class ApiService {
    * Unfreeze a property
    */
   unfreezeProp(note: Note, prop: string, value: any) {
-    if (['people', 'ref', 'items'].indexOf(prop) !== -1) {
+    if (['invitations', 'ref', 'items'].indexOf(prop) !== -1) {
       if (!value) {
         return []
       }
@@ -342,44 +394,44 @@ export class ApiService {
     return value
   }
 
-  /* People */
+  /* Invitations */
 
   /**
-   * Get a person by Village Id
+   * Get an invitation by id
    */
-  public person(id: string) {
-    if (this.people.has(id)) {
-      return this.people.get(id)
+  public invitation(id: string) {
+    if (this.invitations.has(id)) {
+      return this.invitations.get(id)
     }
 
-    const p: Person = {id: id} as Person
-    this.people.set(id, p)
+    const p: Invitation = { id } as Invitation
+    this.invitations.set(id, p)
     return p
   }
 
-  public updatePerson(person: Person) {
-    if (!person || !person.id) {
+  public updateInvitation(invitation: Invitation) {
+    if (!invitation || !invitation.id) {
       return
     }
 
-    const p = this.person(person.id)
-    Object.assign(p, person)
-    localStorage.setItem('person:' + person.id, JSON.stringify(p))
+    const p = this.invitation(invitation.id)
+    Object.assign(p, invitation)
+    localStorage.setItem('invitation:' + invitation.id, JSON.stringify(p))
   }
 
-  public addPersonToNote(note: Note, person: Person) {
-    person = this.person(person.id)
+  public addInvitationToNote(note: Note, invitation: Invitation) {
+    invitation = this.invitation(invitation.id)
 
-    if (!note.people) {
-      note.people = []
+    if (!note.invitations) {
+      note.invitations = []
     }
 
-    if (note.people.indexOf(person) !== -1) {
+    if (note.invitations.indexOf(invitation) !== -1) {
       return
     }
 
-    note.people.push(person)
-    this.modified(note, 'people')
+    note.invitations.push(invitation)
+    this.modified(note, 'invitations')
   }
 
   /* View */
@@ -642,20 +694,19 @@ export class ApiService {
 
   public modified(note: Note, prop: string = null) {
     if (prop === null) {
-      delete note['_sync']
-    } else if ('_sync' in note) {
-      if (prop in note['_sync']) {
-        note['_sync'][prop].synchronized = false
-      }
+      delete note._local
+    } else if (note._local && note._local.indexOf(prop) === -1) {
+      note._local.push(prop)
     }
 
     note.updated = new Date().toISOString()
+
     this.saveNote(note)
     this.onNoteChangedObservable.next(new NoteChanges(note, prop))
   }
 
   /**
-   * Set a note as synced.
+   * Set a note prop as synced.
    */
   public setSynced(id: string, prop: string) {
     const note = this.search(id)
@@ -675,45 +726,41 @@ export class ApiService {
    * Set all props synced
    */
   public setAllPropsSynced(note: Note) {
-    Object.keys(note).forEach(prop => {
-      if (prop === 'id') {
-        return
-      }
-      this.setPropSynced(note, prop)
-    })
+    note._local = []
+    this.saveNote(note)
+  }
+
+  setNoteRev(id: string, rev: string) {
+    const note = this.search(id)
+
+    if (note) {
+      note.rev = rev
+      this.setAllPropsSynced(note)
+    }
   }
 
   /**
    * setPropSynced
    */
   public setPropSynced(note: Note, prop: string) {
-    if (!note._sync) {
-      note._sync = {}
+    // This entire note is not synced yet
+    if (!note._local) {
+      return
     }
 
-    if (!(prop in note._sync)) {
-      note._sync[prop] = {}
-    }
+    const index = note._local.indexOf(prop)
 
-    note._sync[prop].time = new Date().getTime()
-    note._sync[prop].synchronized = true
+    if (index !== -1) {
+      note._local.splice(index, 1)
+    }
   }
 
   isSynced(note: Note, prop: string): boolean {
-    return note._sync && (prop in note._sync) && note._sync[prop].synchronized
+    return note._local && (note._local.indexOf(prop) === -1)
   }
 
   /**
-   * Set all notes as needing sync.
-   */
-  public setAllNotesUnsynced() {
-    for (const note of this.notes.values()) {
-      this.modified(note)
-    }
-  }
-
-  /**
-   *
+   * Create a new note containing the top note
    */
   private breakCeiling() {
     const id = this.newId()

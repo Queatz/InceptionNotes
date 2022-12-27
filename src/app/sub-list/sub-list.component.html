@@ -17,7 +17,7 @@
            (keydown.arrowDown)="focusItem(0)"
            class="sub-list-title"></div>
     </div>
-    <div *ngIf="getEnv().showDescriptions && list.description" class="item-description"
+    <div *ngIf="list.description" class="item-description"
          [innerHTML]="list.description"></div>
     <div class="item-links" *ngIf="getEnv().showLinks && list.ref">
       <div *ngFor="let i of list.ref" class="item-link lg" [ngClass]="{ 'is-flat': getEnv().showFlat}"
@@ -98,10 +98,10 @@
   <div *ngIf="!useAsNavigation && !list.collapsed && numberHidden(list) > 0" class="item-hidden-count">
     {{ numberHidden(list) }} hidden
   </div>
-  <div *ngIf="!useAsNavigation && list.people && list.people.length">
-    <a class="person-link" *ngFor="let person of list.people" [href]="villageUrl(person)" target="_blank">
-      <img [src]="person.imageUrl" class="person-img" [title]="person.firstName + ' ' + person.lastName"/>
-    </a>
+  <div *ngIf="!useAsNavigation && list.invitations && list.invitations.length">
+    <div class="invitation-link" (contextmenu)="showInvitationMenu($event, list, invitation)" *ngFor="let invitation of list.invitations">
+      <div class="invitation-img" [title]="invitation.username">{{ invitation.username?.slice(0, 2) }}</div>
+    </div>
   </div>
   <div *ngIf="useAsNavigation">
     <sub-sub-list-item

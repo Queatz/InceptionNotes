@@ -10,8 +10,17 @@ import {AppComponent} from './app.component'
         component: AppComponent
       },
       {
-        path: '**',
+        path: 'connect/:id',
         component: AppComponent
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        component: AppComponent
+      },
+      {
+        path: '**',
+        redirectTo: ''
       }
     ], {scrollPositionRestoration: 'enabled'})
   ],

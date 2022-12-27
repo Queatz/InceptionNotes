@@ -1,23 +1,17 @@
-.person-list {
+.invitation-list {
   margin-top: 1rem;
 }
 
-.person {
+.invitation {
   display: flex;
   align-items: center;
   cursor: pointer;
   transition: background .125s;
-  border-radius: .25rem;
+  border-radius: .5rem;
+  padding: .5rem;
 }
 
-.person:hover {
+.invitation:hover {
   background: rgba(0, 0, 0, .1);
   cursor: pointer;
-}
-
-.person-img {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 2rem;
-  margin: .5rem;
 }

@@ -1,22 +1,26 @@
-import {SyncService} from 'app/sync.service'
+import {IdentifyOutgoingEvent, StateOutgoingEvent, SyncOutgoingEvent, SyncService} from 'app/sync.service'
 import {FrozenNote} from '../api.service'
+import {InvitationServerModel} from '../collaboration.service'
 
 export interface ServerEvent {
   got(sync: SyncService): void
 }
 
 export class Event {
-  types: Map<any, string> = new Map()
-  actions: Map<string, any> = new Map()
+  types = new Map<any, string>()
+  actions = new Map<string, any>()
+  outgoingTypes = new Map<any, string>()
+  outgoingActions = new Map<string, any>()
 
   constructor() {
     this.types.set(SyncEvent, 'sync')
+    this.types.set(StateEvent, 'state')
     this.types.set(IdentifyEvent, 'identify')
-    this.types.set(BasicMessageEvent, 'message')
-    this.types.set(ShowEvent, 'show')
-    this.types.set(ServerRequestEvent, 'server')
-
     this.types.forEach((v, k) => this.actions.set(v, k))
+    this.outgoingTypes.set(IdentifyOutgoingEvent, 'identify')
+    this.outgoingTypes.set(StateOutgoingEvent, 'state')
+    this.outgoingTypes.set(SyncOutgoingEvent, 'sync')
+    this.outgoingTypes.forEach((v, k) => this.outgoingActions.set(v, k))
   }
 }
 
@@ -27,67 +31,43 @@ export class SyncEvent implements ServerEvent {
     this.notes = notes
   }
 
-  public got(sync: SyncService) {
+  got(sync: SyncService) {
     this.notes.forEach(n => {
       Object.keys(n).forEach(prop => {
         if (prop === 'id') {
           return
         }
 
-        if (prop === 'sync') {
-          n[prop].forEach(p => {
-            sync.setSynced(n.id, p)
-          })
-          return
-        }
-
         sync.handleUpdateFromServer(n.id, prop, n[prop])
       })
+    })
+    // todo needs to happen after UI merge conflicts
+    sync.syncLocalProps()
+  }
+}
+
+export class StateEvent implements ServerEvent {
+  notes: Array<[string, string]>
+
+  constructor(notes: Array<[string, string]>) {
+    this.notes = notes
+  }
+
+  got(sync: SyncService) {
+    this.notes.forEach(note => {
+      sync.setNoteRev(note[0], note[1])
     })
   }
 }
 
-export class IdentifyEvent {
-  client: string
-  me: string
+export class IdentifyEvent implements ServerEvent {
+  invitation: InvitationServerModel
 
-  constructor(client: string, me: string) {
-    this.client = client
-    this.me = me
-  }
-}
-
-export class ShowEvent {
-  show: string
-
-  constructor(show: string) {
-    this.show = show
-  }
-}
-
-export class BasicMessageEvent implements ServerEvent {
-  message: string
-
-  public got(sync: SyncService) {
-    window.alert(this.message)
-  }
-}
-
-export class ServerRequestEvent implements ServerEvent {
-  name: string
-
-  constructor(name: string) {
-    this.name = name
+  constructor(invitation: InvitationServerModel) {
+    this.invitation = invitation
   }
 
-  public got(sync: SyncService) {
-    switch (this.name) {
-      case 'fetch':
-        sync.fetch()
-        break
-      case 'identify':
-        sync.identified()
-        break
-    }
+  got(sync: SyncService) {
+    sync.sendState()
   }
 }

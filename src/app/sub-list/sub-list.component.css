@@ -226,7 +226,6 @@
   position: relative;
   padding: 0 .33rem;
   border-radius: 1rem;
-  cursor: pointer;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -253,16 +252,25 @@
   margin-left: 0;
 }
 
-.person-img {
+.invitation-img {
+  display: inline-flex;
   width: 1.5rem;
   height: 1.5rem;
+  cursor: default;
   border-radius: 1.5rem;
   margin-top: .5rem;
   margin-right: .5rem;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, .125);
+  background-color: brown;
+  font-size: 75%;
+  color: white;
+  font-weight: bold;
+  justify-content: center;
+  align-items: center;
 }
 
-.person-link {
+.invitation-link {
+  display: inline-block;
   text-decoration: none;
   outline: none;
 }
