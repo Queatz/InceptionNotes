@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core'
 import {HttpClient, HttpHeaders} from '@angular/common/http'
-import {BehaviorSubject, filter, map, Observable, of, Subject} from 'rxjs'
+import {BehaviorSubject, filter, map, Observable, of, Subject, tap} from 'rxjs'
 import {first} from 'rxjs/operators'
 
 import {ApiService, Invitation} from './api.service'
@@ -76,6 +76,14 @@ export class CollaborationService {
     return this.invitationsObservable.pipe(
       filter(it => !!it.length),
       map(r => r.filter(p => !k || p.name.toLowerCase().indexOf(k) !== -1))
+    )
+  }
+
+  connectInvitation(token: string): Observable<Invitation> {
+    return this.post<Invitation>('me/invitation', { token }).pipe(
+      tap(invitation => {
+        this.invitation = invitation
+      })
     )
   }
 

@@ -1,0 +1,7 @@
+<div class="container">
+  <div class="invitation">
+    <span *ngIf="invitation">This device is connected as <b>{{invitation.name}}</b></span>
+    <span *ngIf="!invitation">This device is not connected.</span>
+  </div>
+  <button (click)="goBack()">Continue</button>
+</div>

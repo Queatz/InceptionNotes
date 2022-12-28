@@ -25,7 +25,8 @@ import {AddInvitationComponent} from './add-invitation/add-invitation.component'
 import {AppRoutingModule} from './app.routes'
 import {WindowComponent} from './window/window.component'
 import {FilterService} from './filter.service';
-import { EditInvitationsComponent } from './edit-invitations/edit-invitations.component'
+import { EditInvitationsComponent } from './edit-invitations/edit-invitations.component';
+import { AcceptInvitationComponent } from './accept-invitation/accept-invitation.component'
 
 enableProdMode()
 
@@ -45,7 +46,8 @@ enableProdMode()
     SearchComponent,
     AddInvitationComponent,
     WindowComponent,
-    EditInvitationsComponent
+    EditInvitationsComponent,
+    AcceptInvitationComponent
   ],
   imports: [
     BrowserModule,

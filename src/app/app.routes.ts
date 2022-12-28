@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core'
 import {RouterModule} from '@angular/router'
 import {AppComponent} from './app.component'
+import {AcceptInvitationComponent} from './accept-invitation/accept-invitation.component'
 
 @NgModule({
   imports: [
@@ -11,7 +12,7 @@ import {AppComponent} from './app.component'
       },
       {
         path: 'invitation/:id',
-        component: AppComponent
+        component: AcceptInvitationComponent
       },
       {
         path: '',
