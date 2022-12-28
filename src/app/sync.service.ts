@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core'
 import {Config} from 'app/config.service'
 import {WsService} from 'app/ws.service'
-import {Event, StateEvent} from 'app/sync/event'
-import {ApiService, FrozenNote, Invitation, Note} from 'app/api.service'
+import {Event} from 'app/sync/event'
+import {ApiService, FrozenNote, Note} from 'app/api.service'
 import util from 'app/util'
 import {UiService} from 'app/ui.service'
 
@@ -33,7 +33,6 @@ export class SyncOutgoingEvent {
 @Injectable()
 export class SyncService {
 
-  private me: Invitation
   private event: Event
   private device?: string
 
@@ -63,7 +62,7 @@ export class SyncService {
   /**
    * Start syncing
    */
-  public start() {
+  start() {
     this.ws.reconnect()
 
     this.api.onNoteChangedObservable.subscribe(change => {
@@ -116,23 +115,16 @@ export class SyncService {
   }
 
   /**
-   * Identify with invitation
-   */
-  setInvitation(me: Invitation) {
-    this.me = me
-  }
-
-  /**
    * Send
    */
-  public send(event: any) {
+  send(event: any) {
     this.ws.send([[this.event.outgoingTypes.get(event.constructor), event]])
   }
 
   /**
    * Called on got
    */
-  public got(events: [[string, any]]) {
+  got(events: [[string, any]]) {
     events.forEach((event: [string, any]) => {
       if (this.config.logWs) {
         console.log('got', event)
@@ -145,9 +137,8 @@ export class SyncService {
 
   /**
    * Handle note prop update from sever
-   * todo
    */
-  public handleUpdateFromServer(noteId: string, prop: string, value: any) {
+  handleUpdateFromServer(noteId: string, prop: string, value: any) {
     let note = this.api.search(noteId)
 
     if (!note) {
@@ -155,27 +146,21 @@ export class SyncService {
     }
 
     const localProp = this.api.unfreezeProp(note, prop, value)
-    if (note[prop] === undefined || this.api.isSynced(note, prop)) {
+    if (this.api.isSynced(note, prop)) { // Local prop was provided by server, so overwrite
       this.setProp(note, prop, localProp)
       this.api.setSynced(note.id, prop)
-    } else if (this.valEquals(note[prop], localProp)) {
+    } else if (this.valEquals(note[prop], localProp)) { // Props are identical, do nothing
       this.api.setSynced(note.id, prop)
-    } else {
+    } else { // Local prop differs, ask what to do
       this.ui.dialog({
         message: 'Overwrite ' + prop + ' "' + this.present(note[prop]) + '" with "' + this.present(localProp) + '"',
         ok: () => {
+          // Accept server version
           this.setProp(note, prop, localProp)
           this.api.setSynced(note.id, prop)
         },
         cancel: () => {
-          this.send(new SyncOutgoingEvent([this.api.freezeNote(
-            {
-              id: note.id,
-              rev: note.rev,
-              [prop]: note[prop]
-            },
-            true
-          )]))
+          // todo will it sync to server ever?
         }
       })
     }
@@ -192,33 +177,23 @@ export class SyncService {
 
   /**
    * Return if a value is equal.
-   * todo
    */
-  public valEquals(a: Note, b: Note): boolean {
+  valEquals(a: any, b: any): boolean {
     if (a === b) {
       return true
     }
 
     if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
-      return a.every((v, i) => this.isSameOrTransient(a[i], b[i]))
+      return a.every((v, i) => this.valEquals(a[i], b[i]))
     }
 
     return false
   }
 
   /**
-   * Determine if a note prop is safe to overwrite
-   * todo
-   */
-  isSameOrTransient(a: Note, b: Note) {
-    return a.id === b.id || ((!a.items || !a.items.length) && (!a.ref || !a.ref.length) && (!a.invitations || !a.invitations.length))
-  }
-
-  /**
    * Show a string from a value
-   * todo
    */
-  public present(value: Note) {
+  present(value: Note) {
     if (Array.isArray(value)) {
       return '\n * ' + value.map(item => item.name).join('\n * ') + '\n'
     }

@@ -1,24 +1,18 @@
 import {Injectable} from '@angular/core'
 import {HttpClient, HttpHeaders} from '@angular/common/http'
-import {map, Observable, of, Subject} from 'rxjs'
+import {BehaviorSubject, filter, map, Observable, of, Subject} from 'rxjs'
 import {first} from 'rxjs/operators'
 
-import {ApiService, FrozenNote, Invitation} from './api.service'
+import {ApiService, Invitation} from './api.service'
 import {UiService} from './ui.service'
 import {Config} from 'app/config.service'
 import {SyncService} from 'app/sync.service'
-
-export class InvitationServerModel {
-  invitation?: Invitation
-  notes?: Array<FrozenNote>
-}
 
 @Injectable()
 export class CollaborationService {
 
   private invitation?: Invitation
-  private invitationsObservable: Subject<Invitation[]> = new Subject()
-  private invitations: Invitation[] = []
+  private invitationsObservable = new BehaviorSubject<Invitation[]>([])
 
   constructor(
     private http: HttpClient,
@@ -31,20 +25,18 @@ export class CollaborationService {
 
     if (local) {
       this.invitation = local
-      this.syncService.setInvitation(this.invitation)
     }
   }
 
-  public connect() {
+  connect() {
     if (this.invitation) {
       return
     }
 
-    this.http.get(this.config.getUrl('me'), this.httpOptions()).subscribe(
+    this.get('me').subscribe(
       {
         next: (me: Invitation) => {
-          this.invitation = me
-          this.syncService.setInvitation(me)
+          this.setMe(me)
         },
         error: err => {
           if (err.status === 404) {
@@ -65,37 +57,69 @@ export class CollaborationService {
     )
   }
 
-  public disconnect() {
+  disconnect() {
     this.invitation = null
     localStorage.removeItem('me')
   }
 
-  public me() {
+  me() {
     return this.invitation
   }
 
-  public getInvitations(k: string): Observable<Invitation[]> {
+  getInvitations(k: string = ''): Observable<Invitation[]> {
     k = k.toLowerCase()
 
-    let result: Observable<Invitation[]>
-
-    if (this.invitations) {
-      result = of(this.invitations)
-    } else {
-      result = this.invitationsObservable
-      this.http.get(this.config.getUrl('invitations'), this.httpOptions()).subscribe(
-        (invitations: Invitation[]) => {
-          this.invitations = invitations
-          this.invitations.forEach(p => this.api.updateInvitation(p))
-          this.invitationsObservable.next(this.invitations)
-        }
-      )
+    if (!this.invitationsObservable.getValue().length) {
+      this.reloadInvitations()
     }
 
-    return result.pipe(
-      first(),
+    return this.invitationsObservable.pipe(
+      filter(it => !!it.length),
       map(r => r.filter(p => !k || p.name.toLowerCase().indexOf(k) !== -1))
     )
+  }
+
+  reloadInvitations() {
+    this.get('invitations').subscribe(
+      (invitations: Invitation[]) => {
+        invitations.forEach(p => this.api.updateInvitation(p))
+        this.invitationsObservable.next(invitations)
+      }
+    )
+  }
+
+  setName(name: string) {
+    this.post<Invitation>('me', {name}).subscribe(result => {
+      this.setMe(result)
+    })
+  }
+
+  private setMe(invitation: Invitation) {
+    localStorage.setItem('me', JSON.stringify(invitation))
+    this.invitation = invitation
+  }
+
+  removeInvitation(invitation: Invitation) {
+    this.post(`invitations/${invitation.id}/delete`).subscribe(() => this.reloadInvitations())
+  }
+
+  createInvitation(block: (Invitation) => void) {
+    this.post(`invitations`).subscribe(invitation => {
+      block(invitation)
+      this.reloadInvitations()
+    })
+  }
+
+  makeSteward(invitation: Invitation) {
+    this.post(`invitations/${invitation.id}`, { isSteward: true }).subscribe(() => this.reloadInvitations())
+  }
+
+  private post<T>(url: string, body?: any): Observable<T> {
+    return this.http.post<T>(this.config.getUrl(url), body, this.httpOptions())
+  }
+
+  private get<T>(url: string): Observable<T> {
+    return this.http.get<T>(this.config.getUrl(url), this.httpOptions())
   }
 
   private httpOptions() {

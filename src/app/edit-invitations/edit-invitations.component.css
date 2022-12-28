@@ -1,0 +1,18 @@
+.invitations {
+  margin-top: 1rem;
+}
+
+.invitations-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background .125s;
+  border-radius: .5rem;
+  padding: .5rem;
+}
+
+.invitations-item:hover {
+  background: rgba(0, 0, 0, .1);
+  cursor: pointer;
+}

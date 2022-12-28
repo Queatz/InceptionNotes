@@ -20,12 +20,12 @@ export class UiService {
   constructor(private resolver: ComponentFactoryResolver) {
   }
 
-  public registerAppComponent(app: AppComponent) {
+  registerAppComponent(app: AppComponent) {
     this.appComponent = app
     this.load()
   }
 
-  public back() {
+  back() {
     if (!this.dialogs.length) {
       return false
     }
@@ -36,15 +36,15 @@ export class UiService {
     return true
   }
 
-  public getEnv() {
+  getEnv() {
     return this.env
   }
 
-  public save() {
+  save() {
     localStorage.setItem('env', JSON.stringify(this.env))
   }
 
-  public load() {
+  load() {
     this.env = JSON.parse(localStorage.getItem('env'))
 
     if (!this.env) {
@@ -77,7 +77,7 @@ export class UiService {
     }
   }
 
-  public dialog(config: DialogConfig) {
+  dialog(config: DialogConfig) {
     const dialog = this.appComponent.view
       .createComponent(this.resolver.resolveComponentFactory(DialogComponent))
 
@@ -88,7 +88,7 @@ export class UiService {
     (dialog.instance as DialogComponent).clickout = () => this.back()
   }
 
-  public clearMenus(menuOption?: MenuOption): void {
+  clearMenus(menuOption?: MenuOption): void {
     const depth = menuOption ? this.lastMenu.findIndex(x => {
       return x.component.options.indexOf(menuOption) !== -1
     }) : -2
@@ -106,7 +106,7 @@ export class UiService {
     }
   }
 
-  public menu(options: Array<MenuOption>, position: { x: number, y: number, w?: number }, parentMenuOption?: MenuOption) {
+  menu(options: Array<MenuOption>, position: { x: number, y: number, w?: number }, parentMenuOption?: MenuOption) {
     if (parentMenuOption?.isOpen) {
       return
     }
@@ -142,7 +142,7 @@ export class UiService {
     component.clickout = () => menu.hostView.destroy()
   }
 
-  public addRecentColor(color: string) {
+  addRecentColor(color: string) {
     const exists = this.env.recentColors.indexOf(color)
 
     if (exists !== -1) {
@@ -158,7 +158,7 @@ export class UiService {
     this.save()
   }
 
-  public isAnyDialogOpened() {
+  isAnyDialogOpened() {
     return this.dialogs.length > 0
   }
 }

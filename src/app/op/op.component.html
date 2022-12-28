@@ -4,13 +4,16 @@
     Not connected
   </ng-container>
   <ng-container *ngIf="isSyncConnected()">
-    Connected as <b>Jacob Ferrero</b>
-    <br/>
-    <button (click)="disconnectSync()">Disconnect</button>
+    Connected as <b>{{name()}}</b>&nbsp;<button (click)="changeName()">Set name</button>
+    <ng-container *ngIf="!isSteward()">
+      <br/>
+      <button (click)="disconnectSync()">Disconnect</button>
+    </ng-container>
   </ng-container>
-  <ng-container *ngIf="'i am owner'">
+  <ng-container *ngIf="isSteward()">
     <br/>
-    <button (click)="showInvitationsModal()">Show invitations</button>
+    <br/>
+    <button (click)="showInvitationsModal()">Edit invitations</button>
   </ng-container>
   <br/>
   <br/>

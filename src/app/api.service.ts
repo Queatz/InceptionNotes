@@ -9,6 +9,7 @@ import {Config} from 'app/config.service'
 export class Invitation {
   id: string
   name: string
+  token?: string
   isSteward: boolean
 }
 
@@ -96,11 +97,11 @@ export class ApiService {
 
   /* Persistence */
 
-  public save() {
+  save() {
     localStorage.setItem('top', this.top.id)
   }
 
-  public load() {
+  load() {
     const version = +localStorage.getItem('version')
     let root = null
 
@@ -158,7 +159,7 @@ export class ApiService {
     })
   }
 
-  public saveAll() {
+  saveAll() {
     if (!this.notes) {
       return
     }
@@ -171,7 +172,7 @@ export class ApiService {
   /**
    * Load a single note.
    */
-  public loadNote(note: string) {
+  loadNote(note: string) {
     const n = JSON.parse(note)
     const existingNote = this.notes.get(n.id)
 
@@ -216,7 +217,7 @@ export class ApiService {
   /**
    * Save a single note
    */
-  public saveNote(note: Note) {
+  saveNote(note: Note) {
     localStorage.setItem('note:' + note.id, JSON.stringify(this.freezeNote(note)))
   }
 
@@ -234,7 +235,7 @@ export class ApiService {
     return JSON.stringify(fossil)
   }
 
-  public unfreeze(fossil: object | string): Map<string, Note> {
+  unfreeze(fossil: object | string): Map<string, Note> {
     if (typeof (fossil) === 'string') {
       fossil = JSON.parse(fossil)
     }
@@ -259,7 +260,7 @@ export class ApiService {
   /**
    * Semi-freeze a single note
    */
-  public freezeNote(a: Partial<Note>, forServer = false): FrozenNote {
+  freezeNote(a: Partial<Note>, forServer = false): FrozenNote {
     let items: string[]
     if (a.items) {
       items = []
@@ -310,7 +311,7 @@ export class ApiService {
    * @param a The currently semi-frozen note
    * @param fossils A pool of semi-frozen notes
    */
-  public unfreezeNote(a: FrozenNote | Note, fossils: Map<string, FrozenNote | Note>) {
+  unfreezeNote(a: FrozenNote | Note, fossils: Map<string, FrozenNote | Note>) {
     const note: Note = a as Note
 
     const items = a.items
@@ -371,20 +372,18 @@ export class ApiService {
 
       const a = []
       for (const id of value) {
-        let n = this.search(id)
+        let item = this.search(id)
 
-        if (!n) {
-          n = this.newBlankNote(true, id)
-          if (note) {
-            n.color = note.color
-          }
-          this.saveNote(n)
+        if (!item) {
+          item = this.newBlankNote(true, id)
+          item.color = note.color
+          this.saveNote(item)
         }
 
-        a.push(n)
+        a.push(item)
 
         if (prop === 'items') {
-          n.parent = note
+          item.parent = note
         }
       }
 
@@ -399,7 +398,7 @@ export class ApiService {
   /**
    * Get an invitation by id
    */
-  public invitation(id: string) {
+  invitation(id: string) {
     if (this.invitations.has(id)) {
       return this.invitations.get(id)
     }
@@ -409,7 +408,7 @@ export class ApiService {
     return p
   }
 
-  public updateInvitation(invitation: Invitation) {
+  updateInvitation(invitation: Invitation) {
     if (!invitation || !invitation.id) {
       return
     }
@@ -419,7 +418,7 @@ export class ApiService {
     localStorage.setItem('invitation:' + invitation.id, JSON.stringify(p))
   }
 
-  public addInvitationToNote(note: Note, invitation: Invitation) {
+  addInvitationToNote(note: Note, invitation: Invitation) {
     invitation = this.invitation(invitation.id)
 
     if (!note.invitations) {
@@ -436,7 +435,7 @@ export class ApiService {
 
   /* View */
 
-  public up() {
+  up() {
     if (this.view.eye === this.view.show) {
       const eye = this.search(this.view.show.id)
 
@@ -491,21 +490,21 @@ export class ApiService {
     }
   }
 
-  public getEye() {
+  getEye() {
     return this.view.eye
   }
 
-  public setEye(eye: Note) {
+  setEye(eye: Note) {
     this.view.eye = eye
     this.view.show = this.view.eye
     this.saveView()
   }
 
-  public getShow() {
+  getShow() {
     return this.view.show
   }
 
-  public setShow(show: Note) {
+  setShow(show: Note) {
     this.view.show = show
     this.saveView()
   }
@@ -520,23 +519,23 @@ export class ApiService {
 
   /* Etc */
 
-  public getAllNotes(): Map<string, Note> {
+  getAllNotes(): Map<string, Note> {
     return this.notes
   }
 
-  public getFrozenNotes() {
+  getFrozenNotes() {
     return this.freeze(this.notes)
   }
 
-  public getRoot() {
+  getRoot() {
     return this.top
   }
 
-  public getLists() {
+  getLists() {
     return this.top.items
   }
 
-  public search(id: string): Note {
+  search(id: string): Note {
     return this.notes.get(id)
   }
 
@@ -555,7 +554,7 @@ export class ApiService {
     return list
   }
 
-  public contains(id: string, note: Note, exclude: Note[] = null) {
+  contains(id: string, note: Note, exclude: Note[] = null) {
     if (!note || !note.items) {
       return false
     }
@@ -583,7 +582,7 @@ export class ApiService {
     return false
   }
 
-  public getSubItemEstimates(item: Note, exclude: Note[] = null): Array<number> {
+  getSubItemEstimates(item: Note, exclude: Note[] = null): Array<number> {
     let result: Array<number> = []
 
     if (!exclude) {
@@ -607,7 +606,7 @@ export class ApiService {
     return result
   }
 
-  public getSubItemNames(item: Note, exclude: Note[] = null): Array<string> {
+  getSubItemNames(item: Note, exclude: Note[] = null): Array<string> {
     let result: Array<string> = []
 
     if (!exclude) {
@@ -634,7 +633,7 @@ export class ApiService {
 
   /* Synchronization */
 
-  public loadFrozenNotes(notes: string): void {
+  loadFrozenNotes(notes: string): void {
     const n = this.unfreeze(notes)
 
     for (const note of n.keys()) {
@@ -652,14 +651,14 @@ export class ApiService {
 
   /* Backup */
 
-  public backup() {
+  backup() {
     this.backupToFile(this.freeze(this.notes))
 
     this.ui.getEnv().lastBackup = new Date().toLocaleDateString()
     this.ui.save()
   }
 
-  public unbackup() {
+  unbackup() {
     this.ui.dialog({
       message: 'Notes will be loaded to their previous state.\n\nYou may lose notes.\n\nProceed?',
       ok: () => this.performUnbackup()
@@ -679,7 +678,7 @@ export class ApiService {
     dlAnchorElem.click()
   }
 
-  public backupToFile(str: string) {
+  backupToFile(str: string) {
     const dateStr = new Date().toLocaleDateString()
     const dataStr = new Blob([str], {type: 'application/json'})
     const dlAnchorElem = (document.createElement('A') as HTMLAnchorElement)
@@ -692,7 +691,7 @@ export class ApiService {
 
   /* Edit */
 
-  public modified(note: Note, prop: string = null) {
+  modified(note: Note, prop: string = null) {
     if (prop === null) {
       delete note._local
     } else if (note._local && note._local.indexOf(prop) === -1) {
@@ -708,7 +707,7 @@ export class ApiService {
   /**
    * Set a note prop as synced.
    */
-  public setSynced(id: string, prop: string) {
+  setSynced(id: string, prop: string) {
     const note = this.search(id)
 
     if (!note) {
@@ -725,7 +724,7 @@ export class ApiService {
   /**
    * Set all props synced
    */
-  public setAllPropsSynced(note: Note) {
+  setAllPropsSynced(note: Note) {
     note._local = []
     this.saveNote(note)
   }
@@ -742,7 +741,7 @@ export class ApiService {
   /**
    * setPropSynced
    */
-  public setPropSynced(note: Note, prop: string) {
+  setPropSynced(note: Note, prop: string) {
     // This entire note is not synced yet
     if (!note._local) {
       return
@@ -783,7 +782,7 @@ export class ApiService {
     this.modified(newTop)
   }
 
-  public moveListUp(list: Note, position: number = -1) {
+  moveListUp(list: Note, position: number = -1) {
     const parents = this.parents(list)
     const parent = parents.length >= 2 ? parents[parents.length - 2] : null
 
@@ -798,11 +797,11 @@ export class ApiService {
     }
   }
 
-  public moveList(listId: string, toListId: string) {
+  moveList(listId: string, toListId: string) {
     this.moveListToPosition(listId, toListId, -1)
   }
 
-  public moveListToPosition(listId: string, toListId: string, position: number) {
+  moveListToPosition(listId: string, toListId: string, position: number) {
     if (listId === toListId) {
       return
     }
@@ -864,7 +863,7 @@ export class ApiService {
     list.parent = toList
   }
 
-  public removeListFromParent(list: Note) {
+  removeListFromParent(list: Note) {
     if (list.parent) {
       const pos = list.parent.items.indexOf(list)
       if (pos >= 0) {
@@ -875,7 +874,7 @@ export class ApiService {
     }
   }
 
-  public duplicateList(list: Note) {
+  duplicateList(list: Note) {
     if (!list.parent) {
       return
     }
@@ -890,7 +889,7 @@ export class ApiService {
     return newList
   }
 
-  public copyFromNote(note: Note, referenceNote: Note, includeItems = false) {
+  copyFromNote(note: Note, referenceNote: Note, includeItems = false) {
     note.name = referenceNote.name
     note.description = referenceNote.description
     note.color = referenceNote.color
@@ -916,7 +915,7 @@ export class ApiService {
     this.modified(note)
   }
 
-  public newBlankList(list: Note = null, position: number = null) {
+  newBlankList(list: Note = null, position: number = null) {
     const note: Note = this.newBlankNote()
 
     if (list) {
@@ -939,7 +938,7 @@ export class ApiService {
   }
 
 
-  public newBlankNote(fromServer?: boolean, id?: string): Note {
+  newBlankNote(fromServer?: boolean, id?: string): Note {
     if (!id) {
       id = this.newId()
     }
@@ -966,7 +965,7 @@ export class ApiService {
 
   /* Relationships */
 
-  public addRef(list: Note, toList: Note) {
+  addRef(list: Note, toList: Note) {
     if (list === toList) {
       return
     }
@@ -994,7 +993,7 @@ export class ApiService {
     this.modified(list, 'ref')
   }
 
-  public removeRef(list: Note, toList: Note) {
+  removeRef(list: Note, toList: Note) {
     if (list === toList) {
       return
     }
@@ -1018,7 +1017,7 @@ export class ApiService {
     }
   }
 
-  public orderRef(list: Note, toList: Note, position: number) {
+  orderRef(list: Note, toList: Note, position: number) {
     if (list === toList) {
       return
     }
@@ -1085,7 +1084,7 @@ export class ApiService {
 
   /* Recents */
 
-  public getRecent(which: string): Note[] {
+  getRecent(which: string): Note[] {
     const recent = localStorage.getItem('recent::' + which)
 
     if (!recent) {
@@ -1095,7 +1094,7 @@ export class ApiService {
     return recent.split(',').map(noteId => this.search(noteId)).filter(note => !!note)
   }
 
-  public addRecent(which: string, noteId: string) {
+  addRecent(which: string, noteId: string) {
     const recents = (localStorage.getItem('recent::' + which) || '').split(',').filter(n => n !== noteId)
     recents.unshift(noteId)
     if (recents.length > 3) {
@@ -1106,7 +1105,7 @@ export class ApiService {
 
   /* Util */
 
-  public newId() {
+  newId() {
     let id
 
     do {
@@ -1116,7 +1115,7 @@ export class ApiService {
     return id
   }
 
-  public rawNewId() {
+  rawNewId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
   }
 

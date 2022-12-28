@@ -1007,7 +1007,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     event.stopPropagation()
   }
 
-  public onArrowUpDown(event: Event, item: Note, move: number, list?: Note, itemsElement?: HTMLElement) {
+  onArrowUpDown(event: Event, item: Note, move: number, list?: Note, itemsElement?: HTMLElement) {
     event.preventDefault()
 
     const i = this.visualIndexOf(list || this.list, item)
@@ -1027,7 +1027,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     this.nameElement.nativeElement.focus()
   }
 
-  public focusItem(index: number, list?: Note, element?: HTMLElement) {
+  focusItem(index: number, list?: Note, element?: HTMLElement) {
     if (index < 0 || index >= (list || this.list).items.length) {
       return false
     }
@@ -1040,7 +1040,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     return true
   }
 
-  public up() {
+  up() {
     this.api.up()
   }
 

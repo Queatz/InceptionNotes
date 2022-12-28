@@ -1,6 +1,5 @@
 import {IdentifyOutgoingEvent, StateOutgoingEvent, SyncOutgoingEvent, SyncService} from 'app/sync.service'
-import {FrozenNote} from '../api.service'
-import {InvitationServerModel} from '../collaboration.service'
+import {FrozenNote, Invitation} from '../api.service'
 
 export interface ServerEvent {
   got(sync: SyncService): void
@@ -41,7 +40,7 @@ export class SyncEvent implements ServerEvent {
         sync.handleUpdateFromServer(n.id, prop, n[prop])
       })
     })
-    // todo needs to happen after UI merge conflicts
+    // todo: needs to happen after UI merge conflicts
     sync.syncLocalProps()
   }
 }
@@ -61,9 +60,9 @@ export class StateEvent implements ServerEvent {
 }
 
 export class IdentifyEvent implements ServerEvent {
-  invitation: InvitationServerModel
+  invitation: Invitation
 
-  constructor(invitation: InvitationServerModel) {
+  constructor(invitation: Invitation) {
     this.invitation = invitation
   }
 

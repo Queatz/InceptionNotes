@@ -1,0 +1,9 @@
+<div class="invitations">
+  <div class="invitations-item"
+       *ngFor="let invitation of invitations"
+       (click)="select($event, invitation)">
+    <div>{{invitation.name}}</div>
+    <div *ngIf="invitation.isSteward" title="Steward">👩‍💻</div>
+  </div>
+  <div class="invitations-item" (click)="addNew()">Add new...</div>
+</div>

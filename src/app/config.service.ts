@@ -10,7 +10,7 @@ export class Config {
   constructor() {
   }
 
-  public getWebSocketUrl() {
+  getWebSocketUrl() {
     if (this.beta) {
       return 'ws://localhost:8080/ws'
     } else {
@@ -18,11 +18,19 @@ export class Config {
     }
   }
 
-  public getUrl(path: string) {
+  getUrl(path: string) {
     if (this.beta) {
       return `http://localhost:8080/${path}`
     } else {
       return `https://api.inceptionnotes.com/${path}`
+    }
+  }
+
+  invitationLink(token: string) {
+    if (this.beta) {
+      return `http://localhost:4200/invitation/${token}`
+    } else {
+      return `https://inceptionnotes.com/invitation/${token}`
     }
   }
 }

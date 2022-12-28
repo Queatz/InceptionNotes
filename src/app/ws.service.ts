@@ -22,11 +22,11 @@ export class WsService {
   constructor(private config: Config, private http: HttpClient) {
   }
 
-  public active(): boolean {
+  active(): boolean {
     return this.websocket?.readyState === WebSocket.OPEN
   }
 
-  public reconnect() {
+  reconnect() {
     if (new Date().getTime() - this.lastReconnectAttempt < 15000) {
       return
     }
@@ -45,11 +45,11 @@ export class WsService {
     this.websocket.onclose = () => this.onClose()
   }
 
-  public close() {
+  close() {
     this.websocket?.close()
   }
 
-  public send(events: any[], forceHttp = false): boolean {
+  send(events: any[], forceHttp = false): boolean {
     if (this.config.logWs) {
       console.log('send', events)
     }

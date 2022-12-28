@@ -10,7 +10,7 @@ import {AppComponent} from './app.component'
         component: AppComponent
       },
       {
-        path: 'connect/:id',
+        path: 'invitation/:id',
         component: AppComponent
       },
       {
