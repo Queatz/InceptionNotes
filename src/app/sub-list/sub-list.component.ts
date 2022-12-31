@@ -20,7 +20,6 @@ import {ColorPickerComponent} from '../color-picker/color-picker.component'
 import {SearchComponent} from '../search/search.component'
 import {CollaborationService} from 'app/collaboration.service'
 import {AddInvitationComponent} from 'app/add-invitation/add-invitation.component'
-import {Config} from 'app/config.service'
 import {FilterService} from 'app/filter.service'
 import {filter as filterOp, Observable, Subject} from 'rxjs'
 import {takeUntil} from 'rxjs/operators'
@@ -72,11 +71,10 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private ui: UiService,
     private api: ApiService,
+    private collaboration: CollaborationService,
     private filter: FilterService,
-    private elementRef: ElementRef,
-    private village: CollaborationService,
-    private config: Config) {
-  }
+    private elementRef: ElementRef
+  ) {}
 
   ngOnInit() {
     this.initNext()
@@ -302,12 +300,14 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         title: 'Info', callback: () => {
           const created = this.list.created ? Date.parse(this.list.created) : null
           const updated = this.list.updated ? Date.parse(this.list.updated) : null
+          const steward = this.api.invitation(this.list.steward)
 
           const createdStr = !created ? 'Unknown creation date' : `Created ${formatDistanceToNow(created)} ago on ${formatDate(created, 'medium', 'en-US')}`
           const updatedStr = !updated ? 'Note has never been updated' : `Modified ${formatDistanceToNow(updated)} ago on ${formatDate(updated, 'medium', 'en-US')}`
+          const stewardStr = !steward ? 'Note creator is unknown' : `Note created by ${steward.name}`
 
           this.ui.dialog({
-            message: `${createdStr}\n\n${updatedStr}`
+            message: `${createdStr}\n\n${updatedStr}\n\n${stewardStr}`
           })
         }
       },
@@ -343,6 +343,10 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         })
       }
     })
+  }
+
+  me(): Invitation {
+    return this.collaboration.me()
   }
 
   showSubitemOptions(event: MouseEvent, item: Note) {
@@ -1115,7 +1119,10 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     event.stopPropagation()
     event.preventDefault()
 
-    if (!'i am the note owner or i am the connected') {
+    if (invitation.id === item.steward) {
+      this.ui.dialog({
+        message: `${invitation.name} is the note's creator`
+      })
       return
     }
 
@@ -1136,5 +1143,14 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       ],
       {x: event.clientX, y: event.clientY}
     )
+  }
+
+  getInvitations(list: Note): Array<Invitation> {
+    const me = this.me()
+    const l = list.invitations.filter(i => i.id !== me.id)
+    if (list.steward && me.id !== list.steward) {
+      l.unshift(this.api.invitation(list.steward))
+    }
+    return l
   }
 }

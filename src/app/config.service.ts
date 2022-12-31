@@ -5,7 +5,6 @@ import {environment} from '../environments/environment'
 export class Config {
 
   beta: boolean = !environment.production
-  logWs: boolean = !environment.production
 
   constructor() {
   }

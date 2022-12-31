@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core'
 import {HttpClient, HttpHeaders} from '@angular/common/http'
-import {BehaviorSubject, filter, map, Observable, of, Subject, tap} from 'rxjs'
-import {first} from 'rxjs/operators'
+import {BehaviorSubject, filter, map, Observable, tap} from 'rxjs'
 
 import {ApiService, Invitation} from './api.service'
 import {UiService} from './ui.service'
@@ -29,7 +28,10 @@ export class CollaborationService {
   }
 
   connect() {
+    this.reloadInvitations()
+
     if (this.invitation) {
+      this.syncService.start()
       return
     }
 
@@ -37,6 +39,7 @@ export class CollaborationService {
       {
         next: (me: Invitation) => {
           this.setMe(me)
+          this.syncService.start()
         },
         error: err => {
           if (err.status === 404) {
@@ -90,15 +93,15 @@ export class CollaborationService {
   reloadInvitations() {
     this.get('invitations').subscribe(
       (invitations: Invitation[]) => {
-        invitations.forEach(p => this.api.updateInvitation(p))
-        this.invitationsObservable.next(invitations)
+        this.invitationsObservable.next(invitations.map(p => this.api.updateInvitation(p)))
       }
     )
   }
 
   setName(name: string) {
-    this.post<Invitation>('me', {name}).subscribe(result => {
-      this.setMe(result)
+    this.post<Invitation>('me', {name}).subscribe(me => {
+      this.setMe(me)
+      this.api.updateInvitation(me)
     })
   }
 

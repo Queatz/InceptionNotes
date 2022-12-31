@@ -2,8 +2,11 @@
   <div class="invitations-item"
        *ngFor="let invitation of invitations"
        (click)="select($event, invitation)">
-    <div>{{invitation.name}}</div>
+    <div>
+      <app-invitation-photo [invitation]="invitation"></app-invitation-photo>
+      <span>{{invitation.name}}</span>
+    </div>
     <div *ngIf="invitation.isSteward" title="Steward">👩‍💻</div>
   </div>
-  <div class="invitations-item" (click)="addNew()">Add new...</div>
+  <div class="invitations-item" (click)="addNew()">Create...</div>
 </div>

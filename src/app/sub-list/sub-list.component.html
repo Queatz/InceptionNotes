@@ -98,10 +98,8 @@
   <div *ngIf="!useAsNavigation && !list.collapsed && numberHidden(list) > 0" class="item-hidden-count">
     {{ numberHidden(list) }} hidden
   </div>
-  <div *ngIf="!useAsNavigation && list.invitations && list.invitations.length">
-    <div class="invitation-link" (contextmenu)="showInvitationMenu($event, list, invitation)" *ngFor="let invitation of list.invitations">
-      <div class="invitation-img" [title]="invitation.username">{{ invitation.username?.slice(0, 2) }}</div>
-    </div>
+  <div *ngIf="!useAsNavigation && (list.invitations?.length || (list.steward && list.steward !== me()?.id))">
+    <app-invitation-photo class="invitation-photo" (contextmenu)="showInvitationMenu($event, list, invitation)" *ngFor="let invitation of getInvitations(list)" [invitation]="invitation"></app-invitation-photo>
   </div>
   <div *ngIf="useAsNavigation">
     <sub-sub-list-item

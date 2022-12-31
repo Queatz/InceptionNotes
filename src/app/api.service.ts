@@ -23,6 +23,7 @@ export class Note {
   rev: string
   parent?: Note
   name: string
+  steward: string
   description: string | null
   checked: boolean
   color: string
@@ -43,6 +44,7 @@ export class FrozenNote {
   rev: string
   parent?: FrozenNote
   name: string
+  steward: string
   description: string
   checked: boolean
   color: string
@@ -132,7 +134,7 @@ export class ApiService {
       if (n.substring(0, 5) === 'note:') {
         const n2 = JSON.parse(localStorage.getItem(n))
         localNotes.set(n2.id, n2)
-      } else if (n.substring(0, 7) === 'invitation:') {
+      } else if (n.substring(0, 11) === 'invitation:') {
         this.updateInvitation(JSON.parse(localStorage.getItem(n)))
       }
     }
@@ -204,7 +206,7 @@ export class ApiService {
     note.options = Object.assign({}, referenceNote.options)
     note.created = referenceNote.created
     note.updated = referenceNote.updated
-    note._local = referenceNote._local ? Object.assign({}, referenceNote._local) : undefined
+    note._local = referenceNote._local ? [ ...referenceNote._local ] : note._local
 
     // Update parent references, note that 'ref' should be updated by the other note anyway
     note.items.forEach(n => {
@@ -289,6 +291,7 @@ export class ApiService {
       id: a.id,
       rev: a.rev,
       name: a.name,
+      steward: a.steward,
       description: a.description,
       checked: a.checked,
       color: a.color,
@@ -371,23 +374,32 @@ export class ApiService {
       }
 
       const a = []
-      for (const id of value) {
-        let item = this.search(id)
 
-        if (!item) {
-          item = this.newBlankNote(true, id)
-          item.color = note.color
-          this.saveNote(item)
+      if (prop === 'invitations') {
+        for (const id of value) {
+          a.push(this.invitation(id))
         }
 
-        a.push(item)
+        return a
+      } else {
+        for (const id of value) {
+          let item = this.search(id)
 
-        if (prop === 'items') {
-          item.parent = note
+          if (!item) {
+            item = this.newBlankNote(true, id)
+            item.color = note.color
+            this.saveNote(item)
+          }
+
+          a.push(item)
+
+          if (prop === 'items') {
+            item.parent = note
+          }
         }
+
+        return a
       }
-
-      return a
     }
 
     return value
@@ -398,24 +410,28 @@ export class ApiService {
   /**
    * Get an invitation by id
    */
-  invitation(id: string) {
+  invitation(id: string): Invitation {
     if (this.invitations.has(id)) {
       return this.invitations.get(id)
     }
 
-    const p: Invitation = { id } as Invitation
+    const p: Invitation = new Invitation()
+    p.id = id
     this.invitations.set(id, p)
     return p
   }
 
-  updateInvitation(invitation: Invitation) {
-    if (!invitation || !invitation.id) {
+  updateInvitation(invitation: Invitation): Invitation {
+    if (!invitation?.id) {
       return
     }
 
     const p = this.invitation(invitation.id)
-    Object.assign(p, invitation)
+    p.name = invitation.name
+    p.isSteward = invitation.isSteward
+    p.token = invitation.token
     localStorage.setItem('invitation:' + invitation.id, JSON.stringify(p))
+    return p
   }
 
   addInvitationToNote(note: Note, invitation: Invitation) {
@@ -1117,6 +1133,11 @@ export class ApiService {
 
   rawNewId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+  }
+
+  invitationColor(id: string) {
+    if (!id) { return '#404040' }
+    return `hsl(${id.split('').map(it => it.charCodeAt(0)).reduce((a, b, i) => a * (i + 1) + b * (i + 1)) % 360}, 66%, 33%)`
   }
 
   private intro() {

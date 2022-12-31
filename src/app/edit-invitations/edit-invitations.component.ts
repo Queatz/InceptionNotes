@@ -74,7 +74,7 @@ export class EditInvitationsComponent implements OnInit {
 
   private showLink(invitation: Invitation) {
     this.ui.dialog({
-      message: invitation.token ? `Share this link\n\n${this.config.invitationLink(invitation.token)}` : 'No link available'
+      message: invitation.token ? `Share this link\n\n<u>${this.config.invitationLink(invitation.token)}</u>` : 'No link available'
     })
   }
 }

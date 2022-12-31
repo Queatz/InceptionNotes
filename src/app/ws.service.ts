@@ -50,10 +50,6 @@ export class WsService {
   }
 
   send(events: any[], forceHttp = false): boolean {
-    if (this.config.logWs) {
-      console.log('send', events)
-    }
-
     if (!this.websocket || this.websocket.readyState === WebSocket.CLOSED) {
       this.reconnect()
     }

@@ -252,27 +252,8 @@
   margin-left: 0;
 }
 
-.invitation-img {
-  display: inline-flex;
-  width: 1.5rem;
-  height: 1.5rem;
-  cursor: default;
-  border-radius: 1.5rem;
+.invitation-photo {
   margin-top: .5rem;
-  margin-right: .5rem;
-  box-shadow: 1px 1px 3px rgba(0, 0, 0, .125);
-  background-color: brown;
-  font-size: 75%;
-  color: white;
-  font-weight: bold;
-  justify-content: center;
-  align-items: center;
-}
-
-.invitation-link {
-  display: inline-block;
-  text-decoration: none;
-  outline: none;
 }
 
 .item-checkbox {

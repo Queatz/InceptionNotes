@@ -126,9 +126,6 @@ export class SyncService {
    */
   got(events: [[string, any]]) {
     events.forEach((event: [string, any]) => {
-      if (this.config.logWs) {
-        console.log('got', event)
-      }
       const t = this.event.actions.get(event[0])
       event[1].__proto__ = t.prototype
       event[1].got(this)
@@ -193,9 +190,13 @@ export class SyncService {
   /**
    * Show a string from a value
    */
-  present(value: Note) {
+  present(value: any) {
     if (Array.isArray(value)) {
       return '\n * ' + value.map(item => item.name).join('\n * ') + '\n'
+    }
+
+    if (typeof value === 'object') {
+      return JSON.stringify(value)
     }
 
     return value

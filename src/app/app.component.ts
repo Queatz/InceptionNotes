@@ -27,7 +27,6 @@ export class AppComponent {
     private title: Title
   ) {
     this.ui.registerAppComponent(this)
-    this.sync.start()
     this.collab.connect()
 
     route.params.subscribe(params => {
@@ -57,9 +56,5 @@ export class AppComponent {
         this.ui.locate.next({list: show, animate: false})
       })
     }
-  }
-
-  getEnv() {
-    return this.ui.getEnv()
   }
 }

@@ -5,3 +5,13 @@
 .invitation {
   margin-bottom: 1rem;
 }
+
+.message {
+  margin-bottom: 1rem;
+  color: orangered;
+  border: 1px solid orangered;
+  display: block;
+  padding: .5rem;
+  border-radius: 2.5px;
+  white-space: pre-wrap;
+}

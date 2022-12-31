@@ -1,5 +1,11 @@
 <form>
-  <b>Collaboration</b><br/>
+  <b>Collaboration</b>
+  <ng-container *ngIf="isSteward()">
+    <br/>
+    <button (click)="showInvitationsModal()">Edit invitations</button>
+    <br/>
+  </ng-container>
+  <br/>
   <ng-container *ngIf="!isSyncConnected()">
     Not connected
   </ng-container>
@@ -10,15 +16,10 @@
       <button (click)="disconnectSync()">Disconnect</button>
     </ng-container>
   </ng-container>
-  <ng-container *ngIf="isSteward()">
-    <br/>
-    <br/>
-    <button (click)="showInvitationsModal()">Edit invitations</button>
-  </ng-container>
   <br/>
   <br/>
   <b>Navigation</b><br/>
-  <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.sidepane" (ngModelChange)="update()"/> Show side
+  <label><input type="checkbox" name="sidepane" [(ngModel)]="env.sidepane" (ngModelChange)="update()"/> Show side
     nav</label>
   <br/>
   <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.dblClickToOpen" (ngModelChange)="update()"/>
