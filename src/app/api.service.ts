@@ -449,6 +449,19 @@ export class ApiService {
     this.modified(note, 'invitations')
   }
 
+  refreshInvitations(invitations: Invitation[]): Invitation[] {
+    const all = invitations.map(it => it.id)
+    const existing = [...this.invitations.keys()]
+    for (const id of existing) {
+      if (all.indexOf(id) === -1) {
+        this.invitations.delete(id)
+        localStorage.removeItem('invitation:' + id)
+        this.removeRecentInvitation(id)
+      }
+    }
+    return invitations.map(p => this.updateInvitation(p))
+  }
+
   /* View */
 
   up() {
@@ -1138,6 +1151,12 @@ export class ApiService {
     if (recents.length > 3) {
       recents.length = 3
     }
+    localStorage.setItem('recent-invitations', recents.join(','))
+  }
+
+  removeRecentInvitation(id: string) {
+    const recents = (localStorage.getItem('recent-invitations') || '').split(',')
+      .filter(x => x && x !== id)
     localStorage.setItem('recent-invitations', recents.join(','))
   }
 

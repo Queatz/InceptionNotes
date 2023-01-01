@@ -42,7 +42,9 @@ export class WsService {
     this.websocket = new WebSocket(this.config.getWebSocketUrl())
     this.websocket.onmessage = message => this.onMessage(message.data)
     this.websocket.onopen = () => this.onOpen()
-    this.websocket.onclose = () => this.onClose()
+    this.websocket.onclose = event => {
+      this.onClose(event.code !== 1000)
+    }
   }
 
   close() {
@@ -107,8 +109,12 @@ export class WsService {
     }
   }
 
-  private onClose() {
-    this.reconnect()
+  private onClose(wasNormal: boolean) {
+    if (!wasNormal) {
+      setTimeout(() => {
+        this.reconnect()
+      }, 2000)
+    }
   }
 
   private onMessage(message: string) {

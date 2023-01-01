@@ -28,8 +28,6 @@ export class CollaborationService {
   }
 
   connect() {
-    this.reloadInvitations()
-
     if (this.invitation) {
       this.syncService.start()
       return
@@ -39,6 +37,7 @@ export class CollaborationService {
       {
         next: (me: Invitation) => {
           this.setMe(me)
+          this.reloadInvitations()
           this.syncService.start()
         },
         error: err => {
@@ -93,7 +92,7 @@ export class CollaborationService {
   reloadInvitations() {
     this.get('invitations').subscribe(
       (invitations: Invitation[]) => {
-        this.invitationsObservable.next(invitations.map(p => this.api.updateInvitation(p)))
+        this.invitationsObservable.next(this.api.refreshInvitations(invitations))
       }
     )
   }
