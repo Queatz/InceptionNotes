@@ -4,7 +4,7 @@ import {Subject} from 'rxjs'
 import {AppComponent} from './app.component'
 import {DialogComponent, DialogConfig} from './dialog/dialog.component'
 import {MenuComponent} from './menu/menu.component'
-import {Note} from './api.service'
+import {Invitation, Note} from './api.service'
 
 @Injectable()
 export class UiService {
@@ -185,6 +185,7 @@ export interface Env {
 export interface MenuOption {
   title: string,
   color?: string,
+  invitation?: Invitation,
   disabled?: boolean,
   callback: () => void,
   shortcut?: string,

@@ -1113,12 +1113,32 @@ export class ApiService {
   }
 
   addRecent(which: string, noteId: string) {
-    const recents = (localStorage.getItem('recent::' + which) || '').split(',').filter(n => n !== noteId)
+    const recents = (localStorage.getItem('recent::' + which) || '').split(',').filter(n => n && n !== noteId)
     recents.unshift(noteId)
     if (recents.length > 3) {
       recents.length = 3
     }
     localStorage.setItem('recent::' + which, recents.join(','))
+  }
+
+  getRecentInvitations(): Invitation[] {
+    const recent = localStorage.getItem('recent-invitations')
+
+    if (!recent) {
+      return []
+    }
+
+    return recent.split(',').map(x => this.invitation(x)).filter(x => !!x)
+  }
+
+  addRecentInvitation(invitation: Invitation) {
+    const recents = (localStorage.getItem('recent-invitations') || '').split(',')
+      .filter(x => x && x !== invitation.id)
+    recents.unshift(invitation.id)
+    if (recents.length > 3) {
+      recents.length = 3
+    }
+    localStorage.setItem('recent-invitations', recents.join(','))
   }
 
   /* Util */

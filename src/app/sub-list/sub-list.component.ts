@@ -196,6 +196,12 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       {
         title: 'Invite...',
         callback: () => this.addInvitation(this.list),
+        menu: [
+          ...this.getRecentInvitationsSubmenu(recent => {
+            this.api.addRecentInvitation(recent)
+            this.api.addInvitationToNote(this.list, recent)
+          }, this.list.invitations || [])
+        ]
       },
       {
         title: 'Color...',
@@ -361,6 +367,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
         (<AddInvitationComponent>dialog.component.instance).onSelection.subscribe(invitation => {
           dialog.back()
+          this.api.addRecentInvitation(invitation)
           this.api.addInvitationToNote(list, invitation)
         })
       }
@@ -461,7 +468,9 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         callback: () => {
         },
         menu: [
-          ...(refItem.parent?.items || []).filter(x => x !== refItem && x.name.trim()).map(refSibling => ({
+          ...(refItem.parent?.items || []).filter(
+            x => x !== refItem && x.name.trim() && item.ref.indexOf(x) === -1
+          ).map(refSibling => ({
             title: refSibling.name,
             callback: () => {
               this.api.addRecent('search', refSibling.id)
@@ -1083,6 +1092,19 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       } as MenuOption
     }) : []
   }
+  private getRecentInvitationsSubmenu(callback: (recent: Invitation) => void, exclude: Invitation[] = []): Array<MenuOption> {
+    const recents = this.api.getRecentInvitations().filter(x => exclude.indexOf(x) === -1)
+
+    return recents.map(recent => {
+      return {
+        title: recent.name,
+        invitation: recent,
+        callback: () => {
+          callback(recent)
+        }
+      } as MenuOption
+    })
+  }
 
   private deleteItem(itemsElement: HTMLElement, list: Note, item: Note) {
     const i = list.items.indexOf(item)
@@ -1170,7 +1192,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   getInvitations(list: Note): Array<Invitation> {
     const me = this.me()
     const l = list.invitations?.filter(i => i.id !== me.id) || []
-    if (list.invitations?.length && list.steward && me.id !== list.steward) {
+    if (list.steward && l.filter(x => x.id !== list.steward)?.length && me.id !== list.steward) {
       l.unshift(this.api.invitation(list.steward))
     }
     return l

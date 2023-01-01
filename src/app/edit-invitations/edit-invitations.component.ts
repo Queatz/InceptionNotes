@@ -60,7 +60,7 @@ export class EditInvitationsComponent implements OnInit {
           callback: () => {
             this.ui.dialog(
               {
-                message: 'Remove this invitation?',
+                message: 'Completely remove this invitation?\n\nThis invitation will also be removed from all notes.',
                 ok: () => {
                   this.collaboration.removeInvitation(invitation)
                 }
