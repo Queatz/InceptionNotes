@@ -745,13 +745,16 @@ export class ApiService {
     this.saveNote(note)
   }
 
-  setNoteRev(id: string, rev: string) {
+  setNoteRev(id: string, rev: string): boolean {
     const note = this.search(id)
 
     if (note) {
       note.rev = rev
       this.setAllPropsSynced(note)
+      return true
     }
+
+    return false
   }
 
   /**
@@ -952,7 +955,6 @@ export class ApiService {
 
     return note
   }
-
 
   newBlankNote(fromServer?: boolean, id?: string): Note {
     if (!id) {

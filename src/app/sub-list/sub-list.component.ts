@@ -198,6 +198,19 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         callback: () => this.addInvitation(this.list),
       },
       {
+        title: 'Color...',
+        callback: () => this.changeColor(),
+        menu: (this.getEnv().recentColors || []).slice(0, 3).map(color => ({
+          title: color,
+          color,
+          callback: () => {
+            this.ui.addRecentColor(color)
+            this.list.color = color
+            this.api.modified(this.list, 'color')
+          }
+        }))
+      },
+      {
         title: 'Sort',
         shortcut: '⯈',
         callback: () => {
@@ -246,11 +259,33 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         ]
       },
       {
-        title: 'Options',
+        title: 'More',
         shortcut: '⯈',
         callback: () => {
         },
         menu: [
+          {
+            title: 'Info', callback: () => {
+              const created = this.list.created ? Date.parse(this.list.created) : null
+              const updated = this.list.updated ? Date.parse(this.list.updated) : null
+              const steward = this.api.invitation(this.list.steward)
+
+              const createdStr = !created ? 'Unknown creation date' : `Created ${formatDistanceToNow(created)} ago on ${formatDate(created, 'medium', 'en-US')}`
+              const updatedStr = !updated ? 'Note has never been updated' : `Modified ${formatDistanceToNow(updated)} ago on ${formatDate(updated, 'medium', 'en-US')}`
+              const stewardStr = !steward ? 'Note creator is unknown' : `Note created by ${steward.name}`
+
+              this.ui.dialog({
+                message: `${createdStr}\n\n${updatedStr}\n\n${stewardStr}`
+              })
+            }
+          },
+          ...(this.list.parent ? [{
+            title: 'Duplicate',
+            callback: () => this.api.duplicateList(this.list)
+          }, {
+            title: this.list.collapsed ? 'Un-collapse' : 'Collapse',
+            callback: () => this.toggleCollapse(this.list),
+          }] : []),
           {
             title: this.list.options?.enumerate ? 'Un-enumerate' : 'Enumerate', callback: () => {
               if (!this.list.options) {
@@ -274,42 +309,6 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
             }
           }
         ]
-      },
-      {
-        title: 'Color...',
-        callback: () => this.changeColor(),
-        menu: (this.getEnv().recentColors || []).slice(0, 3).map(color => ({
-          title: color,
-          color,
-          callback: () => {
-            this.ui.addRecentColor(color)
-            this.list.color = color
-            this.api.modified(this.list, 'color')
-          }
-        }))
-      },
-      ...(this.list.parent ? [{
-        title: 'Duplicate',
-        callback: () => this.api.duplicateList(this.list)
-      }] : []),
-      ...(this.list.parent ? [{
-        title: this.list.collapsed ? 'Un-collapse' : 'Collapse',
-        callback: () => this.toggleCollapse(this.list),
-      }] : []),
-      {
-        title: 'Info', callback: () => {
-          const created = this.list.created ? Date.parse(this.list.created) : null
-          const updated = this.list.updated ? Date.parse(this.list.updated) : null
-          const steward = this.api.invitation(this.list.steward)
-
-          const createdStr = !created ? 'Unknown creation date' : `Created ${formatDistanceToNow(created)} ago on ${formatDate(created, 'medium', 'en-US')}`
-          const updatedStr = !updated ? 'Note has never been updated' : `Modified ${formatDistanceToNow(updated)} ago on ${formatDate(updated, 'medium', 'en-US')}`
-          const stewardStr = !steward ? 'Note creator is unknown' : `Note created by ${steward.name}`
-
-          this.ui.dialog({
-            message: `${createdStr}\n\n${updatedStr}\n\n${stewardStr}`
-          })
-        }
       },
       {
         title: 'Remove', callback: () => {
@@ -1147,7 +1146,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
   getInvitations(list: Note): Array<Invitation> {
     const me = this.me()
-    const l = list.invitations.filter(i => i.id !== me.id)
+    const l = list.invitations?.filter(i => i.id !== me.id) || []
     if (list.steward && me.id !== list.steward) {
       l.unshift(this.api.invitation(list.steward))
     }

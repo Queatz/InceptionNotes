@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core'
-import {Config} from 'app/config.service'
 import {WsService} from 'app/ws.service'
 import {Event} from 'app/sync/event'
 import {ApiService, FrozenNote, Note} from 'app/api.service'
@@ -22,6 +21,14 @@ export class StateOutgoingEvent {
   }
 }
 
+export class GetOutgoingEvent {
+  notes: Array<string>
+
+  constructor(notes: Array<string>) {
+    this.notes = notes
+  }
+}
+
 export class SyncOutgoingEvent {
   notes: FrozenNote[]
 
@@ -36,7 +43,7 @@ export class SyncService {
   private event: Event
   private device?: string
 
-  constructor(private ws: WsService, private api: ApiService, private ui: UiService, private config: Config) {
+  constructor(private ws: WsService, private api: ApiService, private ui: UiService) {
     this.ws.syncService = this
 
     this.ws.onBeforeOpen.subscribe(() => {
@@ -133,15 +140,32 @@ export class SyncService {
   }
 
   /**
-   * Handle note prop update from sever
+   * Handle note update from server
    */
-  handleUpdateFromServer(noteId: string, prop: string, value: any) {
-    let note = this.api.search(noteId)
-
+  handleNoteFromServer(n: FrozenNote, full: boolean): boolean {
+    let note = this.api.search(n.id)
     if (!note) {
-      note = this.api.newBlankNote(true, noteId)
+      if (full) {
+        note = this.api.newBlankNote(true, n.id)
+      } else {
+        return false
+      }
     }
 
+    Object.keys(n).forEach(prop => {
+      if (prop === 'id') {
+        return
+      }
+      this.handleUpdateFromServer(note, prop, n[prop])
+    })
+
+    return true
+  }
+
+  /**
+   * Handle note prop update from sever
+   */
+  handleUpdateFromServer(note: Note, prop: string, value: any): boolean {
     const localProp = this.api.unfreezeProp(note, prop, value)
     if (this.api.isSynced(note, prop)) { // Local prop was provided by server, so overwrite
       this.setProp(note, prop, localProp)
@@ -161,6 +185,8 @@ export class SyncService {
         }
       })
     }
+
+    return true
   }
 
   setProp(note: Note, prop: string, value: any) {
@@ -202,8 +228,8 @@ export class SyncService {
     return value
   }
 
-  setNoteRev(id: string, rev: string) {
-    this.api.setNoteRev(id, rev)
+  setNoteRev(id: string, rev: string): boolean {
+    return this.api.setNoteRev(id, rev)
   }
 
   sendState() {

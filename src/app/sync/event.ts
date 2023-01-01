@@ -1,4 +1,4 @@
-import {IdentifyOutgoingEvent, StateOutgoingEvent, SyncOutgoingEvent, SyncService} from 'app/sync.service'
+import {GetOutgoingEvent, IdentifyOutgoingEvent, StateOutgoingEvent, SyncOutgoingEvent, SyncService} from 'app/sync.service'
 import {FrozenNote, Invitation} from '../api.service'
 
 export interface ServerEvent {
@@ -15,33 +15,38 @@ export class Event {
     this.types.set(SyncEvent, 'sync')
     this.types.set(StateEvent, 'state')
     this.types.set(IdentifyEvent, 'identify')
+    this.types.set(GetEvent, 'get')
     this.types.forEach((v, k) => this.actions.set(v, k))
     this.outgoingTypes.set(IdentifyOutgoingEvent, 'identify')
     this.outgoingTypes.set(StateOutgoingEvent, 'state')
     this.outgoingTypes.set(SyncOutgoingEvent, 'sync')
+    this.outgoingTypes.set(GetOutgoingEvent, 'get')
     this.outgoingTypes.forEach((v, k) => this.outgoingActions.set(v, k))
   }
 }
 
 export class SyncEvent implements ServerEvent {
   notes: FrozenNote[]
+  full?: boolean
 
   constructor(notes?: FrozenNote[]) {
     this.notes = notes
   }
 
   got(sync: SyncService) {
+    const fetch = new Array<string>()
     this.notes.forEach(n => {
-      Object.keys(n).forEach(prop => {
-        if (prop === 'id') {
-          return
-        }
-
-        sync.handleUpdateFromServer(n.id, prop, n[prop])
-      })
+      const success = sync.handleNoteFromServer(n, this.full)
+      if (!success) {
+        fetch.push(n.id)
+      }
     })
     // todo: needs to happen after UI merge conflicts
     sync.syncLocalProps()
+
+    if (fetch.length > 0) {
+      sync.send(new GetOutgoingEvent(fetch))
+    }
   }
 }
 
@@ -53,9 +58,20 @@ export class StateEvent implements ServerEvent {
   }
 
   got(sync: SyncService) {
-    this.notes.forEach(note => {
-      sync.setNoteRev(note[0], note[1])
-    })
+    const fetch = new Array<string>()
+    this.notes.forEach(
+      note => {
+        const success = sync.setNoteRev(note[0], note[1])
+
+        if (!success) {
+          fetch.push(note[0])
+        }
+      }
+    )
+
+    if (fetch.length > 0) {
+      sync.send(new GetOutgoingEvent(fetch))
+    }
   }
 }
 
@@ -68,5 +84,19 @@ export class IdentifyEvent implements ServerEvent {
 
   got(sync: SyncService) {
     sync.sendState()
+  }
+}
+
+export class GetEvent implements ServerEvent {
+  notes: FrozenNote[]
+
+  constructor(notes?: FrozenNote[]) {
+    this.notes = notes
+  }
+
+  got(sync: SyncService) {
+    this.notes.forEach(note => {
+      sync.handleNoteFromServer(note, true)
+    })
   }
 }
