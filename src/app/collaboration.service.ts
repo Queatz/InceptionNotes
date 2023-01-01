@@ -125,6 +125,10 @@ export class CollaborationService {
     this.post(`invitations/${invitation.id}`, { isSteward: true }).subscribe(() => this.reloadInvitations())
   }
 
+  getNoteInvitations(id: string): Observable<Array<Invitation>> {
+    return this.get(`note/${id}/invitations`)
+  }
+
   private post<T>(url: string, body?: any): Observable<T> {
     return this.http.post<T>(this.config.getUrl(url), body, this.httpOptions())
   }

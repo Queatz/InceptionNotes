@@ -18,6 +18,7 @@ import {Env} from 'app/ui.service'
 export class DialogModel {
   choice: string
   input: string
+  data: { [key: string]: any }
 }
 
 export class DialogConfig {
@@ -25,8 +26,8 @@ export class DialogConfig {
   prefill?: string
   input?: boolean
   view?: Type<any>
-  init?: (DialogComponent) => void
-  ok?: (DialogModel) => void
+  init?: (dialog: DialogComponent) => void
+  ok?: (model: DialogModel) => void
   cancel?: () => void
 }
 
@@ -48,11 +49,12 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('custom', {read: ViewContainerRef, static: true})
   private custom: ViewContainerRef
-  private component: ComponentRef<any>
+  component: ComponentRef<any>
 
   model: DialogModel = {
     choice: null,
-    input: ''
+    input: '',
+    data: {}
   }
 
   changes: Subject<string> = new Subject<string>()

@@ -231,6 +231,21 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
             ]
           },
           {
+            title: 'A-Z',
+            callback: () => {
+              if (!this.list.items.length) {
+                return
+              }
+
+              const last = this.list.items[this.list.items.length - 1]
+              this.list.items.sort((a, b) => a.name.localeCompare(b.name))
+              if (!last.name) {
+                this.moveItemToLastPosition(last)
+              }
+              this.api.modified(this.list, 'items')
+            }
+          },
+          {
             title: 'Reverse',
             callback: () => {
               this.list.items.reverse()
@@ -275,7 +290,15 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
               const stewardStr = !steward ? 'Note creator is unknown' : `Note created by ${steward.name}`
 
               this.ui.dialog({
-                message: `${createdStr}\n\n${updatedStr}\n\n${stewardStr}`
+                message: `${createdStr}\n\n${updatedStr}\n\n${stewardStr}`,
+                init: dialog => {
+                  this.collaboration.getNoteInvitations(this.list.id).subscribe(
+                    invitations => {
+                      dialog.config.message += '\n\nInvitations: '
+                      dialog.config.message += invitations.map(x => x.name).join(', ')
+                    }
+                  )
+                }
               })
             }
           },
@@ -489,13 +512,13 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           dialog.back()
         })
         dialog.component.instance.resultsChanged.subscribe(results => {
-          dialog.model.results = results
+          dialog.model.data.results = results
         })
       },
       ok: result => {
-        if (result.results && result.results.length) {
-          this.api.addRecent('search', result.results[0].id)
-          this.api.addRef(item, result.results[0])
+        if (result.data.results && result.data.results.length) {
+          this.api.addRecent('search', result.data.results[0].id)
+          this.api.addRef(item, result.data.results[0])
           if (!this.getEnv().showLinks) {
             this.getEnv().showLinks = true
             setTimeout(() => this.ui.dialog({message: 'Show links enabled'}))
@@ -520,13 +543,13 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           this.api.moveList(item.id, note.id)
         })
         dialog.component.instance.resultsChanged.subscribe(results => {
-          dialog.model.results = results
+          dialog.model.data.results = results
         })
       },
       ok: result => {
-        if (result.results && result.results.length) {
-          this.api.addRecent('search', result.results[0].id)
-          this.api.moveList(item.id, result.results[0].id)
+        if (result.data.results && result.data.results.length) {
+          this.api.addRecent('search', result.data.results[0].id)
+          this.api.moveList(item.id, result.data.results[0].id)
         }
       }
     })
@@ -1147,7 +1170,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   getInvitations(list: Note): Array<Invitation> {
     const me = this.me()
     const l = list.invitations?.filter(i => i.id !== me.id) || []
-    if (list.steward && me.id !== list.steward) {
+    if (list.invitations?.length && list.steward && me.id !== list.steward) {
       l.unshift(this.api.invitation(list.steward))
     }
     return l

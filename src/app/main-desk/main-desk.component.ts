@@ -283,13 +283,13 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
           dialog.back()
         })
         dialog.component.instance.resultsChanged.subscribe(results => {
-          dialog.model.results = results
+          dialog.model.data.results = results
         })
       },
       ok: result => {
-        if (result.results && result.results.length) {
-          this.api.addRecent('search', result.results[0].id)
-          this.api.setEye(result.results[0])
+        if (result.data.results && result.data.results.length) {
+          this.api.addRecent('search', result.data.results[0].id)
+          this.api.setEye(result.data.results[0])
         }
       }
     })
@@ -322,13 +322,13 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
           dialog.back()
         })
         dialog.component.instance.resultsChanged.subscribe(results => {
-          dialog.model.results = results
+          dialog.model.data.results = results
         })
       },
       ok: result => {
-        if (result.results && result.results.length) {
-          this.api.addRecent('filter', result.results[0].id)
-          this.filter.toggleRef(result.results[0])
+        if (result.data.results && result.data.results.length) {
+          this.api.addRecent('filter', result.data.results[0].id)
+          this.filter.toggleRef(result.data.results[0])
         }
       }
     })
