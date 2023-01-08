@@ -3,8 +3,8 @@ import {WsService} from 'app/ws.service'
 import {Event} from 'app/sync/event'
 import {ApiService, FrozenNote, Note} from 'app/api.service'
 import util from 'app/util'
-import {UiService} from 'app/ui.service'
-import {el} from 'date-fns/locale';
+import {Conflict, ConflictService} from './conflict.service'
+import {th} from 'date-fns/locale';
 
 export class IdentifyOutgoingEvent {
   device: string
@@ -44,7 +44,7 @@ export class SyncService {
   private event: Event
   private device?: string
 
-  constructor(private ws: WsService, private api: ApiService, private ui: UiService) {
+  constructor(private ws: WsService, private api: ApiService, private conflict: ConflictService) {
     this.ws.syncService = this
 
     this.ws.onBeforeOpen.subscribe(() => {
@@ -52,6 +52,23 @@ export class SyncService {
     })
 
     this.event = new Event()
+
+    this.conflict.resolutions.subscribe(resolution => {
+      const { note, prop, localProp, serverRev } = resolution.conflict
+      if (resolution.accept) {
+        this.setProp(note, prop, localProp)
+        this.api.setSynced(note.id, prop)
+        if (this.api.allPropsAreSynced(note)) {
+          note.rev = serverRev
+        }
+      } else {
+        this.syncLocalProp(note, prop, serverRev)
+      }
+    })
+
+    this.conflict.conflictsResolved.subscribe(() => {
+      this.syncLocalProps()
+    })
   }
 
   deviceToken(): string {
@@ -115,6 +132,11 @@ export class SyncService {
    * Sync all new notes and changed props
    */
   syncLocalProps() {
+    // We don't want to send local props until everything from the server is handled
+    if (this.conflict.hasConflicts()) {
+      return
+    }
+
     const syncAllEvent = new SyncOutgoingEvent([])
 
     for (const n of this.api.getAllNotes().values()) {
@@ -184,6 +206,7 @@ export class SyncService {
     // If there were no conflicts, all props should be synced, safe to update rev
     if (this.api.allPropsAreSynced(note)) {
       note.rev = n.rev
+      this.api.saveNote(note)
     }
 
     return sync
@@ -224,9 +247,6 @@ export class SyncService {
               if (this.api.isEmptyNote(value[value.length - 1])) {
                 this.setProp(note, prop, localProp)
                 this.api.setSynced(note.id, prop)
-                if (this.api.allPropsAreSynced(note)) {
-                  note.rev = serverRev
-                }
               }
             }
 
@@ -236,20 +256,7 @@ export class SyncService {
       }
 
       // Local prop differs, ask what to do
-      this.ui.dialog({
-        message: `${note.name}\n\nOverwrite ${prop} "${this.present(note[prop])}" with "${this.present(localProp)}"?`,
-        ok: () => {
-          // Accept server version
-          this.setProp(note, prop, localProp)
-          this.api.setSynced(note.id, prop)
-          if (this.api.allPropsAreSynced(note)) {
-            note.rev = serverRev
-          }
-        },
-        cancel: () => {
-          this.syncLocalProp(note, prop, serverRev)
-        }
-      })
+      this.conflict.addConflict(new Conflict(note, prop, value, serverRev))
     }
 
     return init
@@ -277,21 +284,6 @@ export class SyncService {
     }
 
     return false
-  }
-
-  /**
-   * Show a string from a value
-   */
-  present(value: any) {
-    if (Array.isArray(value)) {
-      return '\n * ' + value.map(item => item.name).join('\n * ') + '\n'
-    }
-
-    if (typeof value === 'object') {
-      return JSON.stringify(value)
-    }
-
-    return value
   }
 
   setNoteRev(id: string, rev: string, oldRev: string): boolean {

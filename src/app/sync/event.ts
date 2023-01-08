@@ -39,11 +39,11 @@ export class SyncEvent implements ServerEvent {
       const needsSync = sync.handleNoteFromServer(n, this.full)
       fetch.push(...needsSync)
     })
-    // todo: needs to happen after UI merge conflicts
-    sync.syncLocalProps()
 
     if (fetch.length > 0) {
       sync.send(new GetOutgoingEvent(fetch))
+    } else {
+      sync.syncLocalProps()
     }
   }
 }

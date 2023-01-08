@@ -123,6 +123,9 @@
 
 .sneak-peek.interactable {
   opacity: .75;
+}
+
+.sneak-peek.interactable .sneak-peek-item-container:first-of-type {
   margin-top: .25rem;
 }
 
@@ -174,7 +177,9 @@
   font-size: 75%;
   color: rgb(0 0 0 / 75%);
   word-break: break-word;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 6rem;
 }
 
 .invert-text .item-description {

@@ -1,7 +1,7 @@
 <div [ngClass]="{'is-navigation': useAsNavigation, 'invert-text': list.options?.invertText}"
      (dblclick)="dontPropagateDblClick($event)">
   <div class="item-name"
-       [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length && !list.collapsed) }"
+       [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length && !list.collapsed) && !getInvitations(list).length }"
        [attr.data-after]="!useAsNavigation && list.collapsed ? getAfterText(list, true).substring(1) : undefined">
     <div class="sub-list-title-container">
       <div *ngIf="!useAsNavigation && getEnv().showListCheckboxes" (click)="onItemChecked(list)" class="item-checkbox"
@@ -19,7 +19,7 @@
     </div>
     <div *ngIf="list.description" class="item-description"
          [innerHTML]="list.description"></div>
-    <div class="item-links" *ngIf="getEnv().showLinks && list.ref">
+    <div class="item-links" *ngIf="getEnv().showLinks && list.ref?.length">
       <div *ngFor="let i of list.ref" class="item-link lg" [ngClass]="{ 'is-flat': getEnv().showFlat}"
            [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color"
            (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name"></div>
