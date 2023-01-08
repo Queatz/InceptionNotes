@@ -40,9 +40,17 @@
   overflow: auto;
 }
 
+.description.dark-theme {
+  background: #404040;
+  color: #ffffff;
+}
+
 .description:empty:before {
   content: attr(data-placeholder);
   color: rgb(0 0 0 / 25%);
+}
+.description.dark-theme:empty:before {
+  color: rgb(255 255 255 / 25%);
 }
 
 .items {
@@ -67,24 +75,6 @@
 
 :host.dark-theme {
   background: #404040;
-}
-
-.go-up {
-  margin-bottom: 3rem;
-  margin-left: auto;
-  margin-right: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  background: rgba(0, 0, 0, .5);
-  width: 2rem;
-  height: 2rem;
-  font-weight: bold;
-  border-radius: 100%;
-  text-align: center;
-  cursor: pointer;
-  opacity: .5;
 }
 
 .filterbox {
@@ -166,9 +156,5 @@
 @media print {
   :host {
     background: unset;
-  }
-
-  .go-up {
-    display: none;
   }
 }

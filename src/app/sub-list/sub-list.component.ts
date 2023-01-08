@@ -1191,8 +1191,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
   getInvitations(list: Note): Array<Invitation> {
     const me = this.me()
-    const l = list.invitations?.filter(i => i.id !== me.id) || []
-    if (list.steward && l.filter(x => x.id !== list.steward)?.length && me.id !== list.steward) {
+    const l = list.invitations?.filter(i => i.id !== me?.id) || []
+    if (list.steward && l.filter(x => x.id !== list.steward)?.length && me?.id !== list.steward) {
       l.unshift(this.api.invitation(list.steward))
     }
     return l

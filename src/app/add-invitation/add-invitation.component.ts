@@ -14,7 +14,7 @@ export class AddInvitationComponent implements OnInit, OnDestroy {
 
   results: Invitation[] = []
 
-  constructor(private village: CollaborationService) {
+  constructor(private collaboration: CollaborationService) {
     this.onSelection = new Subject<Invitation>()
   }
 
@@ -27,8 +27,9 @@ export class AddInvitationComponent implements OnInit, OnDestroy {
   }
 
   search(query: string) {
-    this.village.getInvitations(query).subscribe(friends => {
-      this.results = friends
+    this.collaboration.getInvitations(query).subscribe(invitations => {
+      const meId = this.collaboration.me()?.id
+      this.results = invitations.filter(x => x.id !== meId)
     })
   }
 

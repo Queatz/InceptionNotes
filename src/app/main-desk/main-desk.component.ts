@@ -51,7 +51,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     public api: ApiService,
     public filter: FilterService,
-    public village: CollaborationService,
+    public collaboration: CollaborationService,
     public ui: UiService,
     private elementRef: ElementRef) {
   }
@@ -209,7 +209,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     event.preventDefault()
 
     let opts: Array<MenuOption>
-    const v = !!this.village.me()
+    const v = !!this.collaboration.me()
 
     if (!v) {
       opts = [

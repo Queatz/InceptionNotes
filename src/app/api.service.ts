@@ -194,6 +194,7 @@ export class ApiService {
   private updateNote(note: Note, referenceNote: Note) {
     note.name = referenceNote.name
     note.rev = referenceNote.rev
+    note.steward = referenceNote.steward
     note.description = referenceNote.description
     note.color = referenceNote.color
     note.estimate = referenceNote.estimate
