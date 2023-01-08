@@ -61,8 +61,14 @@ export class SubSubListItemComponent implements OnInit {
 
     this.isDroppingList = false
     this.dragCounter = 0
-    const id = event.dataTransfer.getData('application/x-id')
-    this.api.moveList(id, this.item.id)
+    const ids = event.dataTransfer.getData('application/x-ids').split(',')
+    ids.sort((aId, bId) => {
+      const a = this.api.search(aId)
+      const b = this.api.search(bId)
+      return a?.parent?.items?.indexOf(a) - b?.parent?.items?.indexOf(b)
+    }).forEach(id => {
+      this.api.moveList(id, this.item.id)
+    })
   }
 
   isSelectedNav(item: Note) {

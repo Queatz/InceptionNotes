@@ -149,8 +149,9 @@
   width: 3px;
   top: 0;
   bottom: 0;
-  right: -1rem;
-  background: orange;
+  right: -1.25rem;
+  box-sizing: border-box;
+  border: 3px solid orange;
   border-radius: 3px;
 }
 
@@ -159,8 +160,9 @@
   width: 3px;
   top: 0;
   bottom: 0;
-  left: -1rem;
-  background: orange;
+  left: -1.25rem;
+  box-sizing: border-box;
+  border: 3px solid orange;
   border-radius: 3px;
 }
 
@@ -191,6 +193,11 @@
 }
 
 .item-hidden-count {
+  margin-top: .5rem;
+  opacity: .5;
+}
+
+.gone {
   margin-top: .5rem;
   opacity: .5;
 }

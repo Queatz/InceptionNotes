@@ -27,6 +27,7 @@ export class Event {
 
 export class SyncEvent implements ServerEvent {
   notes: FrozenNote[]
+  gone?: string[]
   full?: boolean
 
   constructor(notes?: FrozenNote[]) {
@@ -39,6 +40,10 @@ export class SyncEvent implements ServerEvent {
       const needsSync = sync.handleNoteFromServer(n, this.full)
       fetch.push(...needsSync)
     })
+
+    if (this.gone) {
+      this.gone.forEach(id => sync.setGone(id))
+    }
 
     sync.syncLocalProps()
 

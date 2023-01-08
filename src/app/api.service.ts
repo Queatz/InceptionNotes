@@ -5,7 +5,7 @@ import {Router} from '@angular/router'
 import {UiService} from './ui.service'
 import {Subject} from 'rxjs'
 import {Config} from 'app/config.service'
-import Util from './util';
+import Util from './util'
 
 export class Invitation {
   id: string
@@ -38,6 +38,7 @@ export class Note {
   created: string
   updated?: string
   _local?: string[]
+  _sync?: boolean
 }
 
 export class FrozenNote {
@@ -59,6 +60,7 @@ export class FrozenNote {
   created: string
   updated?: string
   _local?: string[]
+  _sync?: boolean
 }
 
 export class NoteChanges {
@@ -209,6 +211,7 @@ export class ApiService {
     note.created = referenceNote.created
     note.updated = referenceNote.updated
     note._local = referenceNote._local ? [ ...referenceNote._local ] : note._local
+    note._sync = referenceNote._sync
 
     // Update parent references, note that 'ref' should be updated by the other note anyway
     note.items.forEach(n => {
@@ -306,7 +309,7 @@ export class ApiService {
       estimate: a.estimate,
       created: a.created,
       updated: a.updated,
-      ...(!forServer ? { _local: a._local } : {})
+      ...(!forServer ? { _local: a._local, _sync: a._sync } : {})
     }
   }
 
@@ -761,6 +764,7 @@ export class ApiService {
    */
   setAllPropsSynced(note: Note) {
     note._local = []
+    delete note._sync
     this.saveNote(note)
   }
 
@@ -776,6 +780,7 @@ export class ApiService {
 
     if (note && (note.rev || null) === oldRev) {
       note.rev = rev
+      delete note._sync
       this.setAllPropsSynced(note)
       return true
     }
@@ -787,6 +792,8 @@ export class ApiService {
    * setPropSynced
    */
   setPropSynced(note: Note, prop: string) {
+    delete note._sync
+
     // This entire note is not synced yet
     if (!note._local) {
       return
@@ -885,7 +892,11 @@ export class ApiService {
       oldPos = listParent.items.indexOf(list)
 
       listParent.items.splice(oldPos, 1)
+
+      // Don't sync twice if moving within the same list
+      if (listParent !== toList) {
       this.modified(listParent, 'items')
+      }
     }
 
     if (toList === listParent && oldPos < position) {

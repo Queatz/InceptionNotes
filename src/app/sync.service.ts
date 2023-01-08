@@ -292,11 +292,20 @@ export class SyncService {
     return this.api.setNoteRev(id, rev, oldRev)
   }
 
+  setGone(noteId: string) {
+    const note = this.api.search(noteId)
+
+    if (note) {
+      note._sync = false
+      this.api.saveNote(note)
+    }
+  }
+
   sendState() {
     const notes: Array<[string, string]> = []
 
     for (const note of this.api.getAllNotes().values()) {
-      if (note.rev) {
+      if (note.rev && note._sync !== false) {
         notes.push([note.id, note.rev])
       }
     }

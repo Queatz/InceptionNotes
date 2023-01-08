@@ -1,7 +1,7 @@
 <div [ngClass]="{'is-navigation': useAsNavigation, 'invert-text': list.options?.invertText}"
      (dblclick)="dontPropagateDblClick($event)">
   <div class="item-name"
-       [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length && !list.collapsed) && !getInvitations(list).length }"
+       [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length) && !(useAsNavigation && getInvitations(list).length) }"
        [attr.data-after]="!useAsNavigation && list.collapsed ? getAfterText(list, true).substring(1) : undefined">
     <div class="sub-list-title-container">
       <div *ngIf="!useAsNavigation && getEnv().showListCheckboxes" (click)="onItemChecked(list)" class="item-checkbox"
@@ -95,12 +95,13 @@
       </div>
     </ng-container>
   </div>
-  <div *ngIf="!useAsNavigation && !list.collapsed && numberHidden(list) > 0" class="item-hidden-count">
-    {{ numberHidden(list) }} hidden
-  </div>
   <div class="invitations" *ngIf="getInvitations(list).length">
     <app-invitation-photo class="invitation-photo" (contextmenu)="showInvitationMenu($event, list, invitation)" *ngFor="let invitation of getInvitations(list)" [invitation]="invitation"></app-invitation-photo>
   </div>
+  <div *ngIf="!useAsNavigation && !list.collapsed && numberHidden(list) > 0" class="item-hidden-count">
+    {{ numberHidden(list) }} hidden
+  </div>
+  <div *ngIf="!useAsNavigation && list._sync === false" class="gone" title="This note is not syncing with you at the moment.  You can still make local edits, however changes may not be synced.">⟳ Not syncing</div>
   <div *ngIf="useAsNavigation">
     <sub-sub-list-item
       *ngFor="let item of list.items"
