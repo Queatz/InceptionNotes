@@ -92,8 +92,22 @@ export class SubSubListItemComponent implements OnInit {
     return c || d ? ' (' + (c ? c + ' item' + (c !== 1 ? 's' : '') : '') + (d && c ? ', ' : '') + (d ? d + ' day' + (d !== 1 ? 's' : '') : '') + ')' : ''
   }
 
-  getMaxHeight(e: HTMLElement) {
-    if (this.ui.getEnv().expandedNav && !this.item.collapsed) {
+  hasSubnavs(item: Note) {
+    if (item.items.every(x => this.isEmpty(x))) {
+      return false
+    } else if (this.ui.getEnv().expandedNav && !this.item.collapsed) {
+      return true
+    } else if (this.isSelectedNav(this.item)) {
+      return true
+    }
+
+    return false
+  }
+
+  getMaxHeight(e: HTMLElement, item: Note) {
+    if (item.items.every(x => this.isEmpty(x))) {
+      return undefined
+    }if ((this.ui.getEnv().expandedNav && !this.item.collapsed)) {
       return undefined
     } else if (this.isSelectedNav(this.item)) {
       return e.scrollHeight + 'px'

@@ -31,6 +31,7 @@ export class ConflictService {
   readonly conflictsResolved = new Subject<void>()
 
   private previousEye?: Note = null
+  private previousSidePanel?: boolean = null
   private activeConflict?: Conflict = null
 
   constructor(private ui: UiService, private api: ApiService) { }
@@ -53,12 +54,13 @@ export class ConflictService {
   presentConflict(conflict: Conflict) {
     if (!this.previousEye) {
       this.previousEye = this.api.getEye()
+      this.previousSidePanel = this.ui.getEnv().sidepane
     }
     this.api.setEye(conflict.note)
     this.activeConflict = conflict
     const { note, prop, localProp } = conflict
     this.ui.dialog({
-      message: `Overwrite ${prop} "${this.present(note[prop])}" with "${this.present(localProp)}"?`,
+      message: `Replace note ${prop}?\n\nLocal\n<b>${this.present(note[prop])}</b>\n\nRemote\n<b>${this.present(localProp)}</b>`,
       cancel: () => {
         this.resolveNextConflict()
       },
@@ -94,6 +96,18 @@ export class ConflictService {
     return !!this.activeConflict || !!this.conflicts.length
   }
 
+  setNoteServerRev(id: string, serverRev: string) {
+    if (this.activeConflict && this.activeConflict.note.id === id) {
+      this.activeConflict.serverRev = serverRev
+    }
+
+    this.conflicts.forEach(conflict => {
+      if (conflict.note.id === id) {
+        conflict.serverRev = serverRev
+      }
+    })
+  }
+
   private resolveNextConflict() {
     this.activeConflict = null
     if (this.conflicts.length) {
@@ -101,7 +115,9 @@ export class ConflictService {
     } else {
       if (this.previousEye) {
         this.api.setEye(this.previousEye)
+        this.ui.getEnv().sidepane = this.previousSidePanel
         this.previousEye = null
+        this.previousSidePanel = null
       }
       this.conflictsResolved.next()
     }

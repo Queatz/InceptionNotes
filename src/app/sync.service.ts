@@ -57,11 +57,10 @@ export class SyncService {
       if (resolution.accept) {
         this.setProp(note, prop, localProp)
         this.api.setSynced(note.id, prop)
-        if (this.api.allPropsAreSynced(note)) {
-          note.rev = serverRev
-          this.api.saveNote(note)
-        }
+        this.updateRevIfSynced(note, serverRev)
       } else {
+        // todo: have to stage the serverRev here so that the update response from the server succeeds locally
+        note.rev = serverRev
         this.syncLocalProp(note, prop, serverRev)
       }
     })
@@ -219,13 +218,15 @@ export class SyncService {
    */
   handleUpdateFromServer(note: Note, prop: string, value: any, serverRev: string): string[] {
     const { value: localProp, init } = this.api.unfreezeProp(note, prop, value)
-    if (this.api.isSynced(note, prop)) {
+    if (this.api.isSynced(note, prop) || note[prop] === undefined) {
       // Local prop was provided by server, overwrite
       this.setProp(note, prop, localProp)
       this.api.setSynced(note.id, prop)
+      this.updateRevIfSynced(note, serverRev)
     } else if (this.valEquals(note[prop], localProp)) {
       // Local prop was provided by server, ignore
       this.api.setSynced(note.id, prop)
+      this.updateRevIfSynced(note, serverRev)
     } else {
       // Auto merge auto-generated last item
       if (prop === 'items') {
@@ -287,6 +288,7 @@ export class SyncService {
   }
 
   setNoteRev(id: string, rev: string, oldRev: string): boolean {
+    this.conflict.setNoteServerRev(id, rev)
     return this.api.setNoteRev(id, rev, oldRev)
   }
 
@@ -300,5 +302,12 @@ export class SyncService {
     }
 
     this.send(new StateOutgoingEvent(notes))
+  }
+
+  private updateRevIfSynced(note: Note, serverRev: string) {
+    if (this.api.allPropsAreSynced(note)) {
+      note.rev = serverRev
+      this.api.saveNote(note)
+    }
   }
 }

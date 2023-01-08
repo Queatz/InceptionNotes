@@ -8,8 +8,8 @@
   </div>
 </div>
 <div #subsub
-     [style.max-height]="getMaxHeight(subsub)"
-     [style.margin]="getMaxHeight(subsub) === '0px' ? '0 .5rem' : '.5rem'"
+     [style.max-height]="getMaxHeight(subsub, item)"
+     [style.margin]="hasSubnavs(item) ? '.5rem' : '0 .5rem'"
      [ngClass]="{'is-selected': (ui.getEnv().expandedNav && !item.collapsed) || isSelectedNav(item)}"
      class="sub-sub-sup">
   <div class="container" [ngClass]="{ 'invert-text': item.parent?.options?.invertText }"
