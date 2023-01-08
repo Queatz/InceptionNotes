@@ -5,6 +5,7 @@ import {Router} from '@angular/router'
 import {UiService} from './ui.service'
 import {Subject} from 'rxjs'
 import {Config} from 'app/config.service'
+import Util from './util';
 
 export class Invitation {
   id: string
@@ -62,7 +63,7 @@ export class FrozenNote {
 
 export class NoteChanges {
   public note: Note
-  public property: string
+  public property: string | null
 
   constructor(note: any, property: string) {
     this.note = note
@@ -366,12 +367,15 @@ export class ApiService {
   }
 
   /**
-   * Unfreeze a property
+   * Unfreeze a property from the server
+   *
+   * Returns @value The prop's unfrozen value
+   * Returns @init A list of any notes that needed to be initialized
    */
-  unfreezeProp(note: Note, prop: string, value: any) {
+  unfreezeProp(note: Note, prop: string, value: any): { value: any, init: string[] } {
     if (['invitations', 'ref', 'items'].indexOf(prop) !== -1) {
       if (!value) {
-        return []
+        return { value: [], init: [] }
       }
 
       const a = []
@@ -381,14 +385,15 @@ export class ApiService {
           a.push(this.invitation(id))
         }
 
-        return a
+        return { value: a, init: [] }
       } else {
+        const init: string[] = []
         for (const id of value) {
           let item = this.search(id)
 
           if (!item) {
+            init.push(id)
             item = this.newBlankNote(true, id)
-            item.color = note.color
             this.saveNote(item)
           }
 
@@ -399,11 +404,11 @@ export class ApiService {
           }
         }
 
-        return a
+        return { value: a, init }
       }
     }
 
-    return value
+    return { value, init: [] }
   }
 
   /* Invitations */
@@ -759,10 +764,17 @@ export class ApiService {
     this.saveNote(note)
   }
 
-  setNoteRev(id: string, rev: string): boolean {
+  /**
+   * Returns true of all props are synced
+   */
+  allPropsAreSynced(note: Note): boolean {
+    return note._local?.length === 0
+  }
+
+  setNoteRev(id: string, rev: string, oldRev: string | null): boolean {
     const note = this.search(id)
 
-    if (note) {
+    if (note && (note.rev || null) === oldRev) {
       note.rev = rev
       this.setAllPropsSynced(note)
       return true
@@ -960,11 +972,7 @@ export class ApiService {
         list.items.splice(position, 0, note)
       }
 
-      const synced = this.isSynced(list, 'items')
       this.modified(list, 'items')
-      if (synced) {
-        this.setPropSynced(list, 'items')
-      }
     }
 
     return note
@@ -1163,6 +1171,15 @@ export class ApiService {
 
   /* Util */
 
+  isEmptyNote(note: Note) {
+    return Util.isEmptyStr(note.name)
+      && !note.items?.length
+      && Util.isEmptyStr(note.description)
+      && note.checked !== true
+      && !note.ref?.length
+      && !note.estimate
+  }
+
   newId() {
     let id
 
@@ -1203,7 +1220,7 @@ export class ApiService {
         } as FrozenNote,
         '3ooxxyu6ko97smbzcigvza': {
           'id': '3ooxxyu6ko97smbzcigvza',
-          'name': '<b>Right-click</b> on the background to get help',
+          'name': '<b>Right-click</b> on the background for options',
           'description': '',
           'color': '#ff8a80',
           'items': ['r8um73em8ikjy1847ituem'],

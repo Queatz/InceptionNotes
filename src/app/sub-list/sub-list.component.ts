@@ -1123,12 +1123,12 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private initNext(force?: boolean) {
+  private initNext() {
     if (this.useAsNavigation) {
       return
     }
 
-    if (!force && this.list.items.length && Util.isEmptyStr(this.list.items[this.list.items.length - 1].name)) {
+    if (this.list.items.length && Util.isEmptyStr(this.list.items[this.list.items.length - 1].name)) {
       return
     }
 
@@ -1155,7 +1155,6 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     l.color = list.color
     l.options = Object.assign({}, list.options)
     this.api.modified(l)
-    this.api.setAllPropsSynced(l)
     return l
   }
 
@@ -1192,7 +1191,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   getInvitations(list: Note): Array<Invitation> {
     const me = this.me()
     const l = list.invitations?.filter(i => i.id !== me?.id) || []
-    if (list.steward && l.filter(x => x.id !== list.steward)?.length && me?.id !== list.steward) {
+    if (list.steward && !!list.invitations.find(i => i.id === me?.id)) {
       l.unshift(this.api.invitation(list.steward))
     }
     return l

@@ -36,10 +36,8 @@ export class SyncEvent implements ServerEvent {
   got(sync: SyncService) {
     const fetch = new Array<string>()
     this.notes.forEach(n => {
-      const success = sync.handleNoteFromServer(n, this.full)
-      if (!success) {
-        fetch.push(n.id)
-      }
+      const needsSync = sync.handleNoteFromServer(n, this.full)
+      fetch.push(...needsSync)
     })
     // todo: needs to happen after UI merge conflicts
     sync.syncLocalProps()
@@ -51,9 +49,9 @@ export class SyncEvent implements ServerEvent {
 }
 
 export class StateEvent implements ServerEvent {
-  notes: Array<[string, string]>
+  notes: Array<[string, string, string]>
 
-  constructor(notes: Array<[string, string]>) {
+  constructor(notes: Array<[string, string, string]>) {
     this.notes = notes
   }
 
@@ -61,7 +59,7 @@ export class StateEvent implements ServerEvent {
     const fetch = new Array<string>()
     this.notes.forEach(
       note => {
-        const success = sync.setNoteRev(note[0], note[1])
+        const success = sync.setNoteRev(note[0], note[1], note[2])
 
         if (!success) {
           fetch.push(note[0])
@@ -95,8 +93,11 @@ export class GetEvent implements ServerEvent {
   }
 
   got(sync: SyncService) {
-    this.notes.forEach(note => {
-      sync.handleNoteFromServer(note, true)
+    const fetch = this.notes.flatMap(note => {
+      return sync.handleNoteFromServer(note, true)
     })
+    if (fetch.length) {
+      sync.send(new GetOutgoingEvent(fetch))
+    }
   }
 }

@@ -9,7 +9,6 @@ export class WsService {
 
   private websocket: WebSocket
   private pending: any[] = []
-  private lastReconnectAttempt: number
   private isInActiveHttpSync = false
   private shouldHttpSyncAgain = false
 
@@ -27,12 +26,6 @@ export class WsService {
   }
 
   reconnect() {
-    if (new Date().getTime() - this.lastReconnectAttempt < 15000) {
-      return
-    }
-
-    this.lastReconnectAttempt = new Date().getTime()
-
     if (this.websocket) {
       if (this.websocket.readyState === WebSocket.OPEN || this.websocket.readyState === WebSocket.CONNECTING) {
         return

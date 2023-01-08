@@ -111,12 +111,12 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   clickOk() {
-    this.back()
-
     this.model.choice = 'ok'
 
     if (this.config.ok) {
       this.config.ok(this.model)
     }
+
+    this.back()
   }
 }

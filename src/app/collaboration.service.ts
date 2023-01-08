@@ -29,6 +29,7 @@ export class CollaborationService {
 
   connect() {
     if (this.invitation) {
+      this.reloadInvitations()
       this.syncService.start()
       return
     }

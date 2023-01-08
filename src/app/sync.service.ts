@@ -4,6 +4,7 @@ import {Event} from 'app/sync/event'
 import {ApiService, FrozenNote, Note} from 'app/api.service'
 import util from 'app/util'
 import {UiService} from 'app/ui.service'
+import {el} from 'date-fns/locale';
 
 export class IdentifyOutgoingEvent {
   device: string
@@ -77,21 +78,37 @@ export class SyncService {
         return
       }
 
-      if (change.note[change.property] === undefined) {
-        return
-      }
+      if (change.property === null) {
+        this.send(new SyncOutgoingEvent([this.api.freezeNote(change.note, true)]))
+      } else {
+        if (change.note[change.property] === undefined) {
+          return
+        }
 
-      this.send(new SyncOutgoingEvent([
-        this.api.freezeNote(
-          {
-            id: change.note.id,
-            rev: change.note.rev,
-            [change.property]: change.note[change.property]
-          },
-          true
-        )
-      ]))
+        this.send(new SyncOutgoingEvent([
+          this.api.freezeNote(
+            {
+              id: change.note.id,
+              rev: change.note.rev,
+              [change.property]: change.note[change.property]
+            },
+            true
+          )
+        ]))
+      }
     })
+  }
+
+  /**
+   * Sync a local prop from a server rev
+   */
+  syncLocalProp(note: Note, prop: string, rev: string | null) {
+    const p: Partial<Note> = {
+      id: note.id,
+      rev,
+      [prop]: note[prop]
+    }
+    this.send(new SyncOutgoingEvent([ this.api.freezeNote(p, true) ]))
   }
 
   /**
@@ -141,52 +158,101 @@ export class SyncService {
 
   /**
    * Handle note update from server
+   *
+   * Returns list of notes that needed to be initialized
    */
-  handleNoteFromServer(n: FrozenNote, full: boolean): boolean {
+  handleNoteFromServer(n: FrozenNote, full: boolean): string[] {
+    const sync: string[] = []
     let note = this.api.search(n.id)
     if (!note) {
+      sync.push(n.id)
       if (full) {
         note = this.api.newBlankNote(true, n.id)
       } else {
-        return false
+        // We got a partial update for a note we don't have, sync state
+        return sync
       }
     }
 
     Object.keys(n).forEach(prop => {
-      if (prop === 'id') {
+      if (prop === 'id' || prop === 'rev') {
         return
       }
-      this.handleUpdateFromServer(note, prop, n[prop])
+      sync.push(...this.handleUpdateFromServer(note, prop, n[prop], n.rev))
     })
 
-    return true
+    // If there were no conflicts, all props should be synced, safe to update rev
+    if (this.api.allPropsAreSynced(note)) {
+      note.rev = n.rev
+    }
+
+    return sync
   }
 
   /**
    * Handle note prop update from sever
+   *
+   * Returns list of notes that needed to be initialized
    */
-  handleUpdateFromServer(note: Note, prop: string, value: any): boolean {
-    const localProp = this.api.unfreezeProp(note, prop, value)
-    if (this.api.isSynced(note, prop)) { // Local prop was provided by server, so overwrite
+  handleUpdateFromServer(note: Note, prop: string, value: any, serverRev: string): string[] {
+    const { value: localProp, init } = this.api.unfreezeProp(note, prop, value)
+    if (this.api.isSynced(note, prop)) {
+      // Local prop was provided by server, overwrite
       this.setProp(note, prop, localProp)
       this.api.setSynced(note.id, prop)
-    } else if (this.valEquals(note[prop], localProp)) { // Props are identical, do nothing
+    } else if (this.valEquals(note[prop], localProp)) {
+      // Local prop was provided by server, ignore
       this.api.setSynced(note.id, prop)
-    } else { // Local prop differs, ask what to do
+    } else {
+      // Auto merge auto-generated last item
+      if (prop === 'items') {
+        if (Math.abs(note.items.length - value.length) <= 1) {
+          let equal = true
+          for (let i = 0; i < Math.min(note.items.length, value.length); i++) {
+            if (note.items[i] !== value[i]) {
+              equal = false
+              break
+            }
+          }
+
+          if (equal) {
+            if (note.items.length > value.length) {
+               if (this.api.isEmptyNote(note.items[note.items.length - 1])) {
+                 this.syncLocalProp(note, prop, serverRev)
+               }
+            } else {
+              if (this.api.isEmptyNote(value[value.length - 1])) {
+                this.setProp(note, prop, localProp)
+                this.api.setSynced(note.id, prop)
+                if (this.api.allPropsAreSynced(note)) {
+                  note.rev = serverRev
+                }
+              }
+            }
+
+            return init
+          }
+        }
+      }
+
+      // Local prop differs, ask what to do
       this.ui.dialog({
-        message: 'Overwrite ' + prop + ' "' + this.present(note[prop]) + '" with "' + this.present(localProp) + '"',
+        message: `${note.name}\n\nOverwrite ${prop} "${this.present(note[prop])}" with "${this.present(localProp)}"?`,
         ok: () => {
           // Accept server version
           this.setProp(note, prop, localProp)
           this.api.setSynced(note.id, prop)
+          if (this.api.allPropsAreSynced(note)) {
+            note.rev = serverRev
+          }
         },
         cancel: () => {
-          // todo will it sync to server ever?
+          this.syncLocalProp(note, prop, serverRev)
         }
       })
     }
 
-    return true
+    return init
   }
 
   setProp(note: Note, prop: string, value: any) {
@@ -228,8 +294,8 @@ export class SyncService {
     return value
   }
 
-  setNoteRev(id: string, rev: string): boolean {
-    return this.api.setNoteRev(id, rev)
+  setNoteRev(id: string, rev: string, oldRev: string): boolean {
+    return this.api.setNoteRev(id, rev, oldRev)
   }
 
   sendState() {

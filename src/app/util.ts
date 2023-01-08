@@ -7,8 +7,8 @@ export default class Util {
     return this.div.textContent || this.div.innerText || ''
   }
 
-  static isEmptyStr(str: string) {
-    return !str.replace(/<(?:.|\n)*?>/gm, '').trim()
+  static isEmptyStr(str?: string) {
+    return !str?.replace(/<(?:.|\n)*?>/gm, '').trim()
   }
 
   static newKey() {

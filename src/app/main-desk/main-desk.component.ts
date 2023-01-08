@@ -415,7 +415,6 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     l.color = this.getShow().color
     l.options = this.getShow().options
     this.api.modified(l)
-    this.api.setAllPropsSynced(l)
   }
 
   up() {
@@ -460,6 +459,5 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     l.color = this.getShow().color
     l.options = this.getShow().options
     this.api.modified(l)
-    this.api.setAllPropsSynced(l)
   }
 }
