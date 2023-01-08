@@ -53,6 +53,10 @@
   padding-top: 1rem;
 }
 
+.dialogbox-actions > button + button {
+  margin-left: 1rem;
+}
+
 .dialogbox-form {
   display: flex;
 }

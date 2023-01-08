@@ -30,6 +30,7 @@ export class ConflictService {
   readonly resolutions = new Subject<ConflictResolution>()
   readonly conflictsResolved = new Subject<void>()
 
+  private previousEye?: Note = null
   private activeConflict?: Conflict = null
 
   constructor(private ui: UiService, private api: ApiService) { }
@@ -38,25 +39,39 @@ export class ConflictService {
     if (!this.conflicts.length && !this.activeConflict) {
       this.presentConflict(conflict)
     } else {
+      if (this.activeConflict.note === conflict.note && this.activeConflict.prop === conflict.prop) {
+        return
+      }
+      const index = this.conflicts.findIndex(x => x.note === conflict.note && x.prop === conflict.prop)
+      if (index !== -1) {
+        this.conflicts.splice(index, 1)
+      }
       this.conflicts.push(conflict)
     }
   }
 
   presentConflict(conflict: Conflict) {
-    this.activeConflict = conflict
+    if (!this.previousEye) {
+      this.previousEye = this.api.getEye()
+    }
     this.api.setEye(conflict.note)
+    this.activeConflict = conflict
     const { note, prop, localProp } = conflict
     this.ui.dialog({
-      message: `${note.name}\n\nOverwrite ${prop} "${this.present(note[prop])}" with "${this.present(localProp)}"?`,
-      ok: () => {
-        // Accept server version
-        this.resolutions.next(new ConflictResolution(conflict, true))
+      message: `Overwrite ${prop} "${this.present(note[prop])}" with "${this.present(localProp)}"?`,
+      cancel: () => {
         this.resolveNextConflict()
       },
-      cancel: () => {
-        this.resolutions.next(new ConflictResolution(conflict, false))
-        this.resolveNextConflict()
-      }
+      buttons: [
+        ['No, overwrite remote with local', () => {
+          this.resolutions.next(new ConflictResolution(conflict, false))
+          this.resolveNextConflict()
+        }],
+        ['Yes, overwrite local with remote', () => {
+          this.resolutions.next(new ConflictResolution(conflict, true))
+          this.resolveNextConflict()
+        }]
+      ]
     })
   }
 
@@ -84,6 +99,10 @@ export class ConflictService {
     if (this.conflicts.length) {
       this.presentConflict(this.conflicts.shift())
     } else {
+      if (this.previousEye) {
+        this.api.setEye(this.previousEye)
+        this.previousEye = null
+      }
       this.conflictsResolved.next()
     }
   }

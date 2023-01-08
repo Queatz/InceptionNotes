@@ -4,7 +4,6 @@ import {Event} from 'app/sync/event'
 import {ApiService, FrozenNote, Note} from 'app/api.service'
 import util from 'app/util'
 import {Conflict, ConflictService} from './conflict.service'
-import {th} from 'date-fns/locale';
 
 export class IdentifyOutgoingEvent {
   device: string
@@ -60,6 +59,7 @@ export class SyncService {
         this.api.setSynced(note.id, prop)
         if (this.api.allPropsAreSynced(note)) {
           note.rev = serverRev
+          this.api.saveNote(note)
         }
       } else {
         this.syncLocalProp(note, prop, serverRev)

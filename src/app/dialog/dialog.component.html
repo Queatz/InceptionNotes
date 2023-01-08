@@ -1,10 +1,11 @@
 <div class="dialogbox" [ngClass]="{'dark-theme': environment.useDarkTheme}" (click)="onClickInsideDialog($event)">
   <div *ngIf="config.message" class="dialog-message" [innerHTML]="config.message"></div>
   <div *ngIf="config.input" class="dialogbox-form">
-    <input type="text" [(ngModel)]="model.input" (ngModelChange)="onChanges($event)"/>
+    <input type="text" [(ngModel)]="model.input" (ngModelChange)="onChanges()"/>
   </div>
   <ng-container #custom></ng-container>
   <footer class="dialogbox-actions">
-    <button (click)="clickOk()">Ok</button>
+    <button *ngIf="!config.buttons" (click)="clickOk()">Ok</button>
+    <button *ngFor="let button of config.buttons || []" (click)="click(button[0], button[1])">{{button[0]}}</button>
   </footer>
 </div>

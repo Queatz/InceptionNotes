@@ -29,6 +29,7 @@ export class DialogConfig {
   init?: (dialog: DialogComponent) => void
   ok?: (model: DialogModel) => void
   cancel?: () => void
+  buttons?: Array<[string, (model: DialogModel) => void]>
 }
 
 @Component({
@@ -112,11 +113,16 @@ export class DialogComponent implements OnInit, OnDestroy, AfterViewInit {
 
   clickOk() {
     this.model.choice = 'ok'
+    this.back()
 
     if (this.config.ok) {
       this.config.ok(this.model)
     }
+  }
 
+  click(choice: string, buttonCallback: (model: DialogModel) => void) {
+    this.model.choice = choice
     this.back()
+    buttonCallback(this.model)
   }
 }
