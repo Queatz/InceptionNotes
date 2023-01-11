@@ -976,6 +976,7 @@ export class ApiService {
 
     if (list) {
       note.parent = list
+      note.steward = list.steward
 
       if (position === null) {
         list.items.push(note)
@@ -1008,8 +1009,13 @@ export class ApiService {
     }
 
     if (fromServer) {
-      this.setAllPropsSynced(note)
+      // Set all props syncd
+      note._local = []
+      // mark note as not yet syncd
+      note._sync = false
     }
+
+    this.saveNote(note)
 
     return note
   }
@@ -1207,7 +1213,7 @@ export class ApiService {
 
   invitationColor(id: string) {
     if (!id) { return '#404040' }
-    return `hsl(${id.split('').map(it => it.charCodeAt(0)).reduce((a, b, i) => a * (i + 1) + b * (i + 1)) % 360}, 66%, 33%)`
+    return `hsl(${id.split('').map(it => it.charCodeAt(0)).reduce((a, b, i) => a * (i + 99) + b * (i + 99)) % 360}, 66%, 33%)`
   }
 
   private intro() {

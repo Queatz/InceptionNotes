@@ -25,8 +25,8 @@ export class OpComponent implements OnInit {
     this.ui.save()
   }
 
-  isSyncConnected() {
-    return !!this.collaboration.me()
+  me() {
+    return this.collaboration.me()
   }
 
   name(): string {

@@ -2,14 +2,14 @@
   <b>Collaboration</b>
   <ng-container *ngIf="isSteward()">
     <br/>
-    <button (click)="showInvitationsModal()">Manage invitations</button>
+    <button (click)="showInvitationsModal()">👩‍💻 Invitations</button>
     <br/>
   </ng-container>
   <br/>
-  <ng-container *ngIf="!isSyncConnected()">
+  <ng-container *ngIf="!me()">
     Not connected
   </ng-container>
-  <ng-container *ngIf="isSyncConnected()">
+  <ng-container *ngIf="me()">
     Connected as <b>{{name()}}</b>&nbsp;<button (click)="changeName()">Set name</button>
     <ng-container *ngIf="!isSteward()">
       <br/>

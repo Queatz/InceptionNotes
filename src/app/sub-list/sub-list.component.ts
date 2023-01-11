@@ -293,7 +293,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
               const createdStr = !created ? 'Unknown creation date' : `Created ${formatDistanceToNow(created)} ago on ${formatDate(created, 'medium', 'en-US')}`
               const updatedStr = !updated ? 'Note has never been updated' : `Modified ${formatDistanceToNow(updated)} ago on ${formatDate(updated, 'medium', 'en-US')}`
-              const stewardStr = !steward ? 'Note creator is unknown' : `Note created by ${steward.name}`
+              const stewardStr = !steward ? 'Note steward is unknown' : `The note's steward is ${steward.name}`
 
               this.ui.dialog({
                 message: `${createdStr}\n\n${updatedStr}\n\n${stewardStr}`,
@@ -1162,9 +1162,9 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     event.stopPropagation()
     event.preventDefault()
 
-    if (invitation.id === item.steward) {
+    if (invitation.id === item.steward && !item.invitations?.find(i => i.id === item.steward)) {
       this.ui.dialog({
-        message: `${invitation.name} is the note's creator`
+        message: `${invitation.name} is the note's steward`
       })
       return
     }
@@ -1189,9 +1189,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getInvitations(list: Note): Array<Invitation> {
-    const me = this.me()
-    const l = list.invitations?.filter(i => i.id !== me?.id) || []
-    if (list.steward && !!list.invitations.find(i => i.id === me?.id)) {
+    const l = [ ...(list.invitations || []) ]
+    if (l.length && list.steward && !l.find(i => i.id === list.steward)) {
       l.unshift(this.api.invitation(list.steward))
     }
     return l
