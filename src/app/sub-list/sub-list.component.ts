@@ -479,21 +479,28 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           }))
         ]
       },
-      {
-        title: 'Order',
-        shortcut: '⯈',
-        callback: () => {
-        },
-        menu: [
-          {
-            title: 'First',
-            callback: () => this.api.orderRef(item, refItem, 0)
-          }, {
-            title: 'Last',
-            callback: () => this.api.orderRef(item, refItem, -1)
+      ...(item.ref?.length > 1 ? [
+        {
+          title: 'Order',
+          shortcut: '⯈',
+          callback: () => {
           },
-        ]
-      }
+          menu: [
+            ...(item.ref.indexOf(refItem) !== 0 ? [
+              {
+                title: 'First',
+                callback: () => this.api.orderRef(item, refItem, 0)
+              }
+            ] : []),
+            ...(item.ref.indexOf(refItem) !== item.ref.length - 1 ? [
+              {
+                title: 'Last',
+                callback: () => this.api.orderRef(item, refItem, -1)
+              }
+            ] : [])
+          ]
+        }
+      ] : [])
     ], {x: event.clientX, y: event.clientY})
   }
 
@@ -1194,5 +1201,13 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       l.unshift(this.api.invitation(list.steward))
     }
     return l
+  }
+
+  goUpText() {
+    if (this.list.parent) {
+      return `Go up to "${this.list.parent.name}"`
+    } else {
+      return 'New top note'
+    }
   }
 }

@@ -25,7 +25,7 @@
            (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name"></div>
     </div>
     <div class="open-note" (click)="useAsNavigation ? up() : openList($event)"
-         [title]="useAsNavigation ? 'Go up' : 'Open note'">{{ useAsNavigation ? '↑' : '↗'}}</div>
+         [title]="useAsNavigation ? goUpText() : 'Open note'">{{ useAsNavigation ? '↑' : '↗'}}</div>
   </div>
   <div *ngIf="!useAsNavigation && !list.collapsed" #items>
     <ng-container *ngFor="let item of list.items; index as i">
@@ -60,7 +60,7 @@
                class="sub-list-item"
                [ngClass]="{'item-name-checked': item.checked}"></div>
           <div *ngIf="!useAsNavigation && getEnv().showLinks && item.ref" class="item-links">
-            <div *ngFor="let i of item.ref" class="item-link" [ngClass]="{ 'is-flat': getEnv().showFlat}"
+            <div *ngFor="let i of item.ref" class="item-link" [ngClass]="{ 'is-flat': getEnv().showFlat, 'invert-text': i.options?.invertText }"
                  [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color"
                  (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name"></div>
           </div>
@@ -101,7 +101,7 @@
   <div *ngIf="!useAsNavigation && !list.collapsed && numberHidden(list) > 0" class="item-hidden-count">
     {{ numberHidden(list) }} hidden
   </div>
-  <div *ngIf="!useAsNavigation && list._sync === false" class="gone" title="This note is not syncing with you at the moment.  You can still make local edits, however changes may not be synced.">⟳ Not syncing</div>
+  <div *ngIf="list._sync === false" class="gone" title="This note is not syncing with you at the moment.  You can still make local edits, however changes may not be synced with others.">⟳ Not syncing</div>
   <div *ngIf="useAsNavigation">
     <sub-sub-list-item
       *ngFor="let item of list.items"

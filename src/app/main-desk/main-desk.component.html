@@ -13,7 +13,7 @@
   </div>
 </div>
 <div *ngIf="hasEvents()" class="calendar"></div>
-<div *ngIf="getShow().description !== null"
+<div *ngIf="getShow().description || getShow().description === ''"
      contenteditable
      [(contenteditableModel)]="getShow().description"
      (contenteditableModelChange)="saveDescription()"
@@ -37,3 +37,4 @@
             (keydown.control.arrowDown)="moveItem($event, list, 1)"
             [list]="list"></sub-list>
 </div>
+<div class="go-up" (click)="up()" [title]="goUpText()">↑</div>

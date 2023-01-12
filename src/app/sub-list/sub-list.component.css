@@ -112,6 +112,10 @@
   margin: 0 1rem .5rem 1rem;
 }
 
+.is-navigation .gone {
+  margin: 0 1rem .5rem 1rem;
+}
+
 .sneak-peek {
   opacity: .5;
   font-size: 75%;
@@ -245,8 +249,13 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  color: black;
   background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, .25), transparent);
   box-shadow: inset 0 0 1px 0 rgba(0, 0, 0, .5);
+}
+
+.item-link.invert-text {
+  color: white;
 }
 
 .item-link.is-flat {

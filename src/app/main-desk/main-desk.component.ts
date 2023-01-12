@@ -229,10 +229,10 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
     this.ui.menu([
       {title: 'New note', callback: () => this.newNoteAtPosition(event.pageX, event.pageY)},
-      ...(this.list.description === null ? [
+      ...(!this.list.description && this.list.description !== '' ? [
         {
           title: 'Add description', callback: () => {
-            if (this.list.description === null) {
+            if (!this.list.description && this.list.description !== '') {
               this.list.description = ''
               this.api.modified(this.list, 'description')
             }
@@ -402,6 +402,14 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
         callback: () => this.filter.toggleRef(item)
       }
     ], {x: event.clientX, y: event.clientY})
+  }
+
+  goUpText() {
+    if (this.list.parent) {
+      return `Go up to "${this.list.parent.name}"`
+    } else {
+      return 'New top note'
+    }
   }
 
   private initNext() {
