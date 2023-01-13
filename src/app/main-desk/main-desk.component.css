@@ -3,7 +3,7 @@
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  padding-left: 0rem;
+  padding-left: 0;
   justify-self: stretch;
   align-self: stretch;
   box-sizing: border-box;
@@ -23,10 +23,17 @@
   }
 }
 
-.calendar {
+sub-list {
+  margin: 1rem;
+}
+
+app-schedule {
   height: 16rem;
-  background: rgba(0, 0, 0, .125);
-  position: relative;
+  min-height: 25vh;
+}
+
+app-schedule.full-height {
+  min-height: 100vh;
 }
 
 .description {

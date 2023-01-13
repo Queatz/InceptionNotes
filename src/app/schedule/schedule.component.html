@@ -1,0 +1,12 @@
+<app-scrollable-area #viewport (offset)="onScroll($event)">
+  <div class="schedule" #schedule>
+    <div class="schedule-column" *ngFor="let column of columns">
+      <div class="schedule-column-header">{{column.name}}</div>
+      <div class="schedule-column-content">
+        <sub-list *ngFor="let item of column.items" [list]="item"></sub-list>
+        <div *ngIf="!column.items.length" class="empty">No items.</div>
+      </div>
+      <div class="schedule-column-footer"></div>
+    </div>
+  </div>
+</app-scrollable-area>

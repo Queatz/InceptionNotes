@@ -12,7 +12,7 @@
          [innerHTML]="i.name"></div>
   </div>
 </div>
-<div *ngIf="hasEvents()" class="calendar"></div>
+<app-schedule *ngIf="hasEvents()"></app-schedule>
 <div *ngIf="getShow().description || getShow().description === ''"
      contenteditable
      [(contenteditableModel)]="getShow().description"

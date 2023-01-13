@@ -20,8 +20,8 @@
     "@angular/platform-browser": "15.0.4",
     "@angular/platform-browser-dynamic": "15.0.4",
     "@angular/router": "15.0.4",
-    "date-fns": "2.29.3",
     "core-js": "3.20.2",
+    "date-fns": "2.29.3",
     "rxjs": "7.5.1",
     "tslib": "2.3.1",
     "zone.js": "0.11.4"

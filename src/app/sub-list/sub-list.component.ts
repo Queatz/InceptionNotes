@@ -193,6 +193,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           }] : [])
         ]
       },
+      this.scheduleMenuItem(this.list),
       {
         title: 'Invite...',
         callback: () => this.addInvitation(this.list),
@@ -402,6 +403,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           }
         ]
       },
+      this.scheduleMenuItem(item),
       ...(this.ui.getEnv().showEstimates ? [{
         title: 'Estimate...', callback: () => this.ui.dialog({
           message: 'Estimate (in days)',
@@ -1208,6 +1210,23 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       return `Go up to "${this.list.parent.name}"`
     } else {
       return 'New top note'
+    }
+  }
+
+  private scheduleMenuItem(item: Note) {
+    return {
+      title: 'Schedule...',
+      callback: () => {},
+      menu: [
+        {
+          title: 'By today',
+          callback: () => {}
+        },
+        {
+          title: 'By tomorrow',
+          callback: () => {}
+        }
+      ]
     }
   }
 }

@@ -430,7 +430,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   hasEvents() {
-    return false
+    return true
   }
 
   private newNoteAtPosition(x: number, y: number) {

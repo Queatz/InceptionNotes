@@ -1,0 +1,60 @@
+:host {
+  background: #f0f0f0;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  border-bottom: 1px solid gray;
+}
+
+:host.dark-theme {
+  background: #404040;
+}
+
+:host.dark-theme .schedule-column-header {
+  color: #ffffff;
+}
+
+:host.dark-theme .empty {
+  color: #ffffff;
+}
+
+app-scrollable-area {
+  width: 100%;
+  height: 100%;
+}
+
+.schedule {
+  display: flex;
+  position: relative;
+}
+
+.schedule-column {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  flex-shrink: 0;
+}
+
+.schedule-column-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-column-header {
+  font-weight: bold;
+}
+
+sub-list {
+  margin-top: 1rem;
+}
+
+.empty {
+  min-width: 16rem;
+  padding: 1rem 0;
+  box-sizing: border-box;
+  opacity: .5;
+}
+
+.schedule-column-footer {
+  padding-top: 1rem;
+}

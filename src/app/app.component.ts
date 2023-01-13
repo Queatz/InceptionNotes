@@ -8,6 +8,10 @@ import {SyncService} from 'app/sync.service'
 import {Title} from '@angular/platform-browser'
 import Util from 'app/util'
 
+class View {
+  type: 'note' | 'schedule'
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -16,6 +20,9 @@ import Util from 'app/util'
   providers: [Location, {provide: LocationStrategy, useClass: PathLocationStrategy}]
 })
 export class AppComponent {
+
+  readonly views = new Array<View>()
+
   constructor(
     public api: ApiService,
     public ui: UiService,
@@ -28,6 +35,9 @@ export class AppComponent {
   ) {
     this.ui.registerAppComponent(this)
     this.collab.connect()
+
+    this.views.push({ type: 'note'} )
+    this.views.push({ type: 'schedule'} )
 
     route.params.subscribe(params => {
       if (!params['id']) {

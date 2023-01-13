@@ -27,7 +27,9 @@ import {WindowComponent} from './window/window.component'
 import {FilterService} from './filter.service';
 import { EditInvitationsComponent } from './edit-invitations/edit-invitations.component';
 import { AcceptInvitationComponent } from './accept-invitation/accept-invitation.component';
-import { InvitationPhotoComponent } from './invitation-photo/invitation-photo.component'
+import { InvitationPhotoComponent } from './invitation-photo/invitation-photo.component';
+import { ScheduleComponent } from './schedule/schedule.component';
+import { ScrollableAreaComponent } from './scrollable-area/scrollable-area.component'
 
 enableProdMode()
 
@@ -49,14 +51,16 @@ enableProdMode()
     WindowComponent,
     EditInvitationsComponent,
     AcceptInvitationComponent,
-    InvitationPhotoComponent
+    InvitationPhotoComponent,
+    ScheduleComponent,
+    ScrollableAreaComponent
   ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpClientModule,
-    AppRoutingModule
-  ],
+    imports: [
+        BrowserModule,
+        FormsModule,
+        HttpClientModule,
+        AppRoutingModule,
+    ],
   providers: [
     ApiService,
     FilterService,
