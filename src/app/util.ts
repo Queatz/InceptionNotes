@@ -2,8 +2,8 @@ export default class Util {
 
   private static div = document.createElement('div')
 
-  static htmlToText(html: string) {
-    this.div.innerHTML = html
+  static htmlToText(html: string, newlineToSpace = false) {
+    this.div.innerHTML = (newlineToSpace ? html.replace('<br>', ' ') : html)
     return this.div.textContent || this.div.innerText || ''
   }
 

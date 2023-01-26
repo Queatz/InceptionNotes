@@ -28,6 +28,8 @@ export class CollaborationService {
   }
 
   connect() {
+    this.syncService.invitationsChanged.subscribe(() => this.reloadInvitations())
+
     if (this.invitation) {
       this.reloadInvitations()
       this.syncService.start()

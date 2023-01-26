@@ -16,6 +16,7 @@ export class Event {
     this.types.set(StateEvent, 'state')
     this.types.set(IdentifyEvent, 'identify')
     this.types.set(GetEvent, 'get')
+    this.types.set(InvitationEvent, 'invitation')
     this.types.forEach((v, k) => this.actions.set(v, k))
     this.outgoingTypes.set(IdentifyOutgoingEvent, 'identify')
     this.outgoingTypes.set(StateOutgoingEvent, 'state')
@@ -87,6 +88,18 @@ export class IdentifyEvent implements ServerEvent {
 
   got(sync: SyncService) {
     sync.sendState()
+  }
+}
+
+export class InvitationEvent implements ServerEvent {
+  reload: boolean
+
+  constructor(reload: boolean) {
+    this.reload = reload
+  }
+
+  got(sync: SyncService) {
+    sync.reloadInvitations()
   }
 }
 

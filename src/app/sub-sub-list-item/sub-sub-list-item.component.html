@@ -4,8 +4,7 @@
        [attr.data-after]="getAfterText(item)"
        [ngClass]="{'is-selected': isExactSelectedNav(item)}"></div>
   <div *ngIf="isExactSelectedNav(item?.parent)" class="navigate-to-note" title="Scroll to note"
-       (click)="scrollToNote($event)">↗
-  </div>
+       (click)="scrollToNote($event)">↗</div>
 </div>
 <div #subsub
      [style.max-height]="getMaxHeight(subsub, item)"
@@ -23,6 +22,6 @@
          [attr.data-before]="!item?.options?.enumerate || isEmpty(subItem) ? '' : (visualIndex(subItem) + 1) + '. '"
          [attr.data-after]="getAfterText(subItem)"
          [innerHTML]="subItem.name"></div>
-    <div class="navigate-to-note" (click)="scrollToNote($event, subItem)">↗</div>
+    <div *ngIf="isExactSelectedNav(subItem?.parent)" class="navigate-to-note" title="Scroll to note" (click)="scrollToNote($event, subItem)">↗</div>
   </div>
 </div>

@@ -50,7 +50,7 @@ export class AppComponent {
         note = this.api.newBlankNote(true, params['id'])
       }
 
-      this.title.setTitle(Util.htmlToText(note.name) || 'Inception Notes')
+      this.title.setTitle(Util.htmlToText(note.name, true) || 'Inception Notes')
 
       if (!this.api.getShow() || note.id !== this.api.getShow().id) {
         this.api.setEye(note)

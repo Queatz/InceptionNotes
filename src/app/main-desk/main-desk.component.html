@@ -35,6 +35,7 @@
             [getSelectedListIds]="getSelectedListIds()"
             (keydown.control.arrowUp)="moveItem($event, list, -1)"
             (keydown.control.arrowDown)="moveItem($event, list, 1)"
+            [large]="getEnv().showAsPriorityList"
             [list]="list"></sub-list>
 </div>
 <div class="go-up" (click)="up()" [title]="goUpText()">↑</div>

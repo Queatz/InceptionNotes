@@ -4,6 +4,7 @@ import {Event} from 'app/sync/event'
 import {ApiService, FrozenNote, Note} from 'app/api.service'
 import util from 'app/util'
 import {Conflict, ConflictService} from './conflict.service'
+import {Subject} from 'rxjs';
 
 export class IdentifyOutgoingEvent {
   device: string
@@ -42,6 +43,8 @@ export class SyncService {
 
   private event: Event
   private device?: string
+
+  readonly invitationsChanged = new Subject<void>()
 
   constructor(private ws: WsService, private api: ApiService, private conflict: ConflictService) {
     this.ws.syncService = this
@@ -318,5 +321,9 @@ export class SyncService {
       note.rev = serverRev
       this.api.saveNote(note)
     }
+  }
+
+  reloadInvitations() {
+    this.invitationsChanged.next()
   }
 }

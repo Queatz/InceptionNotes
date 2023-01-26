@@ -34,13 +34,14 @@ import {formatDate} from '@angular/common'
     '[style.background-color]': 'useAsNavigation ? \'transparent\' : list.color',
     '[style.opacity]': 'isDraggingList ? \'0.5\' : undefined',
     '[style.cursor]': 'useAsNavigation ? \'default\' : undefined',
-    '[style.max-width]': 'getEnv().showAsPriorityList ? \'32rem\' : undefined',
-    '[style.width]': 'getEnv().showAsPriorityList ? \'100%\' : undefined'
+    '[style.max-width]': 'large ? \'32rem\' : undefined',
+    '[style.width]': 'large ? \'100%\' : undefined'
   }
 })
 export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() list: Note
+  @Input() large = false
   @Input() useAsNavigation: boolean
   @Input() onSelection?: Observable<{
     lastList: Note | undefined,
