@@ -1225,6 +1225,22 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         {
           title: 'By tomorrow',
           callback: () => {}
+        },
+        {
+          title: '6pm today',
+          callback: () => {}
+        },
+        {
+          title: 'From Feb 1',
+          callback: () => {}
+        },
+        {
+          title: 'On Feb 15, 2024',
+          callback: () => {}
+        },
+        {
+          title: 'Duration...',
+          callback: () => {}
         }
       ]
     }

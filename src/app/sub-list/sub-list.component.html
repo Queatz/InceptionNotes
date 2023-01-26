@@ -22,7 +22,7 @@
     <div class="item-links" *ngIf="getEnv().showLinks && list.ref?.length">
       <div *ngFor="let i of list.ref" class="item-link lg" [ngClass]="{ 'is-flat': getEnv().showFlat}"
            [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color"
-           (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name"></div>
+           (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name.split('<br>')[0]"></div>
     </div>
     <div class="open-note" (click)="useAsNavigation ? up() : openList($event)"
          [title]="useAsNavigation ? goUpText() : 'Open note'">{{ useAsNavigation ? '↑' : '↗'}}</div>
@@ -62,7 +62,7 @@
           <div *ngIf="!useAsNavigation && getEnv().showLinks && item.ref" class="item-links">
             <div *ngFor="let i of item.ref" class="item-link" [ngClass]="{ 'is-flat': getEnv().showFlat, 'invert-text': i.options?.invertText }"
                  [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color"
-                 (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name"></div>
+                 (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name.split('<br>')[0]"></div>
           </div>
           <div class="open-note" (click)="openItem($event, item)" [title]="'Open note'">↗</div>
           <div class="sneak-peek" #sneakItems [ngClass]="{'interactable': getEnv().showSublistCheckboxes}"

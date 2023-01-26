@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, HostListener, Output, ViewChild, ViewContainerRef} from '@angular/core'
+import {AfterViewInit, Component, EventEmitter, HostListener, Input, Output, ViewChild, ViewContainerRef} from '@angular/core'
 
 @Component({
   selector: 'app-scrollable-area',
@@ -9,6 +9,7 @@ export class ScrollableAreaComponent implements  AfterViewInit {
 
   private scrollX = 0
 
+  @Input() orientation: 'horizontal' | 'vertical' = 'horizontal'
   @Output() offset = new EventEmitter<number>()
 
   @ViewChild('viewport', {read: ViewContainerRef, static: true})

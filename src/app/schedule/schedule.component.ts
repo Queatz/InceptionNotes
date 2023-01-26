@@ -1,12 +1,14 @@
 import {ChangeDetectorRef, Component, OnInit, ViewChild, ViewContainerRef} from '@angular/core'
 import {ApiService, Note} from '../api.service'
 import {UiService} from '../ui.service'
-import {addDays, isToday, isTomorrow, isYesterday} from 'date-fns'
+import {addDays, addHours, addMonths, addWeeks, getHours, isPast, isToday, isTomorrow, isYesterday} from 'date-fns'
 import {formatDate} from '@angular/common'
 import {ScrollableAreaComponent} from '../scrollable-area/scrollable-area.component';
 
 class ScheduleColumn {
   name: string
+  title: string
+  past: boolean
   items: Array<Note>
 }
 
@@ -71,8 +73,17 @@ export class ScheduleComponent implements OnInit {
   getColumn(position: number) {
     const date = addDays(new Date(), position)
     const all = Array.from(this.api.getAllNotes().values()).filter(x => x.name)
+    const weekRange = `${formatDate(date, 'MMM d', 'en-US')} to ${formatDate(addWeeks(date, 1), 'MMM d', 'en-US')}`
+    const month = `${formatDate(addMonths(new Date(), position), 'MMMM, yyyy', 'en-US')}`
+    const hourDate = addHours(new Date(), position)
+    const hour = `${formatDate(hourDate, getHours(hourDate) !== 0 ? 'h a' : 'h a (MMM d)', 'en-US')}`
     return {
       name: isYesterday(date) ? 'Yesterday' : isToday(date) ? 'Today' : isTomorrow(date) ? 'Tomorrow' : `${formatDate(date, 'EEEE, MMM d', 'en-US')}`,
+      // name: isYesterday(date) ? 'Last week' : isToday(date) ? 'This week' : isTomorrow(date) ? 'Next week' : weekRange,
+      // name: isYesterday(date) ? 'Last month' : isToday(date) ? 'This month' : isTomorrow(date) ? 'Next month' : month,
+      // name: isToday(date) ? 'This hour' : hour,
+      title: month,
+      past: isPast(date),
       items: all.sort((a, b) => Math.random() - .5).slice(0, Math.round(Math.random() * 4))
     }
   }

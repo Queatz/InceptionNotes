@@ -1,5 +1,9 @@
 :host {
   background: #f0f0f0;
+  background-image: url("https://i.redd.it/v3224xfpqlt91.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   position: relative;
   display: flex;
   overflow: hidden;
@@ -16,6 +20,11 @@
 
 :host.dark-theme .empty {
   color: #ffffff;
+}
+
+:host.dark-theme .emptiness {
+  color: rgba(255 255 255 / 75%);
+  background: rgba(0 0 0 / 25%);
 }
 
 app-scrollable-area {
@@ -51,10 +60,24 @@ sub-list {
 .empty {
   min-width: 16rem;
   padding: 1rem 0;
-  box-sizing: border-box;
   opacity: .5;
+}
+
+.emptiness {
+  text-align: center;
+  padding: 1rem;
+  color: rgba(0 0 0 / 75%);
+  background: rgba(255 255 255 / 25%);
+  border-radius: 1rem;
+  margin-top: 1rem;
+  min-width: 16rem;
+  cursor: pointer;
 }
 
 .schedule-column-footer {
   padding-top: 1rem;
+}
+
+.is-past {
+  opacity: .333;
 }
