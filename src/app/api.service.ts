@@ -862,7 +862,7 @@ export class ApiService {
 
     if (!list || !toList) {
       this.ui.dialog({
-        message: 'List could not be found.'
+        message: 'Note could not be found.'
       })
 
       return

@@ -1,6 +1,7 @@
 <div class="search-results">
   <div class="result" *ngFor="let note of results"
        [style.background-color]="note.color"
+       [title]="getItemTitleText(note)"
        (click)="click(note)">
     <span [innerHtml]="note.name"></span>
     <span class="note-parent" *ngIf="note.parent"> → </span>

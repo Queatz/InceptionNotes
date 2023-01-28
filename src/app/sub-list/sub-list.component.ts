@@ -826,7 +826,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       p = p.parent
     }
 
-    return Util.htmlToText(t)
+    return Util.htmlToText(t, true)
   }
 
   getAfterText(item: Note, ignoreShowSublistPreviews = false) {
@@ -1174,7 +1174,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
     if (invitation.id === item.steward && !item.invitations?.find(i => i.id === item.steward)) {
       this.ui.dialog({
-        message: `${invitation.name} is the note's steward`
+        message: `${invitation.name} is the note's steward and cannot be uninvited.`
       })
       return
     }
@@ -1183,14 +1183,19 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       [
         {
           title: 'Remove', callback: () => {
-            const i = item.invitations.indexOf(invitation)
+            this.ui.dialog({
+              message: `Remove this invitation?\n\n${invitation.name} will no longer be a collaborator on this note.`,
+              ok: () => {
+                const i = item.invitations.indexOf(invitation)
 
-            if (i === -1) {
-              return
-            }
+                if (i === -1) {
+                  return
+                }
 
-            item.invitations.splice(i, 1)
-            this.api.modified(item, 'invitations')
+                item.invitations.splice(i, 1)
+                this.api.modified(item, 'invitations')
+              }
+            })
           }
         }
       ],

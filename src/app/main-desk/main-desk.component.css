@@ -27,15 +27,6 @@ sub-list {
   margin: 1rem;
 }
 
-app-schedule {
-  height: 16rem;
-  min-height: 25vh;
-}
-
-app-schedule.full-height {
-  min-height: 100vh;
-}
-
 .description {
   padding: 1rem;
   margin: 2rem 2rem 0 2rem;

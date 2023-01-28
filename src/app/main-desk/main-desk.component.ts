@@ -382,7 +382,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
       p = p.parent
     }
 
-    return Util.htmlToText(t)
+    return Util.htmlToText(t, true)
   }
 
   removeFilter(event: Event, item: Note) {
@@ -427,10 +427,6 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
   up() {
     this.api.up()
-  }
-
-  hasEvents() {
-    return true
   }
 
   private newNoteAtPosition(x: number, y: number) {

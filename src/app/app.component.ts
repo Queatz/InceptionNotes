@@ -8,10 +8,6 @@ import {SyncService} from 'app/sync.service'
 import {Title} from '@angular/platform-browser'
 import Util from 'app/util'
 
-class View {
-  type: 'note' | 'schedule'
-}
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -21,7 +17,7 @@ class View {
 })
 export class AppComponent {
 
-  readonly views = new Array<View>()
+  viewType: string
 
   constructor(
     public api: ApiService,
@@ -35,9 +31,6 @@ export class AppComponent {
   ) {
     this.ui.registerAppComponent(this)
     this.collab.connect()
-
-    this.views.push({ type: 'note'} )
-    this.views.push({ type: 'schedule'} )
 
     route.params.subscribe(params => {
       if (!params['id']) {
@@ -60,11 +53,21 @@ export class AppComponent {
 
   escapePressed() {
     if (!this.ui.back()) {
-      const show = this.api.getShow()
-      this.api.up()
-      setTimeout(() => {
-        this.ui.locate.next({list: show, animate: false})
-      })
+      if (!this.viewType) {
+        const show = this.api.getShow()
+        this.api.up()
+        setTimeout(() => {
+          this.ui.locate.next({list: show, animate: false})
+        })
+      }
+    }
+  }
+
+  changeView() {
+    if (this.viewType) {
+      this.viewType = undefined
+    } else {
+      this.viewType = 'schedule'
     }
   }
 }

@@ -12,7 +12,6 @@
          [innerHTML]="i.name"></div>
   </div>
 </div>
-<app-schedule *ngIf="hasEvents()"></app-schedule>
 <div *ngIf="getShow().description || getShow().description === ''"
      contenteditable
      [(contenteditableModel)]="getShow().description"

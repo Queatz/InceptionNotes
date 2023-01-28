@@ -1,2 +1,10 @@
-<main-list [show]="ui.getEnv().sidepane"></main-list>
-<main-desk [list]="api.getShow()"></main-desk>
+<ng-container [ngSwitch]="viewType">
+  <ng-container *ngSwitchCase="'schedule'">
+    <app-schedule></app-schedule>
+  </ng-container>
+  <ng-container *ngSwitchDefault>
+    <main-list [show]="ui.getEnv().sidepane"></main-list>
+    <main-desk [list]="api.getShow()"></main-desk>
+  </ng-container>
+</ng-container>
+<button class="toolbar" (click)="changeView()">🎑</button>

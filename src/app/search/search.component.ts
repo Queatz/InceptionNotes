@@ -1,6 +1,7 @@
 import {Component, HostListener, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 import {ApiService, Note} from '../api.service'
 import {Subject} from 'rxjs'
+import Util from '../util';
 
 @Component({
   selector: 'app-search',
@@ -67,5 +68,17 @@ export class SearchComponent implements OnInit, OnChanges {
   click(note: Note) {
     this.api.addRecent(this.recentWhich, note.id)
     this.onSelection.next(note)
+  }
+
+  getItemTitleText(item: Note) {
+    let t = ''
+    let p = item.parent
+
+    for (let i = 0; i < 3 && p; i++) {
+      t += ' → ' + p.name
+      p = p.parent
+    }
+
+    return Util.htmlToText(t, true)
   }
 }

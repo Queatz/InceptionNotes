@@ -27,7 +27,7 @@
   font-weight: bold;
   display: block;
   cursor: text;
-  overflow: hidden;
+  overflow: auto hidden;
   word-break: break-word;
 }
 
@@ -53,8 +53,9 @@
   flex: 1;
   display: block;
   word-wrap: break-word;
-  cursor: text;
   word-break: break-word;
+  overflow-x: auto;
+  cursor: text;
 }
 
 .sub-list-item-container {
