@@ -20,9 +20,11 @@
     <div *ngIf="list.description" class="item-description"
          [innerHTML]="list.description"></div>
     <div class="item-links" *ngIf="getEnv().showLinks && list.ref?.length">
-      <div *ngFor="let i of list.ref" class="item-link lg" [ngClass]="{ 'is-flat': getEnv().showFlat}"
-           [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color"
-           (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name.split('<br>')[0]"></div>
+      <div *ngFor="let i of list.ref" class="item-link lg"
+           [ngClass]="{ 'is-flat': getEnv().showFlat, 'not-syncing': i._sync === false }"
+           [title]="getItemLinkText(i)"
+           (click)="openItem($event, i)" [style.background-color]="i.color"
+           (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i._sync === false ? '⟳' : i.name.split('<br>')[0]"></div>
     </div>
     <div class="open-note" (click)="useAsNavigation ? up() : openList($event)"
          (contextmenu)="openNoteMenu($event, list)"
@@ -99,11 +101,9 @@
   <div class="invitations" *ngIf="getInvitations(list).length">
     <app-invitation-photo class="invitation-photo" (contextmenu)="showInvitationMenu($event, list, invitation)" *ngFor="let invitation of getInvitations(list)" [invitation]="invitation"></app-invitation-photo>
   </div>
-  <div *ngIf="!useAsNavigation && !list.collapsed && numberHidden(list) > 0" class="item-hidden-count">
-    {{ numberHidden(list) }} hidden
+  <div *ngIf="(!useAsNavigation && !list.collapsed && numberHidden(list) > 0) || list._sync === false || list._edit === false" class="item-hidden-count">
+    <span *ngIf="list._sync === false" title="This note is not syncing with you at the moment.  You can still make local edits, however changes you make may not sync until the note is shared with you again.">⟳ Not syncing</span><span *ngIf="list._sync !== false && list._edit === false" title="This note is syncing but isn't shared with you at the moment.  You can still make local edits, however changes you make may not sync until the note is shared with you again.">⟳ Not shared</span>{{ (list._sync === false || list._edit === false) && !useAsNavigation && numberHidden(list) > 0 ? ', ' : '' }}{{ !useAsNavigation && numberHidden(list) > 0 ? numberHidden(list) + ' hidden' : '' }}
   </div>
-  <div *ngIf="list._sync === false" class="gone" title="This note is not syncing with you at the moment.  You can still make local edits, however changes you make may not sync until the note is shared with you again.">⟳ Not syncing</div>
-  <div *ngIf="list._sync !== false && list._edit === false" class="gone" title="This note is syncing but isn't shared with you at the moment.  You can still make local edits, however changes you make may not sync until the note is shared with you again.">⟳ Not shared</div>
   <div *ngIf="useAsNavigation">
     <sub-sub-list-item
       *ngFor="let item of list.items"

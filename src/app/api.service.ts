@@ -856,18 +856,27 @@ export class ApiService {
   }
 
   moveListToPosition(listId: string, toListId: string, position: number) {
-    if (listId === toListId) {
-      return
-    }
-
     const list = this.search(listId)
     const toList = this.search(toListId)
+
+    if (listId === toListId) {
+      this.ui.dialog({
+        message: 'Note cannot be moved into itself.'
+      })
+      return
+    }
 
     if (!list || !toList) {
       this.ui.dialog({
         message: 'Note could not be found.'
       })
+      return
+    }
 
+    if (list._edit === false || list._sync === false) {
+      this.ui.dialog({
+        message: 'This note is not shared with you at the moment and cannot be moved.'
+      })
       return
     }
 

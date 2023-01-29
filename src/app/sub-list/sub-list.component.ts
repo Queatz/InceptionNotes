@@ -835,6 +835,10 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getItemLinkText(item: Note) {
+    if (item._sync === false) {
+      return 'This link is not syncing with you at the moment.'
+    }
+
     let t = ''
     let p = item.parent
 
@@ -1004,6 +1008,10 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   hideItem(item: Note, includeEmpty = true, includeFiltered = false, internalCall = false) {
+    if (item._sync === false) {
+      return item.name || includeEmpty
+    }
+
     if (this.getEnv().showOnly && (!internalCall && this.visualIndexOf(item.parent, item, includeFiltered)) >= this.getEnv().showOnly) {
       return true
     }
@@ -1022,10 +1030,6 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   numberHidden(list: Note) {
-    if (this.filter.byRef?.length < 1 && !this.ui.getEnv().hideDoneItems) {
-      return 0
-    }
-
     return list.items.filter(x => this.hideItem(x, false)).length
   }
 

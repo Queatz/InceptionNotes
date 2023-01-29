@@ -112,7 +112,7 @@
   margin: 0 1rem .5rem 1rem;
 }
 
-.is-navigation .gone {
+.is-navigation .item-hidden-count {
   margin: 0 1rem .5rem 1rem;
 }
 
@@ -201,11 +201,6 @@
   opacity: .5;
 }
 
-.gone {
-  margin-top: .5rem;
-  opacity: .5;
-}
-
 .item-status {
   flex-grow: 0;
   padding-right: .5rem;
@@ -267,6 +262,10 @@
   margin-bottom: .5rem;
   font-weight: bold;
   padding: .25rem .75rem;
+}
+
+.item-link.not-syncing {
+  opacity: .25;
 }
 
 .spaced {
