@@ -25,6 +25,7 @@ import {filter as filterOp, Observable, Subject} from 'rxjs'
 import {takeUntil} from 'rxjs/operators'
 import {formatDistanceToNow} from 'date-fns'
 import {formatDate} from '@angular/common'
+import {Config} from '../config.service';
 
 @Component({
   selector: 'sub-list',
@@ -73,9 +74,11 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     private ui: UiService,
     private api: ApiService,
     private collaboration: CollaborationService,
+    private config: Config,
     private filter: FilterService,
     private elementRef: ElementRef
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.initNext()
@@ -780,6 +783,20 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     return false
   }
 
+  openNoteMenu(event: MouseEvent, note: Note) {
+    event.preventDefault()
+    event.stopPropagation()
+    this.ui.menu([
+        {
+          title: 'Open note in new tab',
+          callback: () => {
+            window.open(this.config.noteLink(note.id), '_blank')
+          }
+        }
+      ], {x: event.clientX, y: event.clientY}
+    )
+  }
+
   openItem(event: Event, item: Note) {
     event.stopPropagation()
     this.api.setEye(item)
@@ -1102,6 +1119,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       } as MenuOption
     }) : []
   }
+
   private getRecentInvitationsSubmenu(callback: (recent: Invitation) => void, exclude: Invitation[] = []): Array<MenuOption> {
     const recents = this.api.getRecentInvitations().filter(x => exclude.indexOf(x) === -1)
 
@@ -1204,7 +1222,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getInvitations(list: Note): Array<Invitation> {
-    const l = [ ...(list.invitations || []) ]
+    const l = [...(list.invitations || [])]
     if (l.length && list.steward && !l.find(i => i.id === list.steward)) {
       l.unshift(this.api.invitation(list.steward))
     }
@@ -1222,31 +1240,38 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   private scheduleMenuItem(item: Note) {
     return {
       title: 'Schedule...',
-      callback: () => {},
+      callback: () => {
+      },
       menu: [
         {
           title: 'By today',
-          callback: () => {}
+          callback: () => {
+          }
         },
         {
           title: 'By tomorrow',
-          callback: () => {}
+          callback: () => {
+          }
         },
         {
           title: '6pm today',
-          callback: () => {}
+          callback: () => {
+          }
         },
         {
           title: 'From Feb 1',
-          callback: () => {}
+          callback: () => {
+          }
         },
         {
           title: 'On Feb 15, 2024',
-          callback: () => {}
+          callback: () => {
+          }
         },
         {
           title: 'Duration...',
-          callback: () => {}
+          callback: () => {
+          }
         }
       ]
     }

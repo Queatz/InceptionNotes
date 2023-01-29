@@ -25,6 +25,7 @@
            (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i.name.split('<br>')[0]"></div>
     </div>
     <div class="open-note" (click)="useAsNavigation ? up() : openList($event)"
+         (contextmenu)="openNoteMenu($event, list)"
          [title]="useAsNavigation ? goUpText() : 'Open note'">{{ useAsNavigation ? '↑' : '↗'}}</div>
   </div>
   <div *ngIf="!useAsNavigation && !list.collapsed" #items>
@@ -64,7 +65,7 @@
                  [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color"
                  (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name.split('<br>')[0]"></div>
           </div>
-          <div class="open-note" (click)="openItem($event, item)" [title]="'Open note'">↗</div>
+          <div class="open-note" (click)="openItem($event, item)" (contextmenu)="openNoteMenu($event, item)" [title]="'Open note'">↗</div>
           <div class="sneak-peek" #sneakItems [ngClass]="{'interactable': getEnv().showSublistCheckboxes}"
                *ngIf="!item.collapsed && getEnv().showSublistPreviews && item.items.length">
             <ng-container *ngFor="let i of item.items">
@@ -101,7 +102,8 @@
   <div *ngIf="!useAsNavigation && !list.collapsed && numberHidden(list) > 0" class="item-hidden-count">
     {{ numberHidden(list) }} hidden
   </div>
-  <div *ngIf="list._sync === false" class="gone" title="This note is not syncing with you at the moment.  You can still make local edits, however changes may not be synced with others.">⟳ Not syncing</div>
+  <div *ngIf="list._sync === false" class="gone" title="This note is not syncing with you at the moment.  You can still make local edits, however changes you make may not sync until the note is shared with you again.">⟳ Not syncing</div>
+  <div *ngIf="list._sync !== false && list._edit === false" class="gone" title="This note is syncing but isn't shared with you at the moment.  You can still make local edits, however changes you make may not sync until the note is shared with you again.">⟳ Not shared</div>
   <div *ngIf="useAsNavigation">
     <sub-sub-list-item
       *ngFor="let item of list.items"

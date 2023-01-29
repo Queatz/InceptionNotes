@@ -10,7 +10,9 @@
     Not connected
   </ng-container>
   <ng-container *ngIf="me()">
-    Connected as <b>{{name()}}</b>&nbsp;<button (click)="changeName()">Set name</button>
+    Connected as <b>{{name()}}</b>&nbsp;
+    <button (click)="syncAll()" title="Sync all notes">Sync</button>&nbsp;
+    <button (click)="changeName()">Set name</button>
     <ng-container *ngIf="!isSteward()">
       <br/>
       <button (click)="disconnectSync()">Disconnect</button>

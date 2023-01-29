@@ -260,7 +260,7 @@ export class SyncService {
       }
 
       // Local prop differs, ask what to do
-      this.conflict.addConflict(new Conflict(note, prop, value, serverRev))
+      this.conflict.addConflict(new Conflict(note, prop, localProp, serverRev))
     }
 
     return init
@@ -271,7 +271,13 @@ export class SyncService {
       note[prop].length = 0
       note[prop].push(...value)
     } else {
-      note[prop] = value
+      if (prop === 'name' && !value) {
+        note[prop] = ''
+      } else if (prop === 'items' && !value) {
+        note[prop] = []
+      } else {
+        note[prop] = value
+      }
     }
   }
 
@@ -301,6 +307,27 @@ export class SyncService {
     if (note) {
       note._sync = false
       this.api.saveNote(note)
+    }
+  }
+
+  setCanEdit(noteId: string, canEdit: boolean) {
+    const note = this.api.search(noteId)
+
+    if (note) {
+      if (canEdit) {
+        delete note._edit
+      } else {
+        note._edit = false
+      }
+      this.api.saveNote(note)
+    }
+  }
+
+  setCanEditFull(allViewOnlyNotes: string[]) {
+    for (const note of this.api.getAllNotes().values()) {
+      if (note._edit === false && allViewOnlyNotes.indexOf(note.id) === -1) {
+        this.setCanEdit(note.id, true)
+      }
     }
   }
 

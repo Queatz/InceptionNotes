@@ -29,6 +29,7 @@ export class Event {
 export class SyncEvent implements ServerEvent {
   notes: FrozenNote[]
   gone?: string[]
+  view?: string[]
   full?: boolean
 
   constructor(notes?: FrozenNote[]) {
@@ -44,6 +45,15 @@ export class SyncEvent implements ServerEvent {
 
     if (this.gone) {
       this.gone.forEach(id => sync.setGone(id))
+    }
+
+    // todo need to check if it's not in this list and mark it as editable
+    if (this.view) {
+      this.view.forEach(id => sync.setCanEdit(id, false))
+
+      if (this.full) {
+        sync.setCanEditFull(this.view)
+      }
     }
 
     sync.syncLocalProps()

@@ -39,6 +39,7 @@ export class Note {
   updated?: string
   _local?: string[]
   _sync?: boolean
+  _edit?: boolean
 }
 
 export class FrozenNote {
@@ -61,6 +62,7 @@ export class FrozenNote {
   updated?: string
   _local?: string[]
   _sync?: boolean
+  _edit?: boolean
 }
 
 export class NoteChanges {
@@ -212,6 +214,7 @@ export class ApiService {
     note.updated = referenceNote.updated
     note._local = referenceNote._local ? [ ...referenceNote._local ] : note._local
     note._sync = referenceNote._sync
+    note._edit = referenceNote._edit
 
     // Update parent references, note that 'ref' should be updated by the other note anyway
     note.items.forEach(n => {
@@ -309,7 +312,7 @@ export class ApiService {
       estimate: a.estimate,
       created: a.created,
       updated: a.updated,
-      ...(!forServer ? { _local: a._local, _sync: a._sync } : {})
+      ...(!forServer ? { _local: a._local, _sync: a._sync, _edit: a._edit } : {})
     }
   }
 
@@ -1007,9 +1010,9 @@ export class ApiService {
     }
 
     if (fromServer) {
-      // Set all props syncd
+      // Set all props synced
       note._local = []
-      // mark note as not yet syncd
+      // mark note as not yet synced
       note._sync = false
     }
 

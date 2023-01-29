@@ -32,4 +32,12 @@ export class Config {
       return `https://inceptionnotes.com/invitation/${token}`
     }
   }
+
+  noteLink(id: string) {
+    if (this.beta) {
+      return `http://localhost:4200/n/${id}`
+    } else {
+      return `https://inceptionnotes.com/n/${id}`
+    }
+  }
 }

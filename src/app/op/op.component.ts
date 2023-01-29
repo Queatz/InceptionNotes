@@ -2,7 +2,8 @@ import {Component, OnInit} from '@angular/core'
 import {Env, UiService} from '../ui.service'
 import {ApiService} from '../api.service'
 import {CollaborationService} from '../collaboration.service'
-import {EditInvitationsComponent} from '../edit-invitations/edit-invitations.component';
+import {EditInvitationsComponent} from '../edit-invitations/edit-invitations.component'
+import {SyncService} from '../sync.service'
 
 @Component({
   selector: 'app-options',
@@ -13,7 +14,7 @@ export class OpComponent implements OnInit {
 
   env: Env
 
-  constructor(private ui: UiService, private api: ApiService, private collaboration: CollaborationService) {
+  constructor(private ui: UiService, private api: ApiService, private collaboration: CollaborationService, private sync: SyncService) {
     this.env = this.ui.getEnv()
   }
 
@@ -52,6 +53,10 @@ export class OpComponent implements OnInit {
 
   unbackup() {
     this.api.unbackup()
+  }
+
+  syncAll() {
+    this.sync.sendState()
   }
 
   showInvitationsModal() {
