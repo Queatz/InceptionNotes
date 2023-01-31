@@ -65,11 +65,11 @@ export class ConflictService {
         this.resolveNextConflict()
       },
       buttons: [
-        ['No, overwrite remote with local', () => {
+        ['Use local', () => {
           this.resolutions.next(new ConflictResolution(conflict, false))
           this.resolveNextConflict()
         }],
-        ['Yes, overwrite local with remote', () => {
+        ['Use remote', () => {
           this.resolutions.next(new ConflictResolution(conflict, true))
           this.resolveNextConflict()
         }]

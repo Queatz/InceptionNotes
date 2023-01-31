@@ -538,7 +538,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         })
       },
       ok: result => {
-        if (result.data.results && result.data.results.length) {
+        if (result.data.results?.length) {
           this.api.addRecent('search', result.data.results[0].id)
           this.api.addRef(item, result.data.results[0])
           if (!this.getEnv().showLinks) {

@@ -1,4 +1,4 @@
-import {ComponentFactoryResolver, Injectable} from '@angular/core'
+import {ComponentFactoryResolver, ComponentRef, Injectable} from '@angular/core'
 import {Subject} from 'rxjs'
 
 import {AppComponent} from './app.component'
@@ -12,7 +12,7 @@ export class UiService {
   readonly locate = new Subject<{ list: Note, animate?: boolean }>()
 
   private appComponent: AppComponent
-  private dialogs = []
+  private dialogs: Array<ComponentRef<DialogComponent>> = []
   private lastMenu: Array<MenuStackEntry> = []
 
   private env: Env
@@ -31,6 +31,19 @@ export class UiService {
     }
 
     const top = this.dialogs.pop()
+    top.hostView.destroy()
+
+    return true
+  }
+
+  remove(dialog: ComponentRef<DialogComponent>) {
+    const index = this.dialogs.indexOf(dialog)
+
+    if (index === -1) {
+      return false
+    }
+
+    const top = this.dialogs.splice(index, 1).pop()
     top.hostView.destroy()
 
     return true
@@ -85,7 +98,7 @@ export class UiService {
 
     (dialog.instance as DialogComponent).config = config;
     (dialog.instance as DialogComponent).environment = this.env;
-    (dialog.instance as DialogComponent).clickout = () => this.back()
+    (dialog.instance as DialogComponent).clickout = () => this.remove(dialog)
   }
 
   clearMenus(menuOption?: MenuOption): void {

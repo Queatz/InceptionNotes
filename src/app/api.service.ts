@@ -873,7 +873,7 @@ export class ApiService {
       return
     }
 
-    if (list._edit === false || list._sync === false) {
+    if (list._edit === false || list._sync === false || toList._edit === false || toList._sync === false) {
       this.ui.dialog({
         message: 'This note is not shared with you at the moment and cannot be moved.'
       })
@@ -1033,6 +1033,13 @@ export class ApiService {
   /* Relationships */
 
   addRef(list: Note, toList: Note) {
+    if (list._sync === false || toList._sync === false) {
+      this.ui.dialog({
+        message: 'This note is not syncing with you at the moment and cannot be linked.'
+      })
+      return
+    }
+
     if (list === toList) {
       return
     }
@@ -1107,6 +1114,13 @@ export class ApiService {
   }
 
   changeRef(list: Note, refToRemove: Note, newRef: Note) {
+    if (list._sync === false || newRef._sync === false) {
+      this.ui.dialog({
+        message: 'This note is not syncing with you at the moment and cannot be linked.'
+      })
+      return
+    }
+
     if (list === newRef) {
       return
     }
