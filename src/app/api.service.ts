@@ -333,7 +333,7 @@ export class ApiService {
         let n = fossils.get(id as string)
 
         if (!n) {
-          if (this.config.beta) {
+          if (this.config.dev) {
             console.log('unfreeze error: missing note \'' + id + '\'')
           }
           n = this.newBlankNote(true, id as string)
@@ -352,7 +352,7 @@ export class ApiService {
         let n = fossils.get(id as string)
 
         if (!n) {
-          if (this.config.beta) {
+          if (this.config.dev) {
             console.log('unfreeze error: missing note \'' + id + '\'')
           }
           n = this.newBlankNote(true, id as string)
@@ -752,7 +752,7 @@ export class ApiService {
     const note = this.search(id)
 
     if (!note) {
-      if (this.config.beta) {
+      if (this.config.dev) {
         console.log('Cannot set note as synced: ' + id)
       }
       return

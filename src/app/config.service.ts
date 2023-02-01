@@ -4,40 +4,24 @@ import {environment} from '../environments/environment'
 @Injectable()
 export class Config {
 
-  beta: boolean = !environment.production
+  dev: boolean = !environment.production
 
   constructor() {
   }
 
   getWebSocketUrl() {
-    if (this.beta) {
-      return 'ws://localhost:8080/ws'
-    } else {
-      return 'wss://api.inceptionnotes.com/ws'
-    }
+    return `ws${environment.apiUrl.slice(4)}/ws`
   }
 
   getUrl(path: string) {
-    if (this.beta) {
-      return `http://localhost:8080/${path}`
-    } else {
-      return `https://api.inceptionnotes.com/${path}`
-    }
+    return `${environment.apiUrl}/${path}`
   }
 
   invitationLink(token: string) {
-    if (this.beta) {
-      return `http://localhost:4200/invitation/${token}`
-    } else {
-      return `https://inceptionnotes.com/invitation/${token}`
-    }
+    return `${environment.uiUrl}/invitation/${token}`
   }
 
   noteLink(id: string) {
-    if (this.beta) {
-      return `http://localhost:4200/n/${id}`
-    } else {
-      return `https://inceptionnotes.com/n/${id}`
-    }
+    return `${environment.uiUrl}/n/${id}`
   }
 }
