@@ -12,8 +12,22 @@ app-schedule {
 }
 
 .toolbar {
-  z-index: 100;
+  z-index: 2;
   position: fixed;
-  bottom: .5rem;
-  left: .5rem;
+  bottom: 0;
+  left: 0;
+  background: white;
+  border: none;
+  border-radius: 2rem 2rem 2rem 0;
+  width: 2rem;
+  height: 2rem;
+  box-shadow: 3px 0px 9px rgba(0, 0, 0, .125);
+  transform: translate(-1rem, 1rem);
+  opacity: .5;
+  transition: transform .125s, opacity .125s;
+}
+
+.toolbar:hover {
+  transform: none;
+  opacity: 1;
 }

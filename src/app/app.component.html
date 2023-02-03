@@ -1,4 +1,4 @@
-<ng-container [ngSwitch]="viewType">
+<ng-container [ngSwitch]="app">
   <ng-container *ngSwitchCase="'schedule'">
     <app-schedule></app-schedule>
   </ng-container>
@@ -7,4 +7,4 @@
     <main-desk [list]="api.getShow()"></main-desk>
   </ng-container>
 </ng-container>
-<button class="toolbar" (click)="changeView()" title="Change view">🎑</button>
+<button class="toolbar" (click)="changeView($event)" title="Apps">{{app === 'schedule' ? '📅' : '🟨'}}</button>
