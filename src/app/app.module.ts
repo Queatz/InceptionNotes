@@ -29,7 +29,8 @@ import { EditInvitationsComponent } from './edit-invitations/edit-invitations.co
 import { AcceptInvitationComponent } from './accept-invitation/accept-invitation.component';
 import { InvitationPhotoComponent } from './invitation-photo/invitation-photo.component';
 import { ScheduleComponent } from './schedule/schedule.component';
-import { ScrollableAreaComponent } from './scrollable-area/scrollable-area.component'
+import { ScrollableAreaComponent } from './scrollable-area/scrollable-area.component';
+import { ActionsComponent } from './actions/actions.component'
 
 enableProdMode()
 
@@ -53,7 +54,8 @@ enableProdMode()
     AcceptInvitationComponent,
     InvitationPhotoComponent,
     ScheduleComponent,
-    ScrollableAreaComponent
+    ScrollableAreaComponent,
+    ActionsComponent
   ],
     imports: [
         BrowserModule,

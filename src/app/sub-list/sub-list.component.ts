@@ -26,6 +26,7 @@ import {takeUntil} from 'rxjs/operators'
 import {formatDistanceToNow} from 'date-fns'
 import {formatDate} from '@angular/common'
 import {Config} from '../config.service';
+import {ActionsComponent} from '../actions/actions.component';
 
 @Component({
   selector: 'sub-list',
@@ -340,6 +341,35 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
               this.list.options.invertText = !this.list.options.invertText
 
               this.api.modified(this.list, 'options')
+            }
+          },
+          {
+            title: 'Actions...',
+            callback: () => {
+              this.ui.dialog({
+                message: 'Run an action',
+                input: true,
+                view: ActionsComponent,
+                init: dialog => {
+                  dialog.model.data.dialog = dialog
+                  dialog.component.instance.note = this.list
+                  dialog.component.instance.resultsChanged.subscribe(results => {
+                    dialog.model.data.results = results
+                  })
+                  dialog.component.instance.onSelection.subscribe(() => {
+                    dialog.back()
+                  })
+                  dialog.changes.subscribe(input => {
+                    dialog.component.instance.searchString = input
+                    dialog.component.instance.ngOnChanges(null)
+                  })
+                },
+                ok: result => {
+                  if (result.data.results?.length) {
+                    result.data.dialog.component.instance.select(result.data.results[0])
+                  }
+                }
+              })
             }
           }
         ]

@@ -1,0 +1,17 @@
+.action-list {
+  margin-top: 1rem;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background .125s;
+  border-radius: .5rem;
+  padding: .5rem;
+}
+
+.action:hover {
+  background: rgba(0, 0, 0, .1);
+  cursor: pointer;
+}

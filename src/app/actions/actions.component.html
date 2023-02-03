@@ -1,0 +1,5 @@
+<div class="action-list">
+  <div *ngFor="let action of results" class="action" (click)="select(action)">
+    <span class="action-name">{{ action.name }}</span>
+  </div>
+</div>
