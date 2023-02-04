@@ -1,7 +1,7 @@
 <div class="container">
   <div class="invitation">
-    <span *ngIf="invitation">This device is connected as <b>{{invitation.name}}</b></span>
-    <span *ngIf="!invitation">This device is not connected.</span>
+    <span *ngIf="invitation">Connected as <b>{{invitation.name}}</b></span>
+    <span *ngIf="!invitation && loading">Loading invitation...</span>
   </div>
   <div class="message" *ngIf="message">{{message}}</div>
   <button (click)="goBack()">Continue</button>

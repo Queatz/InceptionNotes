@@ -4,6 +4,7 @@
      [class.menu-open]="option.isOpen"
      [class.menu-option-disabled]="option.disabled"
      (keydown.enter)="clicked($event, option)"
+     (keydown.control.enter)="clicked($event, option, true)"
      (click)="clicked($event, option)"
      (mouseenter)="hovered($event, option)">
   <span class="space-between">

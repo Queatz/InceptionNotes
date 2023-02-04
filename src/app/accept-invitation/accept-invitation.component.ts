@@ -10,6 +10,7 @@ import {Invitation} from '../api.service'
 })
 export class AcceptInvitationComponent implements OnInit {
 
+  loading = false
   invitation?: Invitation
   message?: string
 
@@ -32,12 +33,15 @@ export class AcceptInvitationComponent implements OnInit {
         return
       }
 
+      this.loading = true
       this.collaboration.connectInvitation(id).subscribe({
         next: invitation => {
+          this.loading = false
           this.invitation = invitation
         },
         error: err => {
-          this.message = `Something went wrong.\n\n${err.message}`
+          this.loading = false
+          this.message = err.statusText || 'Something went wrong.'
         }
       })
     })

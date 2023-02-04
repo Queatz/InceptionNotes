@@ -915,8 +915,7 @@ export class ApiService {
     }
 
     if (position < 0) {
-      // @ts-ignore findLastIndex
-      position = toList.items.findLastIndex((item: Note) => !item.name)
+      position = this.findLastPosition(toList)
     }
 
     if (position >= 0 && position < toList.items.length) {
@@ -928,6 +927,11 @@ export class ApiService {
     this.modified(toList, 'items')
 
     list.parent = toList
+  }
+
+  findLastPosition(note: Note): number {
+    // @ts-ignore findLastIndex
+    return note.items.findLastIndex((item: Note) => !item.name)
   }
 
   removeListFromParent(list: Note) {

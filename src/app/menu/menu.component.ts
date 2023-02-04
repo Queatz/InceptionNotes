@@ -94,9 +94,9 @@ export class MenuComponent implements OnInit, AfterViewInit {
     }
   }
 
-  clicked(event: Event, option: MenuOption) {
+  clicked(event: MouseEvent | KeyboardEvent, option: MenuOption, ctrlKey: boolean = false) {
     event.stopPropagation()
-    option.callback()
+    option.callback(ctrlKey || event.ctrlKey)
     this.clear()
   }
 

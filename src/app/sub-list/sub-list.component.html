@@ -26,8 +26,8 @@
            (click)="openItem($event, i)" [style.background-color]="i.color"
            (contextmenu)="showRefOptions($event, list, i)" [innerHTML]="i._sync === false ? '⟳' : i.name.split('<br>')[0]"></div>
     </div>
-    <div class="open-note" (click)="useAsNavigation ? up() : openList($event)"
-         (contextmenu)="openNoteMenu($event, list)"
+    <div class="open-note" (click)="useAsNavigation ? up($event) : openList($event)"
+         (contextmenu)="useAsNavigation ? openNoteMenu($event, list.parent) : openNoteMenu($event, list)"
          [title]="useAsNavigation ? goUpText() : 'Open note'">{{ useAsNavigation ? '↑' : '↗'}}</div>
   </div>
   <div *ngIf="!useAsNavigation && !list.collapsed" #items>

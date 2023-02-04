@@ -200,7 +200,7 @@ export interface MenuOption {
   color?: string,
   invitation?: Invitation,
   disabled?: boolean,
-  callback: () => void,
+  callback: (ctrlKey?: boolean) => void,
   shortcut?: string,
   menu?: Array<MenuOption>,
 

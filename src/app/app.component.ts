@@ -89,13 +89,22 @@ export class AppComponent {
     this.ui.menu([
       {
         title: 'Notes',
-        callback: () => {
-          this.router.navigate(['/', 'n', this.api.getEye().id])
+        callback: (ctrlKey) => {
+          if (event.ctrlKey || ctrlKey) {
+            window.open('/', '_blank')
+          } else {
+            this.router.navigate(['/', 'n', this.api.getEye().id])
+          }
         }
       }, {
         title: 'Schedule',
-        callback: () => {
-          this.router.navigate(['/', 'schedule'])
+        callback: (ctrlKey) => {
+          const url = '/schedule'
+          if (event.ctrlKey || ctrlKey) {
+            window.open(url, '_blank')
+          } else {
+            this.router.navigateByUrl(url)
+          }
         }
       }
     ], { x: event.clientX, y: event.clientY })

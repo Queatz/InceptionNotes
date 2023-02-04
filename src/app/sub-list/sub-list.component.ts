@@ -192,10 +192,29 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
             this.api.addRecent('search', recent.id)
             this.api.moveList(this.list.id, recent.id)
           }, this.list),
-          ...(this.list.parent?.parent ? [{
-            title: '↑ Up to parent',
-            callback: () => this.api.moveListUp(this.list, this.list.parent.parent.items.indexOf(this.list.parent) + 1)
-          }] : [])
+          ...(this.list.parent ? [
+            {
+              title: '↑ To top',
+              callback: () => this.api.moveListToPosition(this.list.id, this.list.parent.id, 0),
+              menu: [
+                {
+                  title: '↓ To bottom',
+                  callback: () => this.api.moveListToPosition(
+                    this.list.id,
+                    this.list.parent.id,
+                    this.api.findLastPosition(this.list.parent
+                    )
+                  )
+                }
+              ]
+            }
+          ] : []),
+          ...(this.list.parent?.parent ? [
+            {
+              title: '↑ Up to parent',
+              callback: () => this.api.moveListUp(this.list, this.list.parent.parent.items.indexOf(this.list.parent) + 1)
+            }
+          ] : [])
         ]
       },
       this.scheduleMenuItem(this.list),
@@ -255,7 +274,24 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
                 this.moveItemToLastPosition(last)
               }
               this.api.modified(this.list, 'items')
-            }
+            },
+            menu: [
+              {
+                title: 'Z-A',
+                callback: () => {
+                  if (!this.list.items.length) {
+                    return
+                  }
+
+                  const last = this.list.items[this.list.items.length - 1]
+                  this.list.items.sort((a, b) => b.name.localeCompare(a.name))
+                  if (!last.name) {
+                    this.moveItemToLastPosition(last)
+                  }
+                  this.api.modified(this.list, 'items')
+                }
+              }
+            ]
           },
           {
             title: 'Reverse',
@@ -431,10 +467,29 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
             this.api.addRecent('search', recent.id)
             this.api.moveList(item.id, recent.id)
           }, item),
-          {
-            title: '↓ Out',
-            callback: () => this.api.moveListUp(item, item.parent.parent.items.indexOf(item.parent) + 1)
-          }
+          ...(item.parent ? [
+            {
+              title: '↑ To top',
+              callback: () => this.api.moveListToPosition(item.id, item.parent.id, 0),
+              menu: [
+                {
+                  title: '↓ To bottom',
+                  callback: () => this.api.moveListToPosition(
+                    item.id,
+                    item.parent.id,
+                    this.api.findLastPosition(item.parent
+                    )
+                  )
+                }
+              ]
+            }
+          ] : []),
+          ...(item.parent?.parent ? [
+            {
+              title: '↓ Out',
+              callback: () => this.api.moveListUp(item, item.parent.parent.items.indexOf(item.parent) + 1)
+            }
+          ] : []),
         ]
       },
       this.scheduleMenuItem(item),
@@ -806,14 +861,22 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  openList(event: Event) {
+  openList(event: MouseEvent) {
     event.stopPropagation()
-    this.api.setEye(this.list)
+    if (event.ctrlKey) {
+      window.open(this.config.noteLink(this.list.id), '_blank')
+    } else {
+      this.api.setEye(this.list)
+    }
 
     return false
   }
 
-  openNoteMenu(event: MouseEvent, note: Note) {
+  openNoteMenu(event: MouseEvent, note?: Note) {
+    if (!note) {
+      return
+    }
+
     event.preventDefault()
     event.stopPropagation()
     this.ui.menu([
@@ -827,11 +890,26 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     )
   }
 
-  openItem(event: Event, item: Note) {
+  openItem(event: MouseEvent, item: Note) {
     event.stopPropagation()
-    this.api.setEye(item)
 
-    return false
+    if (event.ctrlKey) {
+      window.open(this.config.noteLink(item.id), '_blank')
+    } else {
+      this.api.setEye(item)
+    }
+  }
+
+  up(event: MouseEvent) {
+    event.stopPropagation()
+
+    if (event.ctrlKey) {
+      if (this.list.parent) {
+        window.open(this.config.noteLink(this.list.parent.id), '_blank')
+      }
+    } else {
+      this.api.up()
+    }
   }
 
   showItem(dblclickEvent: Event, item: Note) {
@@ -1134,10 +1212,6 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       .focus()
 
     return true
-  }
-
-  up() {
-    this.api.up()
   }
 
   private getRecentsSubmenu(callback: (recent: Note) => void, exclude: Note): Array<MenuOption> {
