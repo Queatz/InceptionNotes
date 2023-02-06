@@ -1,0 +1,24 @@
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.input {
+  display: flex;
+  width: 100%;
+  margin-top: .5rem;
+  box-sizing: border-box;
+  outline: none;
+  padding: .5rem;
+  border: none;
+  border-bottom: 2px solid lightgray;
+}
+
+b:not(:first-of-type) {
+  margin-top: 1rem;
+}
+
+button {
+  margin-top: .5rem;
+  margin-right: .5rem;
+}

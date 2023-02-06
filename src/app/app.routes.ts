@@ -15,6 +15,10 @@ import {AcceptInvitationComponent} from './accept-invitation/accept-invitation.c
         component: AppComponent
       },
       {
+        path: 'board',
+        component: AppComponent
+      },
+      {
         path: 'invitation/:id',
         component: AcceptInvitationComponent
       },

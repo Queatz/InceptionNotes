@@ -19,6 +19,9 @@ export class WsService {
   public onBeforeOpen: Subject<any> = new Subject()
 
   constructor(private config: Config, private http: HttpClient) {
+    setTimeout(() => {
+      this.reconnect()
+    }, 5000)
   }
 
   active(): boolean {
@@ -26,17 +29,15 @@ export class WsService {
   }
 
   reconnect() {
-    if (this.websocket) {
-      if (this.websocket.readyState === WebSocket.OPEN || this.websocket.readyState === WebSocket.CONNECTING) {
-        return
-      }
+    if (this.websocket?.readyState === WebSocket.OPEN || this.websocket?.readyState === WebSocket.CONNECTING) {
+      return
     }
 
     this.websocket = new WebSocket(this.config.getWebSocketUrl())
     this.websocket.onmessage = message => this.onMessage(message.data)
     this.websocket.onopen = () => this.onOpen()
     this.websocket.onclose = event => {
-      this.onClose(event.code !== 1000)
+      this.onClose(event.code === 1000)
     }
   }
 
@@ -106,7 +107,7 @@ export class WsService {
     if (!wasNormal) {
       setTimeout(() => {
         this.reconnect()
-      }, 2000)
+      }, 1000)
     }
   }
 

@@ -7,4 +7,4 @@
     <main-desk [list]="api.getShow()"></main-desk>
   </ng-container>
 </ng-container>
-<button class="toolbar" (click)="changeView($event)" title="Apps">{{app === 'schedule' ? '📅' : '🟨'}}</button>
+<button class="toolbar" (click)="changeView($event)" title="Apps">{{appIcon(app)}}</button>

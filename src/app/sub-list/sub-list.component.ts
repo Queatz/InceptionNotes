@@ -23,10 +23,11 @@ import {AddInvitationComponent} from 'app/add-invitation/add-invitation.componen
 import {FilterService} from 'app/filter.service'
 import {filter as filterOp, Observable, Subject} from 'rxjs'
 import {takeUntil} from 'rxjs/operators'
-import {formatDistanceToNow} from 'date-fns'
+import {format, formatDistanceToNow, formatISO, isThisYear, isToday, isTomorrow, parseISO} from 'date-fns'
 import {formatDate} from '@angular/common'
-import {Config} from '../config.service';
-import {ActionsComponent} from '../actions/actions.component';
+import {Config} from '../config.service'
+import {ActionsComponent} from '../actions/actions.component'
+import {ScheduleNoteComponent} from '../schedule-note/schedule-note.component'
 
 @Component({
   selector: 'sub-list',
@@ -493,17 +494,6 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         ]
       },
       this.scheduleMenuItem(item),
-      ...(this.ui.getEnv().showEstimates ? [{
-        title: 'Estimate...', callback: () => this.ui.dialog({
-          message: 'Estimate (in days)',
-          prefill: item.estimate?.toString(),
-          input: true,
-          ok: r => {
-            item.estimate = Number(r.input)
-            this.api.modified(item, 'estimate')
-          }
-        })
-      }] : []),
       {
         title: item.collapsed ? 'Un-collapse' : 'Collapse',
         callback: () => this.toggleCollapse(item),
@@ -637,7 +627,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
   private moveToNote(item: Note) {
     this.ui.dialog({
-      message: 'Move...',
+      message: 'Move',
       input: true,
       view: SearchComponent,
       init: dialog => {
@@ -906,6 +896,10 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     if (event.ctrlKey) {
       if (this.list.parent) {
         window.open(this.config.noteLink(this.list.parent.id), '_blank')
+      } else {
+        this.ui.dialog({
+          message: 'This note is not contained in another note.'
+        })
       }
     } else {
       this.api.up()
@@ -1157,6 +1151,15 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     return this.ui.getEnv()
   }
 
+  formatDate(dateString: string) {
+    const date = parseISO(dateString)
+    const d = isToday(date) ? 'Today' :
+      isTomorrow(date) ? 'Tomorrow' :
+        format(date, 'eeee, MMMM do')
+    const t = format(date, 'h:mma').toLowerCase()
+    return `${d}, ${t}`
+  }
+
   @HostListener('click', ['$event'])
   dontPropagateClick(event: MouseEvent) {
     event.stopPropagation()
@@ -1349,36 +1352,60 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     return {
       title: 'Schedule...',
       callback: () => {
+        this.ui.dialog({
+          view: ScheduleNoteComponent,
+          init: dialog => {
+            if (item.date) {
+              dialog.component.instance.date = parseISO(item.date)
+              dialog.component.instance.ngOnChanges()
+            }
+            dialog.component.instance.onDateChange.subscribe(date => {
+              dialog.model.data.date = date
+            })
+          },
+          ok: model => {
+            if (!model.data.date) {
+              this.ui.dialog({ message: 'Note schedule wasn\'t updated.' })
+            } else {
+              item.date = formatISO(model.data.date)
+              this.api.modified(item, 'date')
+              this.ui.addRecentDate(item.date)
+            }
+          }
+        })
       },
       menu: [
-        {
-          title: 'By today',
-          callback: () => {
+        ...(this.getEnv().recentDates || []).map(date => {
+          return {
+            title: this.formatDate(date),
+            callback: () => {
+              item.date = date
+              this.api.modified(item, date)
+              this.ui.addRecentDate(date)
+            }
           }
-        },
+        }),
+        ...(item.date ? [
+          {
+            title: 'Unschedule',
+            callback: () => {
+              item.date = null
+              this.api.modified(item, 'date')
+            }
+          },
+        ] : []),
         {
-          title: 'By tomorrow',
+          title: 'Estimate...',
           callback: () => {
-          }
-        },
-        {
-          title: '6pm today',
-          callback: () => {
-          }
-        },
-        {
-          title: 'From Feb 1',
-          callback: () => {
-          }
-        },
-        {
-          title: 'On Feb 15, 2024',
-          callback: () => {
-          }
-        },
-        {
-          title: 'Duration...',
-          callback: () => {
+            this.ui.dialog({
+              message: 'Estimate days',
+              prefill: item.estimate?.toString(),
+              input: true,
+              ok: model => {
+                item.estimate = Number(model.input)
+                this.api.modified(item, 'estimate')
+              }
+            })
           }
         }
       ]

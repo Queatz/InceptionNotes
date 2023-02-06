@@ -20,6 +20,7 @@
     "@angular/platform-browser": "15.0.4",
     "@angular/platform-browser-dynamic": "15.0.4",
     "@angular/router": "15.0.4",
+    "@vvo/tzdb": "^6.93.0",
     "core-js": "3.20.2",
     "date-fns": "2.29.3",
     "rxjs": "7.5.1",

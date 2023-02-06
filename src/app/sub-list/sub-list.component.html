@@ -6,16 +6,22 @@
     <div class="sub-list-title-container">
       <div *ngIf="!useAsNavigation && getEnv().showListCheckboxes" (click)="onItemChecked(list)" class="item-checkbox"
            [ngClass]="{'item-checkbox-checked': list.checked}"></div>
-      <div [contentEditable]="true"
-           #element
-           [(contenteditableModel)]="list.name"
-           (contenteditableModelChange)="onNameChange()"
-           (dblclick)="getEnv().dblClickToOpen && !useAsNavigation ? openList($event) : dontPropagateDblClick($event)"
-           (click)="useAsNavigation ? openList($event) : undefined"
-           (keydown.backspace)="onNameBackspacePressed()"
-           (keydown.enter)="onNameEnterPressed()"
-           (keydown.arrowDown)="focusItem(0)"
-           class="sub-list-title"></div>
+      <div class="sub-list-title-and-date-container">
+        <div [contentEditable]="true"
+             #element
+             [(contenteditableModel)]="list.name"
+             (contenteditableModelChange)="onNameChange()"
+             (dblclick)="getEnv().dblClickToOpen && !useAsNavigation ? openList($event) : dontPropagateDblClick($event)"
+             (click)="useAsNavigation ? openList($event) : undefined"
+             (keydown.backspace)="onNameBackspacePressed()"
+             (keydown.enter)="onNameEnterPressed()"
+             (keydown.arrowDown)="focusItem(0)"
+             (keydown.control.b)="command($event, 'bold')"
+             (keydown.control.i)="command($event, 'italic')"
+             (keydown.control.u)="command($event, 'underline')"
+             class="sub-list-title"></div>
+        <div class="date" *ngIf="list.date">{{ formatDate(list.date) }}</div>
+      </div>
     </div>
     <div *ngIf="list.description" class="item-description"
          [innerHTML]="list.description"></div>
@@ -62,6 +68,7 @@
                [attr.data-after]="getAfterText(item)"
                class="sub-list-item"
                [ngClass]="{'item-name-checked': item.checked}"></div>
+          <div class="date" *ngIf="item.date">{{ formatDate(item.date) }}</div>
           <div *ngIf="!useAsNavigation && getEnv().showLinks && item.ref" class="item-links">
             <div *ngFor="let i of item.ref" class="item-link" [ngClass]="{ 'is-flat': getEnv().showFlat, 'invert-text': i.options?.invertText }"
                  [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color"

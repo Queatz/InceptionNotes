@@ -67,6 +67,10 @@ export class UiService {
     if (!this.env.recentColors) {
       this.env.recentColors = []
     }
+
+    if (!this.env.recentDates) {
+      this.env.recentDates = []
+    }
   }
 
   intro() {
@@ -86,7 +90,8 @@ export class UiService {
       hideDoneItems: false,
       expandedNav: false,
       showOnly: 0,
-      recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff']
+      recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff'],
+      recentDates: []
     }
   }
 
@@ -171,6 +176,22 @@ export class UiService {
     this.save()
   }
 
+  addRecentDate(date: string) {
+    const exists = this.env.recentDates.indexOf(date)
+
+    if (exists !== -1) {
+      this.env.recentDates.splice(exists, 1)
+    }
+
+    this.env.recentDates.unshift(date)
+
+    if (this.env.recentDates.length > 6) {
+      this.env.recentDates.pop()
+    }
+
+    this.save()
+  }
+
   isAnyDialogOpened() {
     return this.dialogs.length > 0
   }
@@ -192,7 +213,8 @@ export interface Env {
   hideDoneItems: boolean,
   expandedNav: boolean,
   showOnly: 0,
-  recentColors: Array<string>
+  recentColors: Array<string>,
+  recentDates: Array<string>
 }
 
 export interface MenuOption {

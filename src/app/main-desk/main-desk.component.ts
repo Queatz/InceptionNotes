@@ -311,7 +311,6 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
       view: SearchComponent,
       init: dialog => {
         dialog.component.instance.recentWhich = 'filter'
-
         dialog.changes.subscribe(val => {
           dialog.component.instance.searchString = val
           dialog.component.instance.ngOnChanges(null)

@@ -34,6 +34,10 @@
 .sub-list-title-container {
   display: flex;
 }
+.sub-list-title-and-date-container {
+  display: flex;
+  flex-direction: column;
+}
 
 .sub-list-title-container .item-checkbox {
   margin-right: .5rem;
@@ -44,6 +48,14 @@
 .sub-list-title-container .item-checkbox-checked:after {
   border-width: 2px;
   transform: translateY(-1px) rotate(-45deg);
+}
+
+.date {
+  opacity: .75;
+  font-size: 75%;
+}
+.is-navigation .date {
+  padding: 0 0 0 1rem;
 }
 
 .sub-list-item {
@@ -96,6 +108,10 @@
 .is-navigation .sub-list-item:before,
 .is-navigation .sub-list-item:after {
   display: none;
+}
+
+.item-links {
+  padding-top: .25rem;
 }
 
 .is-navigation .item-links {
@@ -269,7 +285,7 @@
 }
 
 .spaced {
-  margin-bottom: 1rem;
+  margin-bottom: .5rem;
 }
 
 .spaced .item-links {

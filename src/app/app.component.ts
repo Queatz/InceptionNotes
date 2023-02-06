@@ -40,6 +40,10 @@ export class AppComponent {
             this.app = 'schedule'
             this.setTitle()
             break
+          case 'board':
+            this.app = 'board'
+            this.setTitle()
+            break
           default:
             this.app = undefined
             this.setTitle(this.api.getEye())
@@ -88,7 +92,7 @@ export class AppComponent {
   changeView(event: MouseEvent) {
     this.ui.menu([
       {
-        title: 'Notes',
+        title: `${this.appIcon('notes')} Notes`,
         callback: (ctrlKey) => {
           if (event.ctrlKey || ctrlKey) {
             window.open('/', '_blank')
@@ -97,7 +101,7 @@ export class AppComponent {
           }
         }
       }, {
-        title: 'Schedule',
+        title: `${this.appIcon('schedule')} Schedule`,
         callback: (ctrlKey) => {
           const url = '/schedule'
           if (event.ctrlKey || ctrlKey) {
@@ -106,7 +110,25 @@ export class AppComponent {
             this.router.navigateByUrl(url)
           }
         }
+      }, {
+        title: `${this.appIcon('board')} Board`,
+        callback: (ctrlKey) => {
+          const url = '/board'
+          if (event.ctrlKey || ctrlKey) {
+            window.open(url, '_blank')
+          } else {
+            this.router.navigateByUrl(url)
+          }
+        }
       }
     ], { x: event.clientX, y: event.clientY })
+  }
+
+  appIcon(app: string) {
+    switch (app) {
+      case 'schedule': return '📅'
+      case 'board': return '📋'
+      default: return '🟨'
+    }
   }
 }

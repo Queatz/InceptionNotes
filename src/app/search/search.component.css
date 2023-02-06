@@ -7,7 +7,7 @@
 .result {
   padding: .5rem;
   margin-top: .5rem;
-  border-radius: 2.5px;
+  border-radius:.5rem;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;

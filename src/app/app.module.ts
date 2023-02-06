@@ -30,7 +30,8 @@ import { AcceptInvitationComponent } from './accept-invitation/accept-invitation
 import { InvitationPhotoComponent } from './invitation-photo/invitation-photo.component';
 import { ScheduleComponent } from './schedule/schedule.component';
 import { ScrollableAreaComponent } from './scrollable-area/scrollable-area.component';
-import { ActionsComponent } from './actions/actions.component'
+import { ActionsComponent } from './actions/actions.component';
+import { ScheduleNoteComponent } from './schedule-note/schedule-note.component'
 
 enableProdMode()
 
@@ -55,7 +56,8 @@ enableProdMode()
     InvitationPhotoComponent,
     ScheduleComponent,
     ScrollableAreaComponent,
-    ActionsComponent
+    ActionsComponent,
+    ScheduleNoteComponent
   ],
     imports: [
         BrowserModule,
