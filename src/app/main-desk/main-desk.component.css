@@ -18,7 +18,7 @@
     margin-left: 16rem;
   }
 
-  main-list.is-showing + :host .filterbox {
+  main-list.is-showing + :host app-filter-box {
     left: 16rem;
   }
 }
@@ -77,7 +77,7 @@ sub-list {
   transition: margin-top .25s ease-out;
 }
 
-.filterbox.is-showing + .items, .filterbox.is-showing + .description {
+app-filter-box.is-showing + .items, app-filter-box.is-showing + .description {
   margin-top: 7rem;
 }
 
@@ -89,44 +89,6 @@ sub-list {
 
 :host.dark-theme {
   background: #404040;
-}
-
-.filterbox {
-  position: fixed;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6rem;
-  padding: 0 2rem;
-  background: #ffffff;
-  box-shadow: 3px 3px 9px rgba(0, 0, 0, .125);
-  opacity: 0;
-  z-index: 1;
-
-  transition: left .25s ease-out, transform .25s ease-out, opacity .25s ease-out;
-  transform: translateY(-100%);
-}
-
-.filterbox.dark-theme {
-  background-color: #222;
-}
-
-.filterbox.is-showing {
-  transform: translateY(0%);
-  opacity: 1;
-}
-
-.filterbox.dark-theme .filterbox-title {
-  color: white;
-}
-
-.filterbox .filterbox-title {
-  margin-bottom: .5rem;
-  font-weight: bold;
 }
 
 .item-links {

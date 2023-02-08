@@ -1,4 +1,4 @@
-import {ComponentFactoryResolver, ComponentRef, Injectable} from '@angular/core'
+import {ComponentRef, Injectable} from '@angular/core'
 import {Subject} from 'rxjs'
 
 import {AppComponent} from './app.component'
@@ -17,7 +17,7 @@ export class UiService {
 
   private env: Env
 
-  constructor(private resolver: ComponentFactoryResolver) {
+  constructor() {
   }
 
   registerAppComponent(app: AppComponent) {
@@ -89,6 +89,7 @@ export class UiService {
       unlinkOnDelete: false,
       hideDoneItems: false,
       expandedNav: false,
+      showEmptiness: true,
       showOnly: 0,
       recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff'],
       recentDates: []
@@ -97,13 +98,13 @@ export class UiService {
 
   dialog(config: DialogConfig) {
     const dialog = this.appComponent.view
-      .createComponent(this.resolver.resolveComponentFactory(DialogComponent))
+      .createComponent(DialogComponent)
 
-    this.dialogs.push(dialog);
+    this.dialogs.push(dialog)
 
-    (dialog.instance as DialogComponent).config = config;
-    (dialog.instance as DialogComponent).environment = this.env;
-    (dialog.instance as DialogComponent).clickout = () => this.remove(dialog)
+    dialog.instance.config = config
+    dialog.instance.environment = this.env
+    dialog.instance.clickout = () => this.remove(dialog)
   }
 
   clearMenus(menuOption?: MenuOption): void {
@@ -129,8 +130,7 @@ export class UiService {
       return
     }
 
-    const menu = this.appComponent.view
-      .createComponent(this.resolver.resolveComponentFactory(MenuComponent))
+    const menu = this.appComponent.view.createComponent(MenuComponent)
 
     if (this.lastMenu.length && !parentMenuOption) {
       this.lastMenu.pop().component.clickout()
@@ -142,7 +142,7 @@ export class UiService {
       this.clearMenus(parentMenuOption)
     }
 
-    const component = menu.instance as MenuComponent
+    const component = menu.instance
 
     this.lastMenu.push({
       component,
@@ -212,6 +212,7 @@ export interface Env {
   unlinkOnDelete: boolean,
   hideDoneItems: boolean,
   expandedNav: boolean,
+  showEmptiness: boolean,
   showOnly: 0,
   recentColors: Array<string>,
   recentDates: Array<string>

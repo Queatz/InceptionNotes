@@ -1,13 +1,16 @@
+<app-filter-box></app-filter-box>
 <app-scrollable-area #viewport (resize)="calcItems()" (offset)="onScroll($event)" pin="left">
   <div class="schedule" #schedule>
     <div class="schedule-column" *ngFor="let column of columns" [class.is-past]="column.past">
       <div class="schedule-column-header" [title]="column.title">{{column.name}}</div>
       <div class="schedule-column-content">
-        <ng-container *ngFor="let item of column.items">
+        <ng-container *ngFor="let item of column.items; let index = index">
+          <div *ngIf="ui.getEnv().showEmptiness && index === 0 && intervalsSinceStartOfRange(column.range, parseISO(item.date)) > 0" class="emptiness" title="Schedule note">{{ formatEmptySpan(intervalsSinceStartOfRange(column.range, parseISO(item.date))) }}</div>
           <sub-list [list]="item"></sub-list>
-          <div *ngIf="item.items.length > 1" class="emptiness" title="Schedule note">{{item.items.length}} hours</div>
+          <div *ngIf="ui.getEnv().showEmptiness && index < column.items.length - 1 && intervalsSinceDate(parseISO(item.date), parseISO(column.items[index + 1].date), true) > 0" class="emptiness" title="Schedule note">{{ formatEmptySpan(intervalsSinceDate(parseISO(item.date), parseISO(column.items[index + 1].date), true)) }}</div>
+          <div *ngIf="ui.getEnv().showEmptiness && index === column.items.length - 1 && intervalsUntilEndOfRange(column.range, parseISO(item.date)) > 0" class="emptiness" title="Schedule note">{{ formatEmptySpan(intervalsUntilEndOfRange(column.range, parseISO(item.date))) }}</div>
         </ng-container>
-        <div *ngIf="!column.items.length" class="emptiness" title="Schedule note">24 hours</div>
+        <div *ngIf="ui.getEnv().showEmptiness && !column.items.length" class="emptiness" title="Schedule note">{{fullRangeEmpty(column.range)}}</div>
       </div>
       <div class="schedule-column-footer"></div>
     </div>

@@ -10,4 +10,10 @@
     <button [class.selected]="value === 'day'" (click)="set('day')">By day</button>
     <button [class.selected]="value === 'hour'" (click)="set('hour')">By hour</button>
   </div>
+  <div class="options">
+    <label title="Completely empty time intervals will be shown in the schedule.">
+      <input type="checkbox" [(ngModel)]="ui.getEnv().showEmptiness" (ngModelChange)="ui.save()" />
+      <span>Show emptiness</span>
+    </label>
+  </div>
 </div>

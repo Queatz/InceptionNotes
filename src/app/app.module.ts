@@ -32,7 +32,8 @@ import { ScheduleComponent } from './schedule/schedule.component';
 import { ScrollableAreaComponent } from './scrollable-area/scrollable-area.component';
 import { ActionsComponent } from './actions/actions.component';
 import { ScheduleNoteComponent } from './schedule-note/schedule-note.component';
-import { ScheduleNavComponent } from './schedule-nav/schedule-nav.component'
+import { ScheduleNavComponent } from './schedule-nav/schedule-nav.component';
+import { FilterBoxComponent } from './filter-box/filter-box.component'
 
 enableProdMode()
 
@@ -59,7 +60,8 @@ enableProdMode()
     ScrollableAreaComponent,
     ActionsComponent,
     ScheduleNoteComponent,
-    ScheduleNavComponent
+    ScheduleNavComponent,
+    FilterBoxComponent
   ],
     imports: [
         BrowserModule,

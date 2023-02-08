@@ -59,6 +59,12 @@
   flex-direction: column;
 }
 
+.options {
+  margin: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
 .granularity-chooser > button {
   border: none;
   background: #e8e8e8;
@@ -68,7 +74,9 @@
 }
 
 .granularity-chooser > button.selected {
-  background: #404040;
+  background-color: #404040;
+  background-color: Highlight;
+  background-color: -webkit-focus-ring-color;
   color: white;
   font-weight: bold;
 }

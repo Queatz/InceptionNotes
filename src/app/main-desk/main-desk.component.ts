@@ -372,37 +372,6 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  getItemLinkText(item: Note) {
-    let t = ''
-    let p = item.parent
-
-    for (let i = 0; i < 3 && p; i++) {
-      t += ' → ' + p.name
-      p = p.parent
-    }
-
-    return Util.htmlToText(t, true)
-  }
-
-  removeFilter(event: Event, item: Note) {
-    event.stopPropagation()
-    this.filter.toggleRef(item)
-
-    return false
-  }
-
-  showFilterOptions(event: MouseEvent, item: Note) {
-    event.preventDefault()
-    event.stopPropagation()
-
-    this.ui.menu([
-      {
-        title: 'Remove filter',
-        callback: () => this.filter.toggleRef(item)
-      }
-    ], {x: event.clientX, y: event.clientY})
-  }
-
   goUpText() {
     if (this.list.parent) {
       return `Go up to "${this.list.parent.name}"`

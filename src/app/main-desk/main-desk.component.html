@@ -1,17 +1,4 @@
-<div
-  [ngClass]="{ 'is-showing': filter.byRef?.length, 'dark-theme': getEnv().useDarkTheme, 'flat-theme': getEnv().showFlat }"
-  class="filterbox">
-  <div class="filterbox-title">Showing items with links</div>
-  <div class="item-links">
-    <div *ngFor="let i of filter.byRef"
-         class="item-link lg"
-         [title]="getItemLinkText(i)"
-         (click)="removeFilter($event, i)"
-         (contextmenu)="showFilterOptions($event, i)"
-         [style.background-color]="i.color"
-         [innerHTML]="i.name"></div>
-  </div>
-</div>
+<app-filter-box></app-filter-box>
 <div *ngIf="getShow().description || getShow().description === ''"
      contenteditable
      [(contenteditableModel)]="getShow().description"

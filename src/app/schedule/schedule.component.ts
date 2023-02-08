@@ -13,12 +13,39 @@ import {
 import {ApiService, Note} from '../api.service'
 import {UiService} from '../ui.service'
 import {
-  addDays, addHours, addMonths, addWeeks, addYears,
-  getHours, isBefore,
-  isSameDay, isSameHour, isSameMonth, isSameSecond, isSameWeek, isSameYear, isThisHour, isThisMonth, isThisWeek, isThisYear,
-  isToday, isTomorrow, isYesterday,
+  addDays,
+  addHours,
+  addMinutes,
+  addMonths,
+  addWeeks,
+  addYears,
+  differenceInDays,
+  differenceInHours,
+  differenceInMinutes,
+  differenceInMonths,
+  differenceInWeeks,
+  getHours,
+  getWeeksInMonth,
+  isBefore,
+  isSameDay,
+  isSameHour,
+  isSameMonth,
+  isSameSecond,
+  isSameWeek,
+  isSameYear,
+  isThisHour,
+  isThisMonth,
+  isThisWeek,
+  isThisYear,
+  isToday,
+  isTomorrow,
+  isYesterday,
   parseISO,
-  startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear
+  startOfDay,
+  startOfHour, startOfMinute,
+  startOfMonth,
+  startOfWeek,
+  startOfYear
 } from 'date-fns'
 import {formatDate} from '@angular/common'
 import {ScrollableAreaComponent} from '../scrollable-area/scrollable-area.component'
@@ -31,6 +58,7 @@ import {debounceTime, filter as filterOp, Subject} from 'rxjs'
 import {takeUntil} from 'rxjs/operators'
 
 class ScheduleColumn {
+  range: Date
   name: string
   title: string
   past: boolean
@@ -54,6 +82,8 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
 
   columns = new Array<ScheduleColumn>()
   shift = 0
+
+  parseISO = parseISO
 
   // todo convert to maps, watch noteChanges('date')
   private allNotes = Array.from(this.api.getAllNotes().values())
@@ -136,6 +166,7 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
     const range = this.addRange(startOfRange, position)
     const all = this.allNotes.filter(note => this.isInRange(parseISO(note.date), range))
     return {
+      range,
       name: this.formatRange(range, true),
       title: this.formatRange(range),
       past: isBefore(range, startOfRange),
@@ -353,6 +384,40 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
     }
   }
 
+  private startOfSubRange(date: Date, offset: number) {
+    switch (this.granularity) {
+      case 'year':
+        return this.addSubRange(startOfMonth(date), offset)
+      case 'month':
+        return this.addSubRange(startOfWeek(date), offset)
+      case 'week':
+        return this.addSubRange(startOfDay(date), offset)
+      case 'day':
+        return this.addSubRange(startOfHour(date), offset)
+      case 'hour':
+        return this.addSubRange(startOfMinute(date), offset)
+      default:
+        return new Date(0)
+    }
+  }
+
+  private addSubRange(date: Date, amount: number) {
+    switch (this.granularity) {
+      case 'year':
+        return addMonths(date, amount)
+      case 'month':
+        return addWeeks(date, amount)
+      case 'week':
+        return addDays(date, amount)
+      case 'day':
+        return addHours(date, amount)
+      case 'hour':
+        return addMinutes(date, amount)
+      default:
+        return new Date(0)
+    }
+  }
+
   private isInRange(date: Date, range: Date) {
     switch (this.granularity) {
       case 'year':
@@ -384,6 +449,65 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
         return relative && isSameHour(range, addHours(new Date(), -1)) ? 'Last hour' : relative && isThisHour(range) ? 'This hour' : relative && isSameHour(range, addHours(new Date(), 1)) ? 'Next hour' : `${formatDate(range, relative && getHours(range) !== 0 ? 'h a' : 'MMM d, h a', 'en-US')}`
       default:
         return '-'
+    }
+  }
+
+  fullRangeEmpty(range: Date) {
+    switch (this.granularity) {
+      case 'year':
+        return '12 months'
+      case 'month':
+        return `${getWeeksInMonth(range) - 1} weeks`
+      case 'week':
+        return '7 days'
+      case 'day':
+        return '24 hours'
+      case 'hour':
+        return '60 minutes'
+      default:
+        return false
+    }
+  }
+
+  intervalsSinceStartOfRange(range: Date, date: Date) {
+    return this.intervalsSinceDate(range, date)
+  }
+
+  intervalsUntilEndOfRange(range: Date, date: Date) {
+    return this.intervalsSinceDate(date, this.addRange(range, 1), true)
+  }
+
+  intervalsSinceDate(date: Date, dateSince: Date, gobble = false) {
+    switch (this.granularity) {
+      case 'year':
+        return differenceInMonths(dateSince, gobble ? this.startOfSubRange(date, 1) : date)
+      case 'month':
+        return differenceInWeeks(dateSince, gobble ? this.startOfSubRange(date, 1) : date)
+      case 'week':
+        return differenceInDays(dateSince, gobble ? this.startOfSubRange(date, 1) : date)
+      case 'day':
+        return differenceInHours(dateSince, gobble ? this.startOfSubRange(date, 1) : date)
+      case 'hour':
+        return differenceInMinutes(dateSince, gobble ? this.startOfSubRange(date, 1) : date)
+      default:
+        return 0
+    }
+  }
+
+  formatEmptySpan(count: number) {
+    switch (this.granularity) {
+      case 'year':
+        return `${count} month${count === 1 ? '' : 's'}`
+      case 'month':
+        return `${count} week${count === 1 ? '' : 's'}`
+      case 'week':
+        return `${count} day${count === 1 ? '' : 's'}`
+      case 'day':
+        return `${count} hour${count === 1 ? '' : 's'}`
+      case 'hour':
+        return `${count} minute${count === 1 ? '' : 's'}`
+      default:
+        return ''
     }
   }
 }
