@@ -4,7 +4,7 @@ import {
   Component,
   HostListener,
   Input,
-  OnChanges,
+  OnChanges, OnDestroy,
   OnInit,
   SimpleChanges,
   ViewChild,
@@ -13,15 +13,10 @@ import {
 import {ApiService, Note} from '../api.service'
 import {UiService} from '../ui.service'
 import {
-  addDays,
-  addHours,
-  addMonths,
-  addWeeks, addYears,
+  addDays, addHours, addMonths, addWeeks, addYears,
   getHours, isBefore,
   isSameDay, isSameHour, isSameMonth, isSameSecond, isSameWeek, isSameYear, isThisHour, isThisMonth, isThisWeek, isThisYear,
-  isToday,
-  isTomorrow,
-  isYesterday,
+  isToday, isTomorrow, isYesterday,
   parseISO,
   startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear
 } from 'date-fns'
@@ -32,6 +27,8 @@ import {SearchComponent} from '../search/search.component'
 import {FilterService} from '../filter.service'
 import {CollaborationService} from '../collaboration.service'
 import {GranularityValue} from '../schedule-nav/schedule-nav.component'
+import {debounceTime, filter as filterOp, Subject} from 'rxjs'
+import {takeUntil} from 'rxjs/operators'
 
 class ScheduleColumn {
   name: string
@@ -48,7 +45,7 @@ class ScheduleColumn {
     '[class.dark-theme]': `ui.getEnv().useDarkTheme`
   }
 })
-export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges {
+export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   @Input() granularity: GranularityValue
 
@@ -70,6 +67,8 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges {
   @ViewChild('viewport', {static: true})
   private scrollableArea: ScrollableAreaComponent
 
+  private destroyed = new Subject<void>()
+
   constructor(
     private api: ApiService,
     public ui: UiService,
@@ -80,6 +79,14 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnInit() {
+    this.api.onNoteUpdatedObservable.pipe(
+      takeUntil(this.destroyed),
+      filterOp(changes => changes.property === 'date'),
+      debounceTime(50)
+    ).subscribe(() => {
+      this.calcItems()
+      this.changeDetectorRef.detectChanges()
+    })
   }
 
   ngAfterViewInit(): void {
@@ -90,6 +97,11 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges {
     if ('granularity' in changes) {
       this.reset()
     }
+  }
+
+  ngOnDestroy() {
+    this.destroyed.next()
+    this.destroyed.complete()
   }
 
   reset() {
@@ -281,6 +293,10 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges {
     this.ui.save()
   }
 
+  setNow() {
+    this.scrollableArea.scrollTo(0)
+  }
+
   changeBackground() {
 
   }
@@ -365,7 +381,7 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges {
       case 'day':
         return relative && isYesterday(range) ? 'Yesterday' : relative && isToday(range) ? 'Today' : relative && isTomorrow(range) ? 'Tomorrow' : `${formatDate(range, 'EEEE, MMM d', 'en-US')}`
       case 'hour':
-        return relative && isSameHour(range, addHours(new Date(), -1)) ? 'Last hour' : relative && isThisHour(range) ? 'This hour' : relative && isSameHour(range, addHours(new Date(), 1)) ? 'Next hour' : `${formatDate(range, getHours(range) !== 0 ? 'h a' : 'MMM d, h a', 'en-US')}`
+        return relative && isSameHour(range, addHours(new Date(), -1)) ? 'Last hour' : relative && isThisHour(range) ? 'This hour' : relative && isSameHour(range, addHours(new Date(), 1)) ? 'Next hour' : `${formatDate(range, relative && getHours(range) !== 0 ? 'h a' : 'MMM d, h a', 'en-US')}`
       default:
         return '-'
     }

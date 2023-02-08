@@ -10,21 +10,39 @@ export class ScrollableAreaComponent implements  AfterViewInit {
   private scrollX = 0
 
   @Input() orientation: 'horizontal' | 'vertical' = 'horizontal'
+  @Input() pin: 'left' | 'right' | 'center' = 'center'
   @Output() offset = new EventEmitter<number>()
 
   @ViewChild('viewport', {read: ViewContainerRef, static: true})
   private viewport: ViewContainerRef
 
+  private oldWidth?: number
+
   constructor(private scroll: ViewContainerRef) {}
 
   ngAfterViewInit() {
     this.scroll.element.nativeElement.scrollLeft = this.scroll.element.nativeElement.scrollWidth / 4
-    new ResizeObserver(() => { this.onScrolled() }).observe(this.scroll.element.nativeElement)
+    new ResizeObserver(event => { this.onScrolled(event[0].borderBoxSize?.[0]?.inlineSize) })
+      .observe(this.scroll.element.nativeElement, { box: 'border-box' })
   }
 
   @HostListener('scroll')
-  private onScrolled() {
-    const x = this.scroll.element.nativeElement.scrollWidth / 4 - this.scroll.element.nativeElement.scrollLeft
+  private onScrolled(newWidth?: number) {
+    let resizeScrollAmount = 0
+
+    if (newWidth) {
+      if (this.oldWidth) {
+        if (this.pin === 'left') {
+          resizeScrollAmount = Math.round((this.oldWidth - newWidth) / 2)
+        } else if (this.pin === 'right') {
+          resizeScrollAmount = Math.round((newWidth - this.oldWidth) / 2)
+        }
+      }
+      this.oldWidth = newWidth
+    }
+
+    const scrollLeft = Math.round(this.scroll.element.nativeElement.scrollWidth / 4)
+    const x = Math.round(resizeScrollAmount + (scrollLeft - this.scroll.element.nativeElement.scrollLeft))
 
     if (Math.abs(x) >= 1) {
       this.scrollX += x
@@ -33,7 +51,7 @@ export class ScrollableAreaComponent implements  AfterViewInit {
 
     this.updateElements()
 
-    this.scroll.element.nativeElement.scrollLeft = this.scroll.element.nativeElement.scrollWidth / 4
+    this.scroll.element.nativeElement.scrollLeft = scrollLeft
   }
 
   scrollTo(x: number) {

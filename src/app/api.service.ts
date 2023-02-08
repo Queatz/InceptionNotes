@@ -96,7 +96,13 @@ export class ApiService {
     parents: []
   }
 
+  // Observer local changes
   public onNoteChangedObservable: Subject<NoteChanges> = new Subject<NoteChanges>()
+
+  // Observe all note updates
+  public onNoteUpdatedObservable: Subject<NoteChanges> = new Subject<NoteChanges>()
+
+  // Observe current view changes
   public onViewChangedObservable: Subject<ViewConfig> = new Subject<ViewConfig>()
 
   constructor(private ui: UiService, private config: Config, private router: Router) {
@@ -747,6 +753,7 @@ export class ApiService {
 
     this.saveNote(note)
     this.onNoteChangedObservable.next(new NoteChanges(note, prop))
+    this.onNoteUpdatedObservable.next(new NoteChanges(note, prop))
   }
 
   /**
@@ -764,6 +771,7 @@ export class ApiService {
 
     this.setPropSynced(note, prop)
     this.saveNote(note)
+    this.onNoteUpdatedObservable.next(new NoteChanges(note, prop))
   }
 
   /**

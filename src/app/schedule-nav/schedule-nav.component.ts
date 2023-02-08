@@ -15,6 +15,7 @@ export class ScheduleNavComponent {
   @Input() @HostBinding('class.is-showing') show: boolean
   @Input() value: GranularityValue = 'day'
   @Output() valueChange = new EventEmitter<GranularityValue>()
+  @Output() onSetNow = new EventEmitter<void>()
 
   constructor(public api: ApiService, public ui: UiService) {
   }
@@ -22,6 +23,10 @@ export class ScheduleNavComponent {
   set(value: GranularityValue) {
     this.value = value
     this.valueChange.emit(value)
+  }
+
+  setNow() {
+    this.onSetNow.emit()
   }
 }
 

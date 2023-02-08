@@ -1380,7 +1380,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
             title: this.formatDate(date),
             callback: () => {
               item.date = date
-              this.api.modified(item, date)
+              this.api.modified(item, 'date')
               this.ui.addRecentDate(date)
             }
           }

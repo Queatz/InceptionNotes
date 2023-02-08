@@ -1,5 +1,8 @@
 <div>
-  <b class="title">Schedule</b>
+  <div class="title">
+    <b>Schedule</b>
+    <div (click)="setNow()" title="Go to now">📅</div>
+  </div>
   <div class="granularity-chooser">
     <button [class.selected]="value === 'year'" (click)="set('year')">By year</button>
     <button [class.selected]="value === 'month'" (click)="set('month')">By month</button>

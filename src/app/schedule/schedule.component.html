@@ -1,4 +1,4 @@
-<app-scrollable-area #viewport (offset)="onScroll($event)">
+<app-scrollable-area #viewport (resize)="calcItems()" (offset)="onScroll($event)" pin="left">
   <div class="schedule" #schedule>
     <div class="schedule-column" *ngFor="let column of columns" [class.is-past]="column.past">
       <div class="schedule-column-header" [title]="column.title">{{column.name}}</div>
