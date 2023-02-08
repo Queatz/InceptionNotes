@@ -1,6 +1,7 @@
 <ng-container [ngSwitch]="app">
   <ng-container *ngSwitchCase="'schedule'">
-    <app-schedule></app-schedule>
+    <app-schedule-nav #nav [show]="ui.getEnv().sidepane"></app-schedule-nav>
+    <app-schedule [granularity]="nav.value"></app-schedule>
   </ng-container>
   <ng-container *ngSwitchDefault>
     <main-list [show]="ui.getEnv().sidepane"></main-list>

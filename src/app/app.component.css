@@ -3,14 +3,6 @@
   flex-direction: column;
 }
 
-app-schedule {
-  justify-self: stretch;
-  align-self: stretch;
-  box-sizing: border-box;
-  min-height: 100vh;
-  position: relative;
-}
-
 .toolbar {
   z-index: 2;
   position: fixed;
@@ -21,7 +13,7 @@ app-schedule {
   border-radius: 2rem 2rem 2rem 0;
   width: 2rem;
   height: 2rem;
-  box-shadow: 3px 0px 9px rgba(0, 0, 0, .125);
+  box-shadow: 3px 0 9px rgba(0, 0, 0, .125);
   transform: translate(-1rem, 1rem);
   opacity: .5;
   transition: transform .125s, opacity .125s;

@@ -119,7 +119,7 @@ export class SubSubListItemComponent implements OnInit {
       return e.scrollHeight + 'px'
     }
 
-    return '0px'
+    return '0'
   }
 
   countSubItems(item: Note) {

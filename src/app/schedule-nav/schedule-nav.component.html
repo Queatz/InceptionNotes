@@ -1,0 +1,10 @@
+<div>
+  <b class="title">Schedule</b>
+  <div class="granularity-chooser">
+    <button [class.selected]="value === 'year'" (click)="set('year')">By year</button>
+    <button [class.selected]="value === 'month'" (click)="set('month')">By month</button>
+    <button [class.selected]="value === 'week'" (click)="set('week')">By week</button>
+    <button [class.selected]="value === 'day'" (click)="set('day')">By day</button>
+    <button [class.selected]="value === 'hour'" (click)="set('hour')">By hour</button>
+  </div>
+</div>

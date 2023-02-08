@@ -9,7 +9,7 @@
   bottom: 0;
 
   z-index: 2;
-  box-shadow: 3px 0px 9px rgba(0, 0, 0, .125);
+  box-shadow: 3px 0 9px rgba(0, 0, 0, .125);
 
   transition: transform .25s ease-out;
   transform: translateX(-100%);

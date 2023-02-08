@@ -1,13 +1,42 @@
 :host {
   background: #f0f0f0;
-  background-image: url("https://i.redd.it/v3224xfpqlt91.jpg");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  margin-left: 0;
+  justify-self: stretch;
+  align-self: stretch;
+  box-sizing: border-box;
+  min-height: 100vh;
   position: relative;
-  display: flex;
-  overflow: hidden;
-  border-bottom: 1px solid gray;
+
+  transition: margin-left ease-out .25s;
+}
+
+@media screen and (min-width: 601px) {
+  app-schedule-nav.is-showing + :host {
+    margin-left: 16rem;
+  }
+
+  app-schedule-nav.is-showing + :host .filterbox {
+    left: 16rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  app-schedule-nav.is-showing + :host {
+    left: 0;
+  }
+}
+
+@media print {
+  :host {
+    background: unset;
+  }
+
+  .go-up {
+    display: none;
+  }
 }
 
 :host.dark-theme {
@@ -28,8 +57,8 @@
 }
 
 app-scrollable-area {
-  width: 100%;
-  height: 100%;
+  /*width: 100%;*/
+  /*height: 100%;*/
 }
 
 .schedule {
@@ -79,5 +108,5 @@ sub-list {
 }
 
 .is-past {
-  opacity: .333;
+  opacity: .5;
 }

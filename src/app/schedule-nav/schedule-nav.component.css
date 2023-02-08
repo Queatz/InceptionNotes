@@ -1,0 +1,77 @@
+:host {
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  overflow-y: auto;
+  top: 0;
+  width: 16rem;
+  left: 0;
+  bottom: 0;
+
+  z-index: 2;
+  box-shadow: 3px 0 9px rgba(0, 0, 0, .125);
+
+  transition: transform .25s ease-out;
+  transform: translateX(-100%);
+}
+
+:host.is-showing {
+  transform: translateX(0%);
+}
+
+:host sub-list {
+  width: 100%;
+  margin: 0;
+  padding: 1rem 0;
+  background: transparent;
+  box-shadow: none;
+  vertical-align: inherit;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+:host > div {
+  display: flex;
+  flex-direction: column;
+}
+
+@media print {
+  :host {
+    display: none;
+  }
+}
+
+.title {
+  padding: 1rem;
+}
+
+.granularity-chooser {
+  margin: 0 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.granularity-chooser > button {
+  border: none;
+  background: #e8e8e8;
+  padding: .5rem;
+
+  transition: background-color .125s ease-out, color .125s ease-out;
+}
+
+.granularity-chooser > button.selected {
+  background: #404040;
+  color: white;
+  font-weight: bold;
+}
+
+.granularity-chooser button:first-of-type {
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+.granularity-chooser button:last-of-type {
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+}

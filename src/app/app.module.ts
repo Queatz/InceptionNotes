@@ -31,7 +31,8 @@ import { InvitationPhotoComponent } from './invitation-photo/invitation-photo.co
 import { ScheduleComponent } from './schedule/schedule.component';
 import { ScrollableAreaComponent } from './scrollable-area/scrollable-area.component';
 import { ActionsComponent } from './actions/actions.component';
-import { ScheduleNoteComponent } from './schedule-note/schedule-note.component'
+import { ScheduleNoteComponent } from './schedule-note/schedule-note.component';
+import { ScheduleNavComponent } from './schedule-nav/schedule-nav.component'
 
 enableProdMode()
 
@@ -57,7 +58,8 @@ enableProdMode()
     ScheduleComponent,
     ScrollableAreaComponent,
     ActionsComponent,
-    ScheduleNoteComponent
+    ScheduleNoteComponent,
+    ScheduleNavComponent
   ],
     imports: [
         BrowserModule,
