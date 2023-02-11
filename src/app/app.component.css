@@ -14,7 +14,7 @@
   width: 2rem;
   height: 2rem;
   box-shadow: 3px 0 9px rgba(0, 0, 0, .125);
-  transform: translate(-1rem, 1rem);
+  transform: translate(-.5rem, .5rem);
   opacity: .5;
   transition: transform .125s, opacity .125s;
 }

@@ -30,4 +30,4 @@ export class ScheduleNavComponent {
   }
 }
 
-export type GranularityValue = 'year' | 'month' | 'week' | 'day' | 'hour'
+export type GranularityValue = 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute'

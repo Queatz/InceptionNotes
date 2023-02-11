@@ -89,7 +89,7 @@ export class UiService {
       unlinkOnDelete: false,
       hideDoneItems: false,
       expandedNav: false,
-      showEmptiness: true,
+      showEmptiness: false,
       showOnly: 0,
       recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff'],
       recentDates: []

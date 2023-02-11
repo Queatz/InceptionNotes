@@ -24,16 +24,16 @@ import {
   differenceInMinutes,
   differenceInMonths,
   differenceInWeeks,
-  getHours,
+  getHours, getMinutes,
   getWeeksInMonth,
   isBefore,
   isSameDay,
-  isSameHour,
+  isSameHour, isSameMinute,
   isSameMonth,
   isSameSecond,
   isSameWeek,
   isSameYear,
-  isThisHour,
+  isThisHour, isThisMinute,
   isThisMonth,
   isThisWeek,
   isThisYear,
@@ -337,6 +337,11 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
     event.preventDefault()
   }
 
+  isPast(dateString: string) {
+    const date = parseISO(dateString)
+    return isBefore(date, this.startOfSubRangeNow())
+  }
+
   private expand() {
     this.count += 2
     this.calcItems()
@@ -348,6 +353,10 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
 
   private shouldShiftRight(offset: number) {
     return offset > this.offset + this.schedule.element.nativeElement.offsetWidth - this.viewport.element.nativeElement.offsetWidth
+  }
+
+  private startOfSubRangeNow() {
+    return this.startOfSubRange(new Date(), 0)
   }
 
   private startOfRangeNow() {
@@ -436,17 +445,41 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   }
 
   private formatRange(range: Date, relative = false) {
-    switch (this.granularity) {
+    return this.formatRangeGranularity(this.granularity, range, relative)
+  }
+
+  private formatRangeGranularity(granularity: GranularityValue, range: Date, relative = false) {
+    switch (granularity) {
       case 'year':
-        return relative && isSameYear(range, addYears(new Date(), -1)) ? 'Last year' : relative && isThisYear(range) ? 'This year' : relative && isSameYear(range, addYears(new Date(), 1)) ? 'Next year' : `${formatDate(range, 'yyyy', 'en-US')}`
+        return relative && isSameYear(range, addYears(new Date(), -1)) ? 'Last year' :
+               relative && isThisYear(range) ? 'This year' :
+               relative && isSameYear(range, addYears(new Date(), 1)) ? 'Next year' :
+               `${formatDate(range, 'yyyy', 'en-US')}`
       case 'month':
-        return relative && isSameMonth(range, addMonths(new Date(), -1)) ? 'Last month' : relative && isThisMonth(range) ? 'This month' : relative && isSameMonth(range, addMonths(new Date(), 1)) ? 'Next month' : `${formatDate(range, 'MMMM, yyyy', 'en-US')}`
+        return relative && isSameMonth(range, addMonths(new Date(), -1)) ? 'Last month' :
+               relative && isThisMonth(range) ? 'This month' :
+               relative && isSameMonth(range, addMonths(new Date(), 1)) ? 'Next month' :
+               `${formatDate(range, 'MMMM, yyyy', 'en-US')}`
       case 'week':
-        return relative && isSameWeek(range, addWeeks(new Date(), -1)) ? 'Last week' : relative && isThisWeek(range) ? 'This week' : relative && isSameWeek(range, addWeeks(new Date(), 1)) ? 'Next week' : `${formatDate(range, 'MMM d', 'en-US')} ‒ ${formatDate(addWeeks(range, 1), 'MMM d', 'en-US')}`
+        return relative && isSameWeek(range, addWeeks(new Date(), -1)) ? 'Last week' :
+               relative && isThisWeek(range) ? 'This week' :
+               relative && isSameWeek(range, addWeeks(new Date(), 1)) ? 'Next week' :
+               `${formatDate(range, 'MMM d', 'en-US')} ‒ ${formatDate(addWeeks(range, 1), 'MMM d', 'en-US')}`
       case 'day':
-        return relative && isYesterday(range) ? 'Yesterday' : relative && isToday(range) ? 'Today' : relative && isTomorrow(range) ? 'Tomorrow' : `${formatDate(range, 'EEEE, MMM d', 'en-US')}`
+        return relative && isYesterday(range) ? 'Yesterday' :
+               relative && isToday(range) ? 'Today' :
+               relative && isTomorrow(range) ? 'Tomorrow' :
+               `${formatDate(range, 'EEEE, MMM d', 'en-US')}`
       case 'hour':
-        return relative && isSameHour(range, addHours(new Date(), -1)) ? 'Last hour' : relative && isThisHour(range) ? 'This hour' : relative && isSameHour(range, addHours(new Date(), 1)) ? 'Next hour' : `${formatDate(range, relative && getHours(range) !== 0 ? 'h a' : 'MMM d, h a', 'en-US')}`
+        return relative && isSameHour(range, addHours(new Date(), -1)) ? 'Last hour' :
+               relative && isThisHour(range) ? 'This hour' :
+               relative && isSameHour(range, addHours(new Date(), 1)) ? 'Next hour' :
+               `${formatDate(range, relative && getHours(range) !== 0 ? 'h a' : 'MMM d, h a', 'en-US').replace(/\s+AM/g, 'am').replace(/\s+PM/g, 'pm')}`
+      case 'minute':
+        return relative && isSameMinute(range, addMinutes(new Date(), -1)) ? 'Last minute' :
+               relative && isThisMinute(range) ? 'This minute' :
+               relative && isSameMinute(range, addMinutes(new Date(), 1)) ? 'Next minute' :
+               `${formatDate(range, relative && getMinutes(range) !== 0 ? 'h:mm a' : 'MMM d, h:mm a', 'en-US').replace(/\s+AM/g, 'am').replace(/\s+PM/g, 'pm')}`
       default:
         return '-'
     }
@@ -494,6 +527,16 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
     }
   }
 
+  subGranularity(granularity: GranularityValue, skipWeeks = false): GranularityValue {
+    switch (granularity) {
+      case 'year': return 'month'
+      case 'month': return skipWeeks ? 'day' : 'week'
+      case 'week': return 'day'
+      case 'day': return 'hour'
+      case 'hour': return 'minute'
+    }
+  }
+
   formatEmptySpan(count: number) {
     switch (this.granularity) {
       case 'year':
@@ -509,5 +552,61 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
       default:
         return ''
     }
+  }
+
+  fullRangeEmptyTitle(range: Date) {
+    return `${
+    this.formatRangeGranularity(
+      this.subGranularity(this.granularity, true),
+      range
+    )
+    } ‒ ${
+      this.formatRangeGranularity(
+        this.subGranularity(this.granularity, true),
+        this.addRange(range, 1)
+      )
+    }`
+  }
+
+  formatEmptySpanStartOfRangeTitle(range: Date, to: Date) {
+    return `${
+      this.formatRangeGranularity(
+        this.subGranularity(this.granularity, true),
+        range
+      )
+    } ‒ ${
+      this.formatRangeGranularity(
+        this.subGranularity(this.granularity, true),
+        to
+      )
+    }`
+  }
+
+  formatEmptySpanEndOfRangeTitle(range: Date, from: Date) {
+    return `${
+      this.formatRangeGranularity(
+        this.subGranularity(this.granularity, true),
+        this.startOfSubRange(from, 1)
+      )
+    } ‒ ${
+      this.formatRangeGranularity(
+        this.subGranularity(this.granularity, true),
+        this.addRange(range, 1)
+      )
+    }`
+  }
+
+  formatEmptySpanTitle(from: Date, to: Date) {
+    return `${
+      this.formatRangeGranularity(
+        this.subGranularity(this.granularity, true),
+        this.startOfSubRange(from, 1)
+      )
+    } ‒ ${
+      this.formatRangeGranularity(
+        this.subGranularity(this.granularity, true),
+        this.startOfSubRange(to, 0)
+      )
+    }`
   }
 }
