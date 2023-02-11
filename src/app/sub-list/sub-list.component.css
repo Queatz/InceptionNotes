@@ -37,6 +37,7 @@
 .sub-list-title-and-date-container {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .sub-list-title-container .item-checkbox {
