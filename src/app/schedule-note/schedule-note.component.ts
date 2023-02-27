@@ -13,7 +13,7 @@ import {
   startOfHour,
   startOfMinute
 } from 'date-fns'
-import {rawTimeZones} from '@vvo/tzdb'
+import {getTimeZones, TimeZone} from '@vvo/tzdb'
 import {Subject} from 'rxjs'
 
 const monthDayYear = 'MMMM do, yyyy'
@@ -32,9 +32,10 @@ export class ScheduleNoteComponent implements OnInit, OnChanges, OnDestroy {
 
   timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
   onDateChange = new Subject<Date>()
+  onTimeZoneChange = new Subject<TimeZone>()
   dateSuggestions: Array<[Date, string]>
   timeSuggestions: Array<[Date, string]>
-  timeZoneSuggestions: Array<[string, string]>
+  timeZoneSuggestions: Array<[TimeZone, string]>
 
   @ViewChild('date', { static: true, read: ViewContainerRef })
   dateRef: ViewContainerRef
@@ -132,20 +133,18 @@ export class ScheduleNoteComponent implements OnInit, OnChanges, OnDestroy {
     const timeZones = this.findTimeZones(value)
 
     if (autocomplete && timeZones.length === 1) {
-      this.onTimeZoneSet(timeZones[0].name)
+      const timeZone = getTimeZones().find(x => x.name === timeZones[0].name)
+      this.onTimeZoneSet(timeZone)
     } else {
       this.suggestTimeZones(value)
     }
   }
 
-  onTimeZoneSet(timeZone: string) {
-    this.timeZone = timeZone
-    this.timezoneRef.element.nativeElement.value = this.tzToStr(timeZone)
+  onTimeZoneSet(timeZone: TimeZone) {
+    this.timeZone = timeZone.name
+    this.timezoneRef.element.nativeElement.value = this.tzToStr(timeZone.name)
     this.suggestTimeZones(null)
-  }
-
-  resetTimeZone() {
-    this.timezoneRef.element.nativeElement.value = this.tzToStr(this.timeZone)
+    this.onTimeZoneChange.next(timeZone)
   }
 
   suggestTimeZones(value?: string) {
@@ -155,12 +154,12 @@ export class ScheduleNoteComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.timeZoneSuggestions = this.findTimeZones(value)
       .slice(0, 7)
-      .map(x => [ x.name, `${this.tzToStr(x.name)} (${x.rawOffsetInMinutes > 0 ? '+' : ''}${x.rawOffsetInMinutes / 60})` ])
+      .map(x => [ x, `${this.tzToStr(x.name)} (${x.rawOffsetInMinutes > 0 ? '+' : ''}${x.rawOffsetInMinutes / 60})` ])
   }
 
   findTimeZones(value: string) {
     const s = value.toLowerCase().replace(/\s*\/\s*/g, ' ')
-    return rawTimeZones.filter(x => this.tzToStr(x.name).replace(/\s*\/\s*/g, ' ').toLowerCase().indexOf(s) !== -1)
+    return getTimeZones().filter(x => this.tzToStr(x.name).replace(/\s*\/\s*/g, ' ').toLowerCase().indexOf(s) !== -1)
   }
 
   tzToStr(timezone: string) {

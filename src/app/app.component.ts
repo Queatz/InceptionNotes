@@ -108,7 +108,8 @@ export class AppComponent {
             this.router.navigate(['/', 'n', this.api.getEye().id])
           }
         }
-      }, {
+      },
+      {
         title: `${this.appIcon('schedule')} Schedule`,
         callback: (ctrlKey) => {
           const url = '/schedule'
@@ -118,17 +119,18 @@ export class AppComponent {
             this.router.navigateByUrl(url)
           }
         }
-      }, {
-        title: `${this.appIcon('board')} Board`,
-        callback: (ctrlKey) => {
-          const url = '/board'
-          if (event.ctrlKey || ctrlKey) {
-            window.open(url, '_blank')
-          } else {
-            this.router.navigateByUrl(url)
-          }
-        }
-      }
+      },
+      // {
+      //   title: `${this.appIcon('board')} Board`,
+      //   callback: (ctrlKey) => {
+      //     const url = '/board'
+      //     if (event.ctrlKey || ctrlKey) {
+      //       window.open(url, '_blank')
+      //     } else {
+      //       this.router.navigateByUrl(url)
+      //     }
+      //   }
+      // }
     ], { x: event.clientX, y: event.clientY })
   }
 

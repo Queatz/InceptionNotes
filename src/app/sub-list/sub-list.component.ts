@@ -23,11 +23,12 @@ import {AddInvitationComponent} from 'app/add-invitation/add-invitation.componen
 import {FilterService} from 'app/filter.service'
 import {filter as filterOp, Observable, Subject} from 'rxjs'
 import {takeUntil} from 'rxjs/operators'
-import {format, formatDistanceToNow, formatISO, isToday, isTomorrow, parseISO} from 'date-fns'
+import {addMinutes, format, formatDistanceToNow, formatISO, isToday, isTomorrow, parseISO} from 'date-fns'
 import {formatDate} from '@angular/common'
 import {Config} from '../config.service'
 import {ActionsComponent} from '../actions/actions.component'
 import {ScheduleNoteComponent} from '../schedule-note/schedule-note.component'
+import {RawTimeZone, TimeZone} from '@vvo/tzdb';
 
 export class DisplayOptions {
   omitListMenuItems?: string[]
@@ -1371,21 +1372,26 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           view: ScheduleNoteComponent,
           init: dialog => {
             if (item.date) {
-              dialog.component.instance.date = parseISO(item.date)
+              const date = parseISO(item.date)
+              dialog.component.instance.date = date
               dialog.component.instance.ngOnChanges()
+              dialog.model.data.date = date
             }
             dialog.component.instance.onDateChange.subscribe(date => {
               dialog.model.data.date = date
             })
+            dialog.component.instance.onTimeZoneChange.subscribe(timeZone => {
+              dialog.model.data.timeZone = timeZone
+            })
           },
           ok: model => {
-            if (!model.data.date) {
-              this.ui.dialog({ message: 'Note schedule wasn\'t updated.' })
-            } else {
-              item.date = formatISO(model.data.date)
-              this.api.modified(item, 'date')
-              this.ui.addRecentDate(item.date)
-            }
+            const data: { date: Date, timeZone?: TimeZone } = model.data as unknown as any
+            const localTimeZone = Util.localTimeZone()
+            console.log(data.timeZone.currentTimeOffsetInMinutes)
+            const date = data.timeZone ? addMinutes(data.date, data.timeZone.currentTimeOffsetInMinutes - localTimeZone.currentTimeOffsetInMinutes) : data.date
+            item.date = formatISO(date)
+            this.api.modified(item, 'date')
+            this.ui.addRecentDate(item.date)
           }
         })
       },

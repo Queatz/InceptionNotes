@@ -23,7 +23,8 @@ import {
   differenceInHours,
   differenceInMinutes,
   differenceInMonths,
-  differenceInWeeks, formatISO,
+  differenceInWeeks,
+  formatISO,
   getHours,
   getMinutes,
   getWeeksInMonth,
@@ -60,6 +61,7 @@ import {CollaborationService} from '../collaboration.service'
 import {GranularityValue} from '../schedule-nav/schedule-nav.component'
 import {debounceTime, filter as filterOp, Subject} from 'rxjs'
 import {takeUntil} from 'rxjs/operators'
+import {Router} from '@angular/router'
 
 class ScheduleColumn {
   range: Date
@@ -102,12 +104,16 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
 
   private destroyed = new Subject<void>()
 
+  // Double shift to search
+  private shiftShift?: Date = null
+
   constructor(
     private api: ApiService,
     public ui: UiService,
     private filter: FilterService,
     private collaboration: CollaborationService,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private router: Router
   ) {
   }
 
@@ -148,7 +154,7 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
       if (shift > 0) {
         this.columns.splice(0, shift)
         for (let i = 0; i < shift; i++) {
-          this.columns.push(this.getColumn(this.shift + this.count + i))
+          this.columns.push(this.getColumn(this.shift + this.columns.length))
         }
       } else {
         this.columns.splice(shift, -shift)
@@ -219,7 +225,7 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
     event.preventDefault()
     this.ui.menu([
       {title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null)},
-      {title: 'Change background...', callback: () => this.changeBackground()},
+      // {title: 'Change background...', callback: () => this.changeBackground()},
       {title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null)},
     ], {x: event.clientX, y: event.clientY})
   }
@@ -240,7 +246,7 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   }
 
   @HostListener('window:keydown.alt.s', ['$event'])
-  showSearch(event: Event) {
+  showSearch(event?: Event) {
     if (this.ui.isAnyDialogOpened()) {
       return
     }
@@ -261,6 +267,7 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
         dialog.component.instance.onSelection.subscribe(note => {
           this.api.addRecent('search', note.id)
           this.api.setEye(note)
+          this.router.navigate(['/', 'n', this.api.getEye().id])
           dialog.back()
         })
         dialog.component.instance.resultsChanged.subscribe(results => {
@@ -274,6 +281,16 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
         }
       }
     })
+  }
+
+  @HostListener('window:keydown.shift', ['$event'])
+  shiftShiftToSearch(event: Event) {
+    if (this.shiftShift && (new Date().getTime() - this.shiftShift.getTime()) < 500) {
+      this.showSearch()
+      this.shiftShift = null
+    } else {
+      this.shiftShift = new Date()
+    }
   }
 
   @HostListener('window:keydown.alt.f', ['$event'])

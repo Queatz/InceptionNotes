@@ -1,3 +1,5 @@
+import {getTimeZones, TimeZone} from '@vvo/tzdb';
+
 export default class Util {
 
   private static div = document.createElement('div')
@@ -17,5 +19,10 @@ export default class Util {
 
   static convertRemToPixels(rem: number) {
     return rem * parseFloat(window.getComputedStyle(document.documentElement).fontSize)
+  }
+
+  static localTimeZone(): TimeZone {
+    const name = Intl.DateTimeFormat().resolvedOptions().timeZone
+    return getTimeZones().find(x => x.name === name)
   }
 }
