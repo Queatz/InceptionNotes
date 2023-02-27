@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core'
 import {ApiService, Note} from './api.service'
 import {UiService} from './ui.service'
+import {DialogModel} from './dialog/dialog.component'
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,8 @@ export class ActionsService {
 
   private actions: Array<Action<any>> = [
     new TrimItemsStartAction(this.api, this.ui),
-    new TrimItemsEndAction(this.api, this.ui)
+    new TrimItemsEndAction(this.api, this.ui),
+    new SplitByLinksAction(this.api, this.ui),
   ]
 
   constructor(private api: ApiService, private ui: UiService) {
@@ -20,10 +22,12 @@ export class ActionsService {
   }
 }
 
-abstract class TrimItemsAction implements Action<TrimActionParams> {
+abstract class DialogAction<T> implements Action<T> {
   abstract name
   abstract description
-  abstract run(note: Note, params: TrimActionParams): void
+  abstract input: boolean
+  abstract params(result: DialogModel)
+  abstract run(note: Note, params: T): void
 
   protected constructor(protected api: ApiService, protected ui: UiService) {
   }
@@ -31,13 +35,24 @@ abstract class TrimItemsAction implements Action<TrimActionParams> {
   present(note: Note) {
     this.ui.dialog({
       message: `<b>${this.name}</b>\n\n${this.description}`,
-      input: true,
+      input: this.input,
       ok: result => {
-        if (result.input) {
-          this.run(note, { textToRemove: result.input })
-        }
+        this.run(note, this.params(result))
       }
     })
+  }
+}
+
+abstract class TrimItemsAction extends DialogAction<TrimActionParams> {
+
+  input = true
+
+  protected constructor(api: ApiService, ui: UiService) {
+    super(api, ui)
+  }
+
+  params(result: DialogModel) {
+    return { textToRemove: result.input }
   }
 }
 
@@ -50,6 +65,9 @@ class TrimItemsStartAction extends TrimItemsAction {
   }
 
   run(note: Note, params: TrimActionParams) {
+    if (!params.textToRemove) {
+      return
+    }
     let anyNoteChanged = false
     note.items.forEach(item => {
       if (item.name.startsWith(params.textToRemove)) {
@@ -76,6 +94,9 @@ class TrimItemsEndAction extends TrimItemsAction {
   }
 
   run(note: Note, params: TrimActionParams) {
+    if (!params.textToRemove) {
+      return
+    }
     let anyNoteChanged = false
     note.items.forEach(item => {
       if (item.name.endsWith(params.textToRemove)) {
@@ -90,6 +111,47 @@ class TrimItemsEndAction extends TrimItemsAction {
         message: 'No items were trimmed'
       })
     }
+  }
+}
+
+class SplitByLinksAction extends DialogAction<any> {
+  name = 'Split by links'
+  description = 'Splits the note into separate items based on item links.'
+  input = false
+
+  constructor(api: ApiService, ui: UiService) {
+    super(api, ui)
+  }
+
+  params(result: DialogModel) {
+  }
+
+  run(note: Note, params: any) {
+    const groups = new Map<string, { name: string, ref: Array<Note>, items: Array<Note> }>()
+    note.items.forEach(
+      item => {
+        const group = item.ref?.map(x => x.id)?.join(':') || ''
+        if (!groups.has(group)) {
+          groups.set(group, { name: item.ref?.map(x => x.name)?.join(', ') || 'No links', ref: item.ref, items: [] })
+        }
+        groups.get(group).items.push(item)
+      }
+    )
+
+    groups.forEach(group => {
+      const groupNote = this.api.newBlankList(note)
+      groupNote.name = group.name
+      this.api.modified(groupNote, 'name')
+      group.ref.forEach(ref => {
+        this.api.addRef(groupNote, ref)
+      })
+      group.items.forEach(item => {
+        this.api.moveList(item.id, groupNote.id)
+        new Array(...(item.ref || [])).forEach(ref => {
+          this.api.removeRef(item, ref)
+        })
+      })
+    })
   }
 }
 
