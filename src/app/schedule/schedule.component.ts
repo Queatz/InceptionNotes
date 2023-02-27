@@ -23,17 +23,20 @@ import {
   differenceInHours,
   differenceInMinutes,
   differenceInMonths,
-  differenceInWeeks,
-  getHours, getMinutes,
+  differenceInWeeks, formatISO,
+  getHours,
+  getMinutes,
   getWeeksInMonth,
   isBefore,
   isSameDay,
-  isSameHour, isSameMinute,
+  isSameHour,
+  isSameMinute,
   isSameMonth,
   isSameSecond,
   isSameWeek,
   isSameYear,
-  isThisHour, isThisMinute,
+  isThisHour,
+  isThisMinute,
   isThisMonth,
   isThisWeek,
   isThisYear,
@@ -42,7 +45,8 @@ import {
   isYesterday,
   parseISO,
   startOfDay,
-  startOfHour, startOfMinute,
+  startOfHour,
+  startOfMinute,
   startOfMonth,
   startOfWeek,
   startOfYear
@@ -61,7 +65,6 @@ class ScheduleColumn {
   range: Date
   name: string
   title: string
-  past: boolean
   items: Array<Note>
 }
 
@@ -114,6 +117,7 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
       filterOp(changes => changes.property === 'date'),
       debounceTime(50)
     ).subscribe(() => {
+      this.allNotes = Array.from(this.api.getAllNotes().values())
       this.calcItems()
       this.changeDetectorRef.detectChanges()
     })
@@ -169,7 +173,7 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
       range,
       name: this.formatRange(range, true),
       title: this.formatRange(range),
-      past: isBefore(range, startOfRange),
+      // past: isBefore(range, startOfRange),
       items: all.sort((a, b) => isSameSecond(parseISO(a.date), parseISO(b.date)) ? 0 : isBefore(parseISO(a.date), parseISO(b.date)) ? -1 : 1)
     }
   }
@@ -608,5 +612,13 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
         this.startOfSubRange(to, 0)
       )
     }`
+  }
+
+  scheduleNewNote(date: Date) {
+    const note = this.api.newBlankNote()
+    note.date = formatISO(date)
+    this.api.modified(note, 'date')
+    note.name = 'New note'
+    this.api.modified(note, 'name')
   }
 }

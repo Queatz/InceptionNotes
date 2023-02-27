@@ -42,11 +42,13 @@ export class AppComponent {
             break
           case 'board':
             this.app = 'board'
-            this.setTitle()
+            // todo handled by params
+            // this.setTitle()
             break
           default:
             this.app = undefined
-            this.setTitle(this.api.getEye())
+            // todo handled by params
+            // this.setTitle(this.api.getShow())
             break
         }
       }
@@ -69,11 +71,17 @@ export class AppComponent {
         this.api.setEye(note)
       }
     })
+
+    this.api.onNoteUpdatedObservable.subscribe(noteChange => {
+      if (!this.app && noteChange.note === this.api.getShow() && noteChange.property === 'name') {
+        this.setTitle(this.api.getShow())
+      }
+    })
   }
 
   setTitle(note?: Note) {
     this.title.setTitle(
-      this.app === 'schedule' ? 'Schedule' : Util.htmlToText(note.name, true) || 'Inception Notes'
+      this.app === 'schedule' ? 'Schedule' : Util.htmlToText(note?.name, true) || 'Inception Notes'
     )
   }
 

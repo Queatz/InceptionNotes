@@ -23,11 +23,15 @@ import {AddInvitationComponent} from 'app/add-invitation/add-invitation.componen
 import {FilterService} from 'app/filter.service'
 import {filter as filterOp, Observable, Subject} from 'rxjs'
 import {takeUntil} from 'rxjs/operators'
-import {format, formatDistanceToNow, formatISO, isThisYear, isToday, isTomorrow, parseISO} from 'date-fns'
+import {format, formatDistanceToNow, formatISO, isToday, isTomorrow, parseISO} from 'date-fns'
 import {formatDate} from '@angular/common'
 import {Config} from '../config.service'
 import {ActionsComponent} from '../actions/actions.component'
 import {ScheduleNoteComponent} from '../schedule-note/schedule-note.component'
+
+export class DisplayOptions {
+  omitListMenuItems?: string[]
+}
 
 @Component({
   selector: 'sub-list',
@@ -44,6 +48,7 @@ import {ScheduleNoteComponent} from '../schedule-note/schedule-note.component'
 export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() list: Note
+  @Input() options?: DisplayOptions
   @Input() large = false
   @Input() useAsNavigation: boolean
   @Input() onSelection?: Observable<{
@@ -424,7 +429,9 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       }
     ]
 
-    this.ui.menu(options, {x: event.clientX, y: event.clientY})
+    const filteredOptions = (this.options?.omitListMenuItems?.length ? options.filter(x => this.options.omitListMenuItems.indexOf(x.title) === -1 ) : options)
+
+    this.ui.menu(filteredOptions, {x: event.clientX, y: event.clientY})
   }
 
   addInvitation(list: Note) {
@@ -433,6 +440,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       input: true,
       view: AddInvitationComponent,
       init: dialog => {
+        (<AddInvitationComponent>dialog.component.instance).omit = list.invitations?.map(x => x.id) || []
         dialog.changes.subscribe(input => {
           (<AddInvitationComponent>dialog.component.instance).search(input)
         });
@@ -495,6 +503,10 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       },
       this.scheduleMenuItem(item),
       {
+        title: 'Duplicate',
+        callback: () => this.api.duplicateList(item)
+      },
+      {
         title: item.collapsed ? 'Un-collapse' : 'Collapse',
         callback: () => this.toggleCollapse(item),
       },
@@ -534,6 +546,18 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     event.preventDefault()
     event.stopPropagation()
 
+    const changeToMenu = [
+      ...(refItem.parent?.items || []).filter(
+        x => x !== refItem && x.name.trim() && item.ref.indexOf(x) === -1
+      ).map(refSibling => ({
+        title: refSibling.name,
+        callback: () => {
+          this.api.addRecent('search', refSibling.id)
+          this.api.changeRef(item, refItem, refSibling)
+        }
+      }))
+    ]
+
     this.ui.menu([
       {
         title: 'Unlink',
@@ -543,23 +567,14 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         title: 'Apply as filter',
         callback: () => this.filter.toggleRef(refItem)
       },
-      {
-        title: 'Change to',
-        shortcut: '⯈',
-        callback: () => {
-        },
-        menu: [
-          ...(refItem.parent?.items || []).filter(
-            x => x !== refItem && x.name.trim() && item.ref.indexOf(x) === -1
-          ).map(refSibling => ({
-            title: refSibling.name,
-            callback: () => {
-              this.api.addRecent('search', refSibling.id)
-              this.api.changeRef(item, refItem, refSibling)
-            }
-          }))
-        ]
-      },
+      ...(changeToMenu.length ? [
+        {
+          title: 'Change to',
+          shortcut: '⯈',
+          callback: () => {},
+          menu: changeToMenu
+        }
+      ] : []),
       ...(item.ref?.length > 1 ? [
         {
           title: 'Order',

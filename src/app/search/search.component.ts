@@ -1,7 +1,8 @@
 import {Component, HostListener, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 import {ApiService, Note} from '../api.service'
 import {Subject} from 'rxjs'
-import Util from '../util';
+import Util from '../util'
+import {parseISO} from 'date-fns'
 
 @Component({
   selector: 'app-search',
@@ -59,6 +60,20 @@ export class SearchComponent implements OnInit, OnChanges {
     if (this.results.length > 50) {
       this.results.length = 50
     }
+
+    this.results.sort((a, b) => {
+      if (a.updated) {
+        if (b.updated) {
+          return parseISO(b.updated).getTime() - parseISO(a.updated).getTime()
+        } else {
+          return -1
+        }
+      } else if (b.updated) {
+        return 1
+      } else {
+        return 0
+      }
+    })
 
     this.resultsHistory = []
 

@@ -4,7 +4,7 @@ import {Event} from 'app/sync/event'
 import {ApiService, FrozenNote, Note} from 'app/api.service'
 import util from 'app/util'
 import {Conflict, ConflictService} from './conflict.service'
-import {Subject} from 'rxjs';
+import {Subject} from 'rxjs'
 
 export class IdentifyOutgoingEvent {
   device: string
@@ -121,7 +121,7 @@ export class SyncService {
   /**
    * Sync a local prop from a server rev
    */
-  syncLocalProp(note: Note, prop: string, rev: string | null) {
+  syncLocalProp(note: Note, prop: string, rev: string) {
     const p: Partial<Note> = {
       id: note.id,
       rev,
@@ -217,7 +217,7 @@ export class SyncService {
   /**
    * Handle note prop update from sever
    *
-   * Returns list of notes that needed to be initialized
+   * Returns list of notes ids that needed to be initialized
    */
   handleUpdateFromServer(note: Note, prop: string, value: any, serverRev: string): string[] {
     const { value: localProp, init } = this.api.unfreezeProp(note, prop, value)

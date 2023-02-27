@@ -1,5 +1,18 @@
 import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, ViewContainerRef} from '@angular/core'
-import {addDays, addHours, addMinutes, format, isThisYear, isToday, isTomorrow, parse, startOfHour, startOfMinute} from 'date-fns'
+import {
+  addDays,
+  addHours,
+  addMinutes,
+  format,
+  isBefore,
+  isThisYear,
+  isToday,
+  isTomorrow,
+  parse,
+  startOfDay,
+  startOfHour,
+  startOfMinute
+} from 'date-fns'
 import {rawTimeZones} from '@vvo/tzdb'
 import {Subject} from 'rxjs'
 
@@ -159,8 +172,10 @@ export class ScheduleNoteComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private resuggestDate(from: Date) {
+    const today = startOfDay(new Date())
+    const before = isBefore(from, today)
     this.dateSuggestions = Array.from(new Array(7)).map((value, index) => {
-      const date = addDays(from, index)
+      const date = addDays(before ? today : from, index + (before ? 0 : 1))
       return [
         date,
         isToday(date) ? 'Today' :

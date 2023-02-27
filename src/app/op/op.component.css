@@ -30,3 +30,7 @@ input[type='number'],input[type='text'],input[type='password'],input:not([type])
   border: 1px solid lightgray;
   border-radius: 4px;
 }
+
+.sub-op {
+  margin-left: 1rem;
+}

@@ -16,7 +16,7 @@ export class WsService {
   public syncService: SyncService
 
   // Events
-  public onBeforeOpen: Subject<any> = new Subject()
+  public onBeforeOpen: Subject<void> = new Subject()
 
   constructor(private config: Config, private http: HttpClient) {
     setTimeout(() => {

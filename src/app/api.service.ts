@@ -561,7 +561,9 @@ export class ApiService {
   }
 
   private saveView() {
-    this.router.navigate(['n', this.view.show.id])
+    if (this.router.url === '/' || this.router.url.startsWith('/n/')) {
+      this.router.navigate(['n', this.view.show.id])
+    }
     localStorage.setItem('view', this.view.eye.id)
     localStorage.setItem('view-show', this.view.show.id)
 
@@ -1003,7 +1005,9 @@ export class ApiService {
 
     if (list) {
       note.parent = list
-      note.steward = list.steward
+      // todo
+      // note.steward = list.steward
+      // this.modified(note, 'steward')
 
       if (position === null) {
         list.items.push(note)

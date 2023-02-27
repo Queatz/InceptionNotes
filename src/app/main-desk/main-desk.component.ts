@@ -48,6 +48,9 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
   private readonly selectedListIds = new Set<string>()
 
+  // Double shift to search
+  private shiftShift?: Date = null
+
   constructor(
     public api: ApiService,
     public filter: FilterService,
@@ -259,7 +262,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   @HostListener('window:keydown.alt.s', ['$event'])
-  showSearch(event: Event) {
+  showSearch(event?: Event) {
     if (this.ui.isAnyDialogOpened()) {
       return
     }
@@ -293,6 +296,16 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
     })
+  }
+
+  @HostListener('window:keydown.shift', ['$event'])
+  shiftShiftToSearch(event: Event) {
+    if (this.shiftShift && (new Date().getTime() - this.shiftShift.getTime()) < 500) {
+      this.showSearch()
+      this.shiftShift = null
+    } else {
+      this.shiftShift = new Date()
+    }
   }
 
   @HostListener('window:keydown.alt.f', ['$event'])

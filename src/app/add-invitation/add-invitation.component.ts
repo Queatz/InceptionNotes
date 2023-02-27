@@ -12,6 +12,7 @@ export class AddInvitationComponent implements OnInit, OnDestroy {
 
   onSelection: Subject<Invitation>
 
+  omit: string[] = []
   results: Invitation[] = []
 
   constructor(private collaboration: CollaborationService) {
@@ -29,7 +30,7 @@ export class AddInvitationComponent implements OnInit, OnDestroy {
   search(query: string) {
     this.collaboration.getInvitations(query).subscribe(invitations => {
       const meId = this.collaboration.me()?.id
-      this.results = invitations.filter(x => x.id !== meId)
+      this.results = invitations.filter(x => x.id !== meId && this.omit.indexOf(x.id) === -1)
     })
   }
 
