@@ -56,7 +56,9 @@ export class SyncEvent implements ServerEvent {
       }
     }
 
-    sync.syncLocalProps()
+    if (this.full === true) {
+      sync.syncLocalProps()
+    }
 
     if (fetch.length > 0) {
       sync.send(new GetOutgoingEvent(fetch))

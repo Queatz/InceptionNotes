@@ -143,8 +143,10 @@ export class SyncService {
 
     for (const n of this.api.getAllNotes().values()) {
       if (!n._local) {
+        console.log(null, n)
         syncAllEvent.notes.push(this.api.freezeNote(n, true))
       } else if (n._local.length > 0) {
+        console.log(n._local, n)
         const p: Partial<Note> = {
           id: n.id,
           rev: n.rev,
@@ -220,16 +222,14 @@ export class SyncService {
    * Returns list of notes ids that needed to be initialized
    */
   handleUpdateFromServer(note: Note, prop: string, value: any, serverRev: string): string[] {
-    const { value: localProp, init } = this.api.unfreezeProp(note, prop, value)
+    const { value: serverProp, init } = this.api.unfreezeProp(note, prop, value)
     if (this.api.isSynced(note, prop) || note[prop] === undefined) {
       // Local prop was provided by server, overwrite
-      this.setProp(note, prop, localProp)
-      this.api.setSynced(note.id, prop)
-      this.updateRevIfSynced(note, serverRev)
-    } else if (this.valEquals(note[prop], localProp)) {
+      this.setProp(note, prop, serverProp)
+      this.setSynced(note, prop, serverRev)
+    } else if (this.valEquals(note[prop], serverProp)) {
       // Local prop was provided by server, ignore
-      this.api.setSynced(note.id, prop)
-      this.updateRevIfSynced(note, serverRev)
+      this.setSynced(note, prop, serverRev)
     } else {
       // Auto merge auto-generated last item
       if (prop === 'items') {
@@ -249,21 +249,31 @@ export class SyncService {
                }
             } else {
               if (this.api.isEmptyNote(value[value.length - 1])) {
-                this.setProp(note, prop, localProp)
-                this.api.setSynced(note.id, prop)
+                this.setProp(note, prop, serverProp)
+                this.setSynced(note, prop, serverRev)
               }
             }
 
             return init
           }
         }
+      } else if (['updated', 'created'].indexOf(prop) !== -1) {
+        // Server-only props
+        this.setProp(note, prop, serverProp)
+        this.setSynced(note, prop, serverRev)
+        return init
       }
 
       // Local prop differs, ask what to do
-      this.conflict.addConflict(new Conflict(note, prop, localProp, serverRev))
+      this.conflict.addConflict(new Conflict(note, prop, serverProp, serverRev))
     }
 
     return init
+  }
+
+  setSynced(note: Note, prop: string, serverRev: string) {
+    this.api.setSynced(note.id, prop)
+    this.updateRevIfSynced(note, serverRev)
   }
 
   setProp(note: Note, prop: string, value: any) {

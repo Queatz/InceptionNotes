@@ -348,8 +348,9 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
   @HostListener('window:keydown.alt.p')
   showAsPriority(event: Event) {
-    this.ui.getEnv().showAsPriorityList = !this.ui.getEnv().showAsPriorityList
-    this.ui.getEnv().sidepane = !this.ui.getEnv().sidepane
+    const showAsPriorityList = !this.ui.getEnv().showAsPriorityList
+    this.ui.getEnv().showAsPriorityList = showAsPriorityList
+    this.ui.getEnv().sidepane = !showAsPriorityList
     this.ui.save()
   }
 

@@ -185,7 +185,7 @@ export class UiService {
 
     this.env.recentDates.unshift(date)
 
-    if (this.env.recentDates.length > 6) {
+    if (this.env.recentDates.length > 3) {
       this.env.recentDates.pop()
     }
 
