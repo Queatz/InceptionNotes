@@ -31,9 +31,9 @@ export class GetOutgoingEvent {
 }
 
 export class SyncOutgoingEvent {
-  notes: FrozenNote[]
+  notes: Partial<FrozenNote>[]
 
-  constructor(notes: FrozenNote[]) {
+  constructor(notes: Partial<FrozenNote>[]) {
     this.notes = notes
   }
 }
@@ -143,10 +143,8 @@ export class SyncService {
 
     for (const n of this.api.getAllNotes().values()) {
       if (!n._local) {
-        console.log(null, n)
         syncAllEvent.notes.push(this.api.freezeNote(n, true))
       } else if (n._local.length > 0) {
-        console.log(n._local, n)
         const p: Partial<Note> = {
           id: n.id,
           rev: n.rev,

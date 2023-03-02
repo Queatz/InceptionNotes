@@ -1,16 +1,20 @@
 import {Injectable} from '@angular/core'
 import {HttpClient} from '@angular/common/http'
 import {Config} from 'app/config.service'
-import {SyncService} from 'app/sync.service'
-import {Subject} from 'rxjs'
+import {SyncOutgoingEvent, SyncService} from 'app/sync.service'
+import {debounce, interval, Subject} from 'rxjs'
+import {FrozenNote} from './api.service'
 
 @Injectable()
 export class WsService {
 
   private websocket: WebSocket
   private pending: any[] = []
+  private buffered: Array<[string, any]> = []
+  private _buffered = new Subject<void>()
   private isInActiveHttpSync = false
   private shouldHttpSyncAgain = false
+  private bufferMs = 500
 
   // Injections
   public syncService: SyncService
@@ -22,6 +26,15 @@ export class WsService {
     setTimeout(() => {
       this.reconnect()
     }, 5000)
+
+    this._buffered.pipe(
+      debounce(() => interval(this.bufferMs))
+    ).subscribe(() => {
+      if (this.buffered.length) {
+        this.send(this.mergeEvents(this.buffered), false, false)
+        this.buffered.length = 0
+      }
+    })
   }
 
   active(): boolean {
@@ -45,12 +58,12 @@ export class WsService {
     this.websocket?.close()
   }
 
-  send(events: any[], forceHttp = false): boolean {
+  send(events: any[], forceHttp = false, useBuffer = true): boolean {
     if (!this.websocket || this.websocket.readyState === WebSocket.CLOSED) {
       this.reconnect()
     }
 
-    if (this.websocket.readyState !== WebSocket.OPEN) {
+    if (this.websocket?.readyState !== WebSocket.OPEN) {
       this.pending.push(events)
 
       return false
@@ -59,7 +72,12 @@ export class WsService {
     const message = JSON.stringify(events)
 
     if (message.length < 1000 && !forceHttp) {
-      this.websocket.send(message)
+      if (!this.bufferMs || !useBuffer) {
+        this.websocket.send(message)
+      } else {
+        this.buffered.push(...events)
+        this._buffered.next()
+      }
     } else {
       if (this.isInActiveHttpSync) {
         this.shouldHttpSyncAgain = true
@@ -93,6 +111,45 @@ export class WsService {
     }
 
     return true
+  }
+
+  /**
+   * Merges all events on the same note, keeping the values from the latest events.
+   */
+  private mergeEvents(events: Array<[string, any]>): any[] {
+    if (!events.length) {
+      return []
+    }
+
+    const syncEvents = events.filter(it => it[0] === 'sync')
+    const atomicEvents = events.filter(it => it[0] !== 'sync')
+    const mergedSyncEvents = this.mergeSyncEvents(syncEvents)
+    return [...mergedSyncEvents, ...atomicEvents]
+  }
+
+  private mergeSyncEvents(events: Array<[string, any]>): Array<[string, any]> {
+    const eventsByNote = new Map<string, Partial<FrozenNote>>()
+    events.map(event => event[1] as SyncOutgoingEvent).forEach(event => {
+      event.notes.forEach(frozenNote => {
+        if (!eventsByNote.has(frozenNote.id)) {
+          eventsByNote.set(frozenNote.id, {} as FrozenNote)
+        }
+        eventsByNote.set(
+          frozenNote.id,
+          Object.assign(
+            eventsByNote.get(frozenNote.id),
+            frozenNote
+          )
+        )
+      })
+    })
+
+    return [
+      [
+        'sync',
+        new SyncOutgoingEvent(Array.from(eventsByNote.values()))
+      ]
+    ]
   }
 
   private onOpen() {
