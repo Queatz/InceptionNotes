@@ -142,6 +142,10 @@ export class SyncService {
     const syncAllEvent = new SyncOutgoingEvent([])
 
     for (const n of this.api.getAllNotes().values()) {
+      if (!this.canEdit(n)) {
+        continue
+      }
+
       if (!n._local) {
         syncAllEvent.notes.push(this.api.freezeNote(n, true))
       } else if (n._local.length > 0) {
@@ -242,7 +246,7 @@ export class SyncService {
 
           if (equal) {
             if (note.items.length > value.length) {
-               if (this.api.isEmptyNote(note.items[note.items.length - 1])) {
+               if (this.canEdit(note) && this.api.isEmptyNote(note.items[note.items.length - 1])) {
                  this.syncLocalProp(note, prop, serverRev)
                }
             } else {
@@ -331,12 +335,16 @@ export class SyncService {
     }
   }
 
-  setCanEditFull(allViewOnlyNotes: string[]) {
+  setCanEditFull(allViewOnlyNotes: string[], allServerKnownNoteIds: string[]) {
     for (const note of this.api.getAllNotes().values()) {
-      if (note._edit === false && allViewOnlyNotes.indexOf(note.id) === -1) {
+      if (note._edit === false && allViewOnlyNotes.indexOf(note.id) === -1 && allServerKnownNoteIds.indexOf(note.id) !== -1) {
         this.setCanEdit(note.id, true)
       }
     }
+  }
+
+  canEdit(note: Note) {
+    return note._edit !== false
   }
 
   sendState() {

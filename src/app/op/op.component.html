@@ -17,6 +17,9 @@
       <br/>
       <button (click)="disconnectSync()">Disconnect</button>
     </ng-container>
+    <div>
+      <label><input class="large-number" type="number" name="syncInterval" min="0" [(ngModel)]="env.syncInterval" (ngModelChange)="update()"/> sync interval (ms)</label>
+    </div>
   </ng-container>
   <br/>
   <br/>

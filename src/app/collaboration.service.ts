@@ -28,10 +28,10 @@ export class CollaborationService {
   }
 
   connect() {
-    this.syncService.invitationsChanged.subscribe(() => this.reloadInvitations())
+    this.syncService.invitationsChanged.subscribe(() => this.reloadInvitationsAndMe())
 
     if (this.invitation) {
-      this.reloadInvitations()
+      this.reloadInvitationsAndMe()
       this.syncService.start()
       return
     }
@@ -89,6 +89,21 @@ export class CollaborationService {
       tap(invitation => {
         this.invitation = invitation
       })
+    )
+  }
+
+  reloadInvitationsAndMe() {
+    this.reloadMe()
+    this.reloadInvitations()
+  }
+
+  reloadMe() {
+    this.get('me').subscribe(
+      {
+        next: (me: Invitation) => {
+          this.setMe(me)
+        }
+      }
     )
   }
 

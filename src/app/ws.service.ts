@@ -4,6 +4,7 @@ import {Config} from 'app/config.service'
 import {SyncOutgoingEvent, SyncService} from 'app/sync.service'
 import {debounce, interval, Subject} from 'rxjs'
 import {FrozenNote} from './api.service'
+import {UiService} from './ui.service';
 
 @Injectable()
 export class WsService {
@@ -14,7 +15,6 @@ export class WsService {
   private _buffered = new Subject<void>()
   private isInActiveHttpSync = false
   private shouldHttpSyncAgain = false
-  private bufferMs = 500
 
   // Injections
   public syncService: SyncService
@@ -22,13 +22,13 @@ export class WsService {
   // Events
   public onBeforeOpen: Subject<void> = new Subject()
 
-  constructor(private config: Config, private http: HttpClient) {
+  constructor(private config: Config, private http: HttpClient, private ui: UiService) {
     setTimeout(() => {
       this.reconnect()
     }, 5000)
 
     this._buffered.pipe(
-      debounce(() => interval(this.bufferMs))
+      debounce(() => interval(ui.getEnv().syncInterval || 500))
     ).subscribe(() => {
       if (this.buffered.length) {
         this.send(this.mergeEvents(this.buffered), false, false)
@@ -72,7 +72,7 @@ export class WsService {
     const message = JSON.stringify(events)
 
     if (message.length < 1000 && !forceHttp) {
-      if (!this.bufferMs || !useBuffer) {
+      if (!useBuffer) {
         this.websocket.send(message)
       } else {
         this.buffered.push(...events)
@@ -128,6 +128,9 @@ export class WsService {
   }
 
   private mergeSyncEvents(events: Array<[string, any]>): Array<[string, any]> {
+    if (!events.length) {
+      return []
+    }
     const eventsByNote = new Map<string, Partial<FrozenNote>>()
     events.map(event => event[1] as SyncOutgoingEvent).forEach(event => {
       event.notes.forEach(frozenNote => {

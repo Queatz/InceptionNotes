@@ -52,7 +52,7 @@ export class SyncEvent implements ServerEvent {
       this.view.forEach(id => sync.setCanEdit(id, false))
 
       if (this.full) {
-        sync.setCanEditFull(this.view)
+        sync.setCanEditFull(this.view, this.notes.map(x => x.id))
       }
     }
 

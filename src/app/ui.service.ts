@@ -91,6 +91,7 @@ export class UiService {
       expandedNav: false,
       showEmptiness: false,
       showOnly: 0,
+      syncInterval: 500,
       recentColors: ['#80d8ff', '#ff80ab', '#ffd180', '#E6E3D7', '#ffffff'],
       recentDates: []
     }
@@ -213,7 +214,8 @@ export interface Env {
   hideDoneItems: boolean,
   expandedNav: boolean,
   showEmptiness: boolean,
-  showOnly: 0,
+  showOnly: number,
+  syncInterval: number,
   recentColors: Array<string>,
   recentDates: Array<string>
 }
