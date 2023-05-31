@@ -138,5 +138,6 @@ app-filter-box.is-showing + .items, app-filter-box.is-showing + .description {
   border-radius: 100%;
   text-align: center;
   cursor: pointer;
+  user-select: none;
   opacity: .5;
 }

@@ -28,7 +28,7 @@ import {formatDate} from '@angular/common'
 import {Config} from '../config.service'
 import {ActionsComponent} from '../actions/actions.component'
 import {ScheduleNoteComponent} from '../schedule-note/schedule-note.component'
-import {RawTimeZone, TimeZone} from '@vvo/tzdb';
+import {TimeZone} from '@vvo/tzdb'
 
 export class DisplayOptions {
   omitListMenuItems?: string[]
@@ -1387,7 +1387,6 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           ok: model => {
             const data: { date: Date, timeZone?: TimeZone } = model.data as unknown as any
             const localTimeZone = Util.localTimeZone()
-            console.log(data.timeZone.currentTimeOffsetInMinutes)
             const date = data.timeZone ? addMinutes(data.date, data.timeZone.currentTimeOffsetInMinutes - localTimeZone.currentTimeOffsetInMinutes) : data.date
             item.date = formatISO(date)
             this.api.modified(item, 'date')
