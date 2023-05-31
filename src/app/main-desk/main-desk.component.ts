@@ -13,8 +13,6 @@ import {
 import {ApiService, Note} from '../api.service'
 import {MenuOption, UiService} from '../ui.service'
 import {CollaborationService} from '../collaboration.service'
-import {OpComponent} from '../op/op.component'
-import {SearchComponent} from '../search/search.component'
 import Util from 'app/util'
 import {FilterService} from 'app/filter.service'
 import {Subject} from 'rxjs'
@@ -48,13 +46,9 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
   private readonly selectedListIds = new Set<string>()
 
-  // Double shift to search
-  private shiftShift?: Date = null
-
   constructor(
     public api: ApiService,
     public filter: FilterService,
-    public collaboration: CollaborationService,
     public ui: UiService,
     private elementRef: ElementRef) {
   }
@@ -211,24 +205,9 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
   menu(event: MouseEvent) {
     event.preventDefault()
 
-    let opts: Array<MenuOption>
-    const v = !!this.collaboration.me()
-
-    if (!v) {
-      opts = [
-        {title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null)},
-        {title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null)},
-        {title: 'Change background...', callback: () => this.changeBackground()},
-        {title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null)}
-      ]
-    } else {
-      opts = [
-        {title: 'Search...', shortcut: 'ALT + S', callback: () => this.showSearch(null)},
-        {title: 'Filter...', shortcut: 'ALT + F', callback: () => this.showFilter(null)},
-        {title: 'Change background...', callback: () => this.changeBackground()},
-        {title: 'Options...', shortcut: 'ALT + O', callback: () => this.showOptions(null)},
-      ]
-    }
+    let opts: Array<MenuOption> = [
+      {title: 'Change background...', callback: () => this.changeBackground()},
+    ]
 
     this.ui.menu([
       {title: 'New note', callback: () => this.newNoteAtPosition(event.pageX, event.pageY)},
@@ -244,106 +223,6 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
       ] : []),
       ...opts
     ], {x: event.clientX, y: event.clientY})
-  }
-
-  @HostListener('window:keydown.alt.o', ['$event'])
-  showOptions(event: Event) {
-    if (this.ui.isAnyDialogOpened()) {
-      return
-    }
-
-    if (event) {
-      event.preventDefault()
-    }
-
-    this.ui.dialog({
-      view: OpComponent
-    })
-  }
-
-  @HostListener('window:keydown.alt.s', ['$event'])
-  showSearch(event?: Event) {
-    if (this.ui.isAnyDialogOpened()) {
-      return
-    }
-
-    if (event) {
-      event.preventDefault()
-    }
-
-    this.ui.dialog({
-      message: 'Search',
-      input: true,
-      view: SearchComponent,
-      init: dialog => {
-        dialog.changes.subscribe(val => {
-          dialog.component.instance.searchString = val
-          dialog.component.instance.ngOnChanges(null)
-        })
-        dialog.component.instance.onSelection.subscribe(note => {
-          this.api.addRecent('search', note.id)
-          this.api.setEye(note)
-          dialog.back()
-        })
-        dialog.component.instance.resultsChanged.subscribe(results => {
-          dialog.model.data.results = results
-        })
-      },
-      ok: result => {
-        if (result.data.results && result.data.results.length) {
-          this.api.addRecent('search', result.data.results[0].id)
-          this.api.setEye(result.data.results[0])
-        }
-      }
-    })
-  }
-
-  @HostListener('window:keydown.shift', ['$event'])
-  shiftShiftToSearch(event: Event) {
-    if (this.shiftShift && (new Date().getTime() - this.shiftShift.getTime()) < 500) {
-      this.showSearch()
-      this.shiftShift = null
-    } else {
-      this.shiftShift = new Date()
-    }
-  }
-
-  @HostListener('window:keydown.alt.f', ['$event'])
-  showFilter(event: Event) {
-    if (this.ui.isAnyDialogOpened()) {
-      return
-    }
-
-    if (event) {
-      event.preventDefault()
-    }
-
-    this.ui.dialog({
-      message: 'Filter by links',
-      input: true,
-      view: SearchComponent,
-      init: dialog => {
-        dialog.component.instance.recentWhich = 'filter'
-        dialog.changes.subscribe(val => {
-          dialog.component.instance.searchString = val
-          dialog.component.instance.ngOnChanges(null)
-        })
-        dialog.component.instance.onSelection.subscribe(note => {
-          this.api.addRecent('filter', note.id)
-          this.filter.toggleRef(note)
-          dialog.back()
-        })
-        dialog.component.instance.resultsChanged.subscribe(results => {
-          dialog.model.data.results = results
-        })
-      },
-      ok: result => {
-        if (result.data.results && result.data.results.length) {
-          this.api.addRecent('filter', result.data.results[0].id)
-          this.filter.toggleRef(result.data.results[0])
-        }
-      }
-    })
   }
 
   @HostListener('window:keydown.alt.p')

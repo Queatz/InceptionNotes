@@ -1,4 +1,4 @@
-import {Component, ViewContainerRef} from '@angular/core'
+import {Component, HostListener, ViewContainerRef} from '@angular/core'
 import {Location, LocationStrategy, PathLocationStrategy} from '@angular/common'
 import {ActivatedRoute, Router} from '@angular/router'
 import {ApiService, Note} from './api.service'
@@ -7,6 +7,10 @@ import {CollaborationService} from 'app/collaboration.service'
 import {SyncService} from 'app/sync.service'
 import {Title} from '@angular/platform-browser'
 import Util from 'app/util'
+import {OpComponent} from './op/op.component';
+import {SearchComponent} from './search/search.component';
+import {FilterService} from './filter.service';
+import {EditInvitationsComponent} from './edit-invitations/edit-invitations.component';
 
 @Component({
   selector: 'app-root',
@@ -19,10 +23,14 @@ export class AppComponent {
 
   app: string
 
+  // Double shift to search for IntelliJ users
+  private shiftShift?: Date = null
+
   constructor(
     public api: ApiService,
     public ui: UiService,
-    public collab: CollaborationService,
+    public collaboration: CollaborationService,
+    public filter: FilterService,
     public sync: SyncService,
     public view: ViewContainerRef,
     private location: Location,
@@ -31,7 +39,7 @@ export class AppComponent {
     private title: Title
   ) {
     this.ui.registerAppComponent(this)
-    this.collab.connect()
+    this.collaboration.connect()
 
     route.url.subscribe(url => {
       if (url.length > 0) {
@@ -131,14 +139,129 @@ export class AppComponent {
       //     }
       //   }
       // }
-    ], { x: event.clientX, y: event.clientY })
+    ], {x: event.clientX, y: event.clientY})
   }
 
   appIcon(app: string) {
     switch (app) {
-      case 'schedule': return '📅'
-      case 'board': return '📋'
-      default: return '🟨'
+      case 'schedule':
+        return '📅'
+      case 'board':
+        return '📋'
+      default:
+        return '🟨'
     }
+  }
+
+  @HostListener('window:keydown.alt.o', ['$event'])
+  showOptions(event: Event) {
+    if (this.ui.isAnyDialogOpened()) {
+      return
+    }
+
+    if (event) {
+      event.preventDefault()
+    }
+
+    this.ui.dialog({
+      view: OpComponent
+    })
+  }
+
+  @HostListener('window:keydown.alt.s', ['$event'])
+  showSearch(event?: Event) {
+    if (this.ui.isAnyDialogOpened()) {
+      return
+    }
+
+    if (event) {
+      event.preventDefault()
+    }
+
+    this.ui.dialog({
+      message: 'Search',
+      input: true,
+      view: SearchComponent,
+      init: dialog => {
+        dialog.changes.subscribe(val => {
+          dialog.component.instance.searchString = val
+          dialog.component.instance.ngOnChanges(null)
+        })
+        dialog.component.instance.onSelection.subscribe(note => {
+          this.api.addRecent('search', note.id)
+          this.api.setEye(note)
+          dialog.back()
+        })
+        dialog.component.instance.resultsChanged.subscribe(results => {
+          dialog.model.data.results = results
+        })
+      },
+      ok: result => {
+        if (result.data.results && result.data.results.length) {
+          this.api.addRecent('search', result.data.results[0].id)
+          this.api.setEye(result.data.results[0])
+        }
+      }
+    })
+  }
+
+  @HostListener('window:keydown.shift', ['$event'])
+  shiftShiftToSearch(event: Event) {
+    if (this.shiftShift && (new Date().getTime() - this.shiftShift.getTime()) < 500) {
+      this.showSearch()
+      this.shiftShift = null
+    } else {
+      this.shiftShift = new Date()
+    }
+  }
+
+  @HostListener('window:keydown.alt.f', ['$event'])
+  showFilter(event: Event) {
+    if (this.ui.isAnyDialogOpened()) {
+      return
+    }
+
+    if (event) {
+      event.preventDefault()
+    }
+
+    this.ui.dialog({
+      message: 'Filter by links',
+      input: true,
+      view: SearchComponent,
+      init: dialog => {
+        dialog.component.instance.recentWhich = 'filter'
+        dialog.changes.subscribe(val => {
+          dialog.component.instance.searchString = val
+          dialog.component.instance.ngOnChanges(null)
+        })
+        dialog.component.instance.onSelection.subscribe(note => {
+          this.api.addRecent('filter', note.id)
+          this.filter.toggleRef(note)
+          dialog.back()
+        })
+        dialog.component.instance.resultsChanged.subscribe(results => {
+          dialog.model.data.results = results
+        })
+      },
+      ok: result => {
+        if (result.data.results && result.data.results.length) {
+          this.api.addRecent('filter', result.data.results[0].id)
+          this.filter.toggleRef(result.data.results[0])
+        }
+      }
+    })
+  }
+
+  isSteward(): boolean {
+    return this.collaboration.me()?.isSteward === true
+  }
+
+  showInvitations() {
+    this.ui.back()
+    this.ui.dialog({
+      message: 'Invitations',
+      view: EditInvitationsComponent
+    })
   }
 }

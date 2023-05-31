@@ -8,4 +8,11 @@
     <main-desk [list]="api.getShow()"></main-desk>
   </ng-container>
 </ng-container>
-<button class="toolbar" (click)="changeView($event)" title="Apps">{{appIcon(app)}}</button>
+<div class="butt">
+  <button class="app-switcher" (click)="changeView($event)" title="Apps">{{appIcon(app)}}</button>
+  <button class="action-button" (click)="showSearch($event)" title="Search notes (ALT + S)">Search</button>
+  <button class="action-button" (click)="showFilter($event)" title="Filter items (ALT + F)">Filter</button>
+  <div class="balloon"></div>
+  <button *ngIf="isSteward()" class="icon-button" (click)="showInvitations()" title="Invitations">👩‍💻️</button>
+  <button class="icon-button" (click)="showOptions($event)" title="Options (ALT + O)">⚙️</button>
+</div>

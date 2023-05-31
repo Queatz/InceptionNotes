@@ -18,7 +18,7 @@
       <button (click)="disconnectSync()">Disconnect</button>
     </ng-container>
     <div>
-      <label><input class="large-number" type="number" name="syncInterval" min="0" [(ngModel)]="env.syncInterval" (ngModelChange)="update()"/> sync interval (ms)</label>
+      <label><input class="large-number" type="number" name="syncInterval" min="0" [(ngModel)]="env.syncInterval" (ngModelChange)="update()"/> sync interval (milliseconds)</label>
     </div>
   </ng-container>
   <br/>
@@ -76,3 +76,5 @@
 </div>
 <br/>
 <span class="last-backup-date">{{ env.lastBackup ? 'Last downloaded on ' + env.lastBackup : '' }}</span>
+<br/>
+<span class="last-backup-date">Inception Notes v1.1</span>
