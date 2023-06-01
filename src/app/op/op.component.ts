@@ -59,14 +59,6 @@ export class OpComponent implements OnInit {
     this.sync.sendState()
   }
 
-  showInvitationsModal() {
-    this.ui.back()
-    this.ui.dialog({
-      message: 'Invitations',
-      view: EditInvitationsComponent
-    })
-  }
-
   changeName() {
     this.ui.dialog({
       message: 'Set name',

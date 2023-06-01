@@ -338,14 +338,12 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
             title: 'Info', callback: () => {
               const created = this.list.created ? Date.parse(this.list.created) : null
               const updated = this.list.updated ? Date.parse(this.list.updated) : null
-              const steward = this.api.invitation(this.list.steward)
 
               const createdStr = !created ? 'Unknown creation date' : `Created ${formatDistanceToNow(created)} ago on ${formatDate(created, 'medium', 'en-US')}`
               const updatedStr = !updated ? 'Note has never been updated' : `Modified ${formatDistanceToNow(updated)} ago on ${formatDate(updated, 'medium', 'en-US')}`
-              const stewardStr = !steward ? 'Note steward is unknown' : `The note's steward is ${steward.name}`
 
               this.ui.dialog({
-                message: `${createdStr}\n\n${updatedStr}\n\n${stewardStr}`,
+                message: `${createdStr}\n\n${updatedStr}`,
                 init: dialog => {
                   this.collaboration.getNoteInvitations(this.list.id).subscribe(
                     invitations => {
@@ -1317,13 +1315,6 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     event.stopPropagation()
     event.preventDefault()
 
-    if (invitation.id === item.steward && !item.invitations?.find(i => i.id === item.steward)) {
-      this.ui.dialog({
-        message: `${invitation.name} is the note's steward and cannot be uninvited.`
-      })
-      return
-    }
-
     this.ui.menu(
       [
         {
@@ -1349,11 +1340,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getInvitations(list: Note): Array<Invitation> {
-    const l = [...(list.invitations || [])]
-    if (l.length && list.steward && !l.find(i => i.id === list.steward)) {
-      l.unshift(this.api.invitation(list.steward))
-    }
-    return l
+    return [...(list.invitations || [])].filter(x => x?.id !== this.collaboration.me()?.id)
   }
 
   goUpText() {

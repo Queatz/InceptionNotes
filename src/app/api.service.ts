@@ -25,7 +25,6 @@ export class Note {
   parent?: Note
   name: string
   date?: string
-  steward: string
   description: string | null
   checked: boolean
   color: string
@@ -49,7 +48,6 @@ export class FrozenNote {
   parent?: FrozenNote
   name: string
   date?: string
-  steward: string
   description: string
   checked: boolean
   color: string
@@ -208,7 +206,6 @@ export class ApiService {
     note.name = referenceNote.name
     note.rev = referenceNote.rev
     note.date = referenceNote.date
-    note.steward = referenceNote.steward
     note.description = referenceNote.description
     note.color = referenceNote.color
     note.estimate = referenceNote.estimate
@@ -309,7 +306,6 @@ export class ApiService {
       rev: a.rev,
       name: a.name,
       date: a.date,
-      steward: a.steward,
       description: a.description,
       checked: a.checked,
       color: a.color,

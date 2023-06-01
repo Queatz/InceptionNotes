@@ -1,10 +1,5 @@
 <form>
   <b>Collaboration</b>
-  <ng-container *ngIf="isSteward()">
-    <br/>
-    <button (click)="showInvitationsModal()">👩‍💻 Invitations</button>
-    <br/>
-  </ng-container>
   <br/>
   <ng-container *ngIf="!me()">
     Not connected
@@ -21,7 +16,6 @@
       <label><input class="large-number" type="number" name="syncInterval" min="0" [(ngModel)]="env.syncInterval" (ngModelChange)="update()"/> sync interval (milliseconds)</label>
     </div>
   </ng-container>
-  <br/>
   <br/>
   <b>Navigation</b><br/>
   <label><input type="checkbox" name="sidepane" [(ngModel)]="env.sidepane" (ngModelChange)="update()"/> Show side
