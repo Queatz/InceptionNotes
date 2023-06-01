@@ -1258,11 +1258,12 @@ export class ApiService {
 
   private intro() {
     this.notes = new Map<string, Note>()
-    this.view.eye = this.view.show = this.top = this.newBlankNote()
-    this.top.name = 'New note'
-    this.saveNote(this.top)
+    const top = this.newBlankNote()
+    top.name = 'New note'
+    this.saveNote(top)
     this.saveAll()
     this.save()
+    this.view.eye = this.view.show = this.top = top
   }
 
   private migrateRoot(root: Note) {

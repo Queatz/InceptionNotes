@@ -235,27 +235,17 @@ export class SyncService {
     } else {
       // Auto merge auto-generated last item
       if (prop === 'items') {
-        if (Math.abs(note.items.length - value.length) <= 1) {
-          let equal = true
-          for (let i = 0; i < Math.min(note.items.length, value.length); i++) {
-            if (note.items[i] !== value[i]) {
-              equal = false
+        for (let i = 0; i < note.items.length; i++) {
+          let identical = true
+          if (note.items[i] !== value[i]) {
+            if (!this.api.isEmptyNote(note.items[i])) {
+              identical = false
               break
             }
           }
-
-          if (equal) {
-            if (note.items.length > value.length) {
-               if (this.canEdit(note) && this.api.isEmptyNote(note.items[note.items.length - 1])) {
-                 this.syncLocalProp(note, prop, serverRev)
-               }
-            } else {
-              if (this.api.isEmptyNote(value[value.length - 1])) {
-                this.setProp(note, prop, serverProp)
-                this.setSynced(note, prop, serverRev)
-              }
-            }
-
+          if (identical) {
+            this.setProp(note, prop, serverProp)
+            this.setSynced(note, prop, serverRev)
             return init
           }
         }

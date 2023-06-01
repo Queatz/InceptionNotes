@@ -1340,7 +1340,9 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getInvitations(list: Note): Array<Invitation> {
-    return [...(list.invitations || [])].filter(x => x?.id !== this.collaboration.me()?.id)
+    return [...(list.invitations || [])]
+      .filter(x => !(list.parent?.invitations?.find(i => i.id === x.id)))
+      .filter(x => x?.id !== this.collaboration.me()?.id)
   }
 
   goUpText() {
