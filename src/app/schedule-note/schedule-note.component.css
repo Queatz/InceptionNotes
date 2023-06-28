@@ -5,7 +5,6 @@
 
 .input {
   display: flex;
-  width: 100%;
   margin-top: .5rem;
   box-sizing: border-box;
   outline: none;
@@ -20,5 +19,37 @@ b:not(:first-of-type) {
 
 button {
   margin-top: .5rem;
+}
+
+button:not(:last-of-type) {
   margin-right: .5rem;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+}
+
+.input-container input {
+  flex: 1;
+}
+
+.input-container button {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 2rem;
+  background: none;
+  cursor: pointer;
+  border: none;
+  color: #eee;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 120%;
+  transition: background .125s;
+}
+
+.input-container button:hover {
+  background: rgba(0, 0, 0, .1);
 }

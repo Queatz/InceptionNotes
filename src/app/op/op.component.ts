@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core'
 import {Env, UiService} from '../ui.service'
 import {ApiService} from '../api.service'
 import {CollaborationService} from '../collaboration.service'
-import {EditInvitationsComponent} from '../edit-invitations/edit-invitations.component'
 import {SyncService} from '../sync.service'
 
 @Component({

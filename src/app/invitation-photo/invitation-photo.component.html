@@ -1,1 +1,4 @@
-<div class="invitation-img" [style.background-color]="color" [title]="invitation.name || 'Unknown'">{{ invitation.name?.slice(0, 2) ?? '?' }}</div>
+<div class="invitation-img"
+     [style.background-color]="color"
+     [ngClass]="{ 'small': small, 'inverted': inverted }"
+     [title]="invitation.name || 'Unknown'">{{ invitation.name?.slice(0, 2) ?? '?' }}</div>

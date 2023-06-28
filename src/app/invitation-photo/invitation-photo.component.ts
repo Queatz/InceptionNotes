@@ -9,6 +9,8 @@ import {ApiService, Invitation} from '../api.service'
 export class InvitationPhotoComponent implements OnChanges {
 
   @Input() invitation!: Invitation
+  @Input() small = false
+  @Input() inverted = false
 
   color: string
 

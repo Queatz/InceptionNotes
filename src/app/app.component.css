@@ -40,6 +40,20 @@
   cursor: pointer;
 }
 
+.butt > button.side-bar-toggle {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  border-radius: 2rem;
+  background: none;
+  cursor: pointer;
+  color: #40404088;
+  font-weight: bold;
+  font-size: 110%;
+  display: flex;
+  align-items: center;
+}
+
 .butt > .balloon {
   flex-grow: 1;
 }

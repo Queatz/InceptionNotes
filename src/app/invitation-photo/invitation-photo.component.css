@@ -11,6 +11,7 @@
   cursor: default;
   border-radius: 1.5rem;
   margin-right: .5rem;
+  margin-bottom: .5rem;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, .125);
   background-color: #404040;
   font-size: 75%;
@@ -18,4 +19,22 @@
   font-weight: bold;
   justify-content: center;
   align-items: center;
+}
+
+.invitation-img.small {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 50%;
+  margin-right: .25rem;
+  margin-bottom: .25rem;
+}
+
+.invitation-img.inverted {
+  margin-top: .5rem;
+  margin-bottom: 0;
+}
+
+.invitation-img.small.inverted {
+  margin-top: .25rem;
+  margin-bottom: 0;
 }

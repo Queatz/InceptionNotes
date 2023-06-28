@@ -6,12 +6,11 @@
   display: flex;
   align-items: center;
   cursor: pointer;
-  transition: background .125s;
   border-radius: .5rem;
   padding: .5rem;
+  transition: background .125s;
 }
 
 .action:hover {
   background: rgba(0, 0, 0, .1);
-  cursor: pointer;
 }

@@ -17,10 +17,6 @@
     </div>
   </ng-container>
   <br/>
-  <b>Navigation</b><br/>
-  <label><input type="checkbox" name="sidepane" [(ngModel)]="env.sidepane" (ngModelChange)="update()"/> Show side
-    nav</label>
-  <br/>
   <label><input type="checkbox" name="dblClickToOpen" [(ngModel)]="env.dblClickToOpen" (ngModelChange)="update()"/>
     Enable double-click to jump inside notes</label>
   <br/>
@@ -51,7 +47,7 @@
     links</label>
   <br/>
   <label><input type="checkbox" name="showEstimates" [(ngModel)]="env.showEstimates" (ngModelChange)="update()"/> Show
-    estimates</label>
+    accumulated durations</label>
   <br/>
   <label><input type="checkbox" name="hideDoneItems" [(ngModel)]="env.hideDoneItems" (ngModelChange)="update()"/> Hide
     done items</label>

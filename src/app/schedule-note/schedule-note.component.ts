@@ -20,6 +20,7 @@ const monthDayYear = 'MMMM do, yyyy'
 const weekdayMonthDay = 'eeee, MMMM do'
 const weekdayMonthDayYear = 'eeee, MMMM do, yyyy'
 const hourMinuteAmPm = 'h:mma'
+const hourAmPm = 'ha'
 
 @Component({
   selector: 'app-schedule-note',
@@ -77,7 +78,7 @@ export class ScheduleNoteComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setTimeString(dateString: string) {
-    const date = parse(dateString, hourMinuteAmPm, this.date)
+    const date = parse(dateString, dateString.indexOf(':') === -1 ? hourAmPm : hourMinuteAmPm, this.date)
     if (!isNaN(date.valueOf())) {
       this.setTime(date)
     } else {
@@ -106,6 +107,18 @@ export class ScheduleNoteComponent implements OnInit, OnChanges, OnDestroy {
   setDateHourMinute(date: Date, update: Date) {
     date.setHours(update.getHours())
     date.setMinutes(update.getMinutes())
+  }
+
+  adjust(amount: number, unit: 'h'|'d') {
+    switch (unit) {
+      case 'd':
+        this.date = addDays(this.date, amount)
+        break
+      case 'h':
+        this.date = addHours(this.date, amount)
+        break
+    }
+    this.dateChanged()
   }
 
   dateChanged() {

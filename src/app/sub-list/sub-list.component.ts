@@ -15,7 +15,7 @@ import {
 
 import Util from '../util'
 import {ApiService, Note, Invitation} from '../api.service'
-import {MenuOption, UiService} from '../ui.service'
+import {MenuOption, recentsLength, UiService} from '../ui.service'
 import {ColorPickerComponent} from '../color-picker/color-picker.component'
 import {SearchComponent} from '../search/search.component'
 import {CollaborationService} from 'app/collaboration.service'
@@ -23,7 +23,7 @@ import {AddInvitationComponent} from 'app/add-invitation/add-invitation.componen
 import {FilterService} from 'app/filter.service'
 import {filter as filterOp, Observable, Subject} from 'rxjs'
 import {takeUntil} from 'rxjs/operators'
-import {addMinutes, format, formatDistanceToNow, formatISO, isToday, isTomorrow, parseISO} from 'date-fns'
+import {addMinutes, format, formatDistanceToNow, formatISO, isToday, isTomorrow, isYesterday, parseISO} from 'date-fns'
 import {formatDate} from '@angular/common'
 import {Config} from '../config.service'
 import {ActionsComponent} from '../actions/actions.component'
@@ -238,7 +238,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       {
         title: 'Color...',
         callback: () => this.changeColor(),
-        menu: (this.getEnv().recentColors || []).slice(0, 3).map(color => ({
+        menu: (this.getEnv().recentColors || []).slice(0, recentsLength).map(color => ({
           title: color,
           color,
           callback: () => {
@@ -501,6 +501,16 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         ]
       },
       this.scheduleMenuItem(item),
+      {
+        title: 'Invite...',
+        callback: () => this.addInvitation(item),
+        menu: [
+          ...this.getRecentInvitationsSubmenu(recent => {
+            this.api.addRecentInvitation(recent)
+            this.api.addInvitationToNote(this.list, recent)
+          }, this.list.invitations || [])
+        ]
+      },
       {
         title: 'Duplicate',
         callback: () => this.api.duplicateList(item)
@@ -1167,10 +1177,11 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
 
   formatDate(dateString: string) {
     const date = parseISO(dateString)
-    const d = isToday(date) ? 'Today' :
-      isTomorrow(date) ? 'Tomorrow' :
+    const d = isYesterday(date) ? `Yesterday, ${format(date, 'MMMM do')}` :
+      isToday(date) ? `Today, ${format(date, 'MMMM do')}` :
+      isTomorrow(date) ? `Tomorrow, ${format(date, 'MMMM do')}` :
         format(date, 'eeee, MMMM do')
-    const t = format(date, 'h:mma').toLowerCase()
+    const t = format(date, date.getMinutes() === 0 ? 'ha' : 'h:mma').toLowerCase()
     return `${d}, ${t}`
   }
 
@@ -1340,9 +1351,15 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getInvitations(list: Note): Array<Invitation> {
-    return [...(list.invitations || [])]
-      .filter(x => !(list.parent?.invitations?.find(i => i.id === x.id)))
-      .filter(x => x?.id !== this.collaboration.me()?.id)
+    if (!this.collaboration.hasInvitations()) {
+      return []
+    }
+
+    if (!list.invitations?.length) {
+      return []
+    }
+
+    return list.invitations.filter(i => !this.api.hasInvitation(list, i))
   }
 
   goUpText() {
@@ -1384,16 +1401,20 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         })
       },
       menu: [
-        ...(this.getEnv().recentDates || []).map(date => {
-          return {
-            title: this.formatDate(date),
-            callback: () => {
-              item.date = date
-              this.api.modified(item, 'date')
-              this.ui.addRecentDate(date)
-            }
+        {
+          title: 'Set duration...',
+          callback: () => {
+            this.ui.dialog({
+              message: 'Duration in days',
+              prefill: item.estimate?.toString(),
+              input: true,
+              ok: model => {
+                item.estimate = Number(model.input)
+                this.api.modified(item, 'estimate')
+              }
+            })
           }
-        }),
+        },
         ...(item.date ? [
           {
             title: 'Unschedule',
@@ -1403,20 +1424,16 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
             }
           },
         ] : []),
-        {
-          title: 'Estimate...',
-          callback: () => {
-            this.ui.dialog({
-              message: 'Estimate days',
-              prefill: item.estimate?.toString(),
-              input: true,
-              ok: model => {
-                item.estimate = Number(model.input)
-                this.api.modified(item, 'estimate')
-              }
-            })
+        ...(this.getEnv().recentDates || []).map(date => {
+          return {
+            title: this.formatDate(date),
+            callback: () => {
+              item.date = date
+              this.api.modified(item, 'date')
+              this.ui.addRecentDate(date)
+            }
           }
-        }
+        })
       ]
     }
   }

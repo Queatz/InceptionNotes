@@ -126,7 +126,7 @@
 }
 
 .is-navigation .invitations {
-  margin: 0 1rem .5rem 1rem;
+  margin: 0 1rem;
 }
 
 .is-navigation .item-hidden-count {
@@ -291,12 +291,6 @@
 
 .spaced .item-links {
   margin-left: 0;
-}
-
-
-
-.invitation-photo {
-  margin-top: .5rem;
 }
 
 .item-checkbox {

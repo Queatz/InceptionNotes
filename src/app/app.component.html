@@ -9,6 +9,7 @@
   </ng-container>
 </ng-container>
 <div class="butt">
+  <button class="side-bar-toggle" (click)="toggleSideBar($event)" title="Toggle menu">𑁔</button>
   <button class="app-switcher" (click)="changeView($event)" title="Apps">{{appIcon(app)}}</button>
   <button class="action-button" (click)="showSearch($event)" title="Search notes (ALT + S)">Search</button>
   <button class="action-button" (click)="showFilter($event)" title="Filter items (ALT + F)">Filter</button>

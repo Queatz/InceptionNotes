@@ -487,20 +487,22 @@ export class ScheduleComponent implements OnInit, AfterViewInit, OnChanges, OnDe
                relative && isSameWeek(range, addWeeks(new Date(), 1)) ? 'Next week' :
                `${formatDate(range, 'MMM d', 'en-US')} ‒ ${formatDate(addWeeks(range, 1), 'MMM d', 'en-US')}`
       case 'day':
-        return relative && isYesterday(range) ? 'Yesterday' :
-               relative && isToday(range) ? 'Today' :
-               relative && isTomorrow(range) ? 'Tomorrow' :
+        return relative && isYesterday(range) ? `Yesterday, ${formatDate(range, 'MMMM d', 'en-US')}` :
+               relative && isToday(range) ? `Today, ${formatDate(range, 'MMMM d', 'en-US')}` :
+               relative && isTomorrow(range) ? `Tomorrow, ${formatDate(range, 'MMMM d', 'en-US')}` :
                `${formatDate(range, 'EEEE, MMM d', 'en-US')}`
       case 'hour':
-        return relative && isSameHour(range, addHours(new Date(), -1)) ? 'Last hour' :
-               relative && isThisHour(range) ? 'This hour' :
-               relative && isSameHour(range, addHours(new Date(), 1)) ? 'Next hour' :
-               `${formatDate(range, relative && getHours(range) !== 0 ? 'h a' : 'MMM d, h a', 'en-US').replace(/\s+AM/g, 'am').replace(/\s+PM/g, 'pm')}`
+        const fmt = () => `${formatDate(range, relative && getHours(range) !== 0 ? 'h a' : 'MMM d, h a', 'en-US').replace(/\s+AM/g, 'am').replace(/\s+PM/g, 'pm')}`
+        return relative && isSameHour(range, addHours(new Date(), -1)) ? `Last hour, ${fmt()}` :
+               relative && isThisHour(range) ? `This hour, ${fmt()}` :
+               relative && isSameHour(range, addHours(new Date(), 1)) ? `Next hour, ${fmt()}` :
+               fmt()
       case 'minute':
-        return relative && isSameMinute(range, addMinutes(new Date(), -1)) ? 'Last minute' :
-               relative && isThisMinute(range) ? 'This minute' :
-               relative && isSameMinute(range, addMinutes(new Date(), 1)) ? 'Next minute' :
-               `${formatDate(range, relative && getMinutes(range) !== 0 ? 'h:mm a' : 'MMM d, h:mm a', 'en-US').replace(/\s+AM/g, 'am').replace(/\s+PM/g, 'pm')}`
+        const fmt2 = () => `${formatDate(range, relative && getMinutes(range) !== 0 ? 'h:mm a' : 'MMM d, h:mm a', 'en-US').replace(/\s+AM/g, 'am').replace(/\s+PM/g, 'pm')}`
+        return relative && isSameMinute(range, addMinutes(new Date(), -1)) ? `Last minute, ${fmt2()}` :
+               relative && isThisMinute(range) ? `This minute, ${fmt2()}` :
+               relative && isSameMinute(range, addMinutes(new Date(), 1)) ? `Next minute, ${fmt2()}` :
+               fmt2()
       default:
         return '-'
     }

@@ -12,7 +12,6 @@ import {
 } from '@angular/core'
 import {ApiService, Note} from '../api.service'
 import {MenuOption, UiService} from '../ui.service'
-import {CollaborationService} from '../collaboration.service'
 import Util from 'app/util'
 import {FilterService} from 'app/filter.service'
 import {Subject} from 'rxjs'

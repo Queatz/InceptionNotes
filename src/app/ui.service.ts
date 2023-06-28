@@ -6,6 +6,8 @@ import {DialogComponent, DialogConfig} from './dialog/dialog.component'
 import {MenuComponent} from './menu/menu.component'
 import {Invitation, Note} from './api.service'
 
+export const recentsLength = 5
+
 @Injectable()
 export class UiService {
 
@@ -186,7 +188,7 @@ export class UiService {
 
     this.env.recentDates.unshift(date)
 
-    if (this.env.recentDates.length > 3) {
+    if (this.env.recentDates.length > recentsLength) {
       this.env.recentDates.pop()
     }
 

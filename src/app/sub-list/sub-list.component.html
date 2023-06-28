@@ -1,7 +1,7 @@
 <div [ngClass]="{'is-navigation': useAsNavigation, 'invert-text': list.options?.invertText}"
      (dblclick)="dontPropagateDblClick($event)">
   <div class="item-name"
-       [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length) && !(useAsNavigation && getInvitations(list).length) }"
+       [ngClass]="{ 'spaced': !list.collapsed && !(getEnv().showLinks && list.ref?.length > 0) }"
        [attr.data-after]="!useAsNavigation && list.collapsed ? getAfterText(list, true).substring(1) : undefined">
     <div class="sub-list-title-container">
       <div *ngIf="!useAsNavigation && getEnv().showListCheckboxes" (click)="onItemChecked(list)" class="item-checkbox"
@@ -74,6 +74,9 @@
                  [title]="getItemLinkText(i)" (click)="openItem($event, i)" [style.background-color]="i.color"
                  (contextmenu)="showRefOptions($event, item, i)" [innerHTML]="i.name.split('<br>')[0]"></div>
           </div>
+          <div class="invitations" *ngIf="getInvitations(item).length">
+            <app-invitation-photo class="invitation-photo" [small]="true" (contextmenu)="showInvitationMenu($event, list, invitation)" *ngFor="let invitation of getInvitations(item)" [invitation]="invitation"></app-invitation-photo>
+          </div>
           <div class="open-note" (click)="openItem($event, item)" (contextmenu)="openNoteMenu($event, item)" [title]="'Open note'">↗</div>
           <div class="sneak-peek" #sneakItems [ngClass]="{'interactable': getEnv().showSublistCheckboxes}"
                *ngIf="!item.collapsed && getEnv().showSublistPreviews && item.items.length">
@@ -106,7 +109,11 @@
     </ng-container>
   </div>
   <div class="invitations" *ngIf="getInvitations(list).length">
-    <app-invitation-photo class="invitation-photo" (contextmenu)="showInvitationMenu($event, list, invitation)" *ngFor="let invitation of getInvitations(list)" [invitation]="invitation"></app-invitation-photo>
+    <app-invitation-photo
+      (contextmenu)="showInvitationMenu($event, list, invitation)"
+      *ngFor="let invitation of getInvitations(list)"
+      [inverted]="!useAsNavigation"
+      [invitation]="invitation"></app-invitation-photo>
   </div>
   <div *ngIf="(!useAsNavigation && !list.collapsed && numberHidden(list) > 0) || list._sync === false || list._edit === false" class="item-hidden-count">
     <span *ngIf="list._sync === false" title="This note is not syncing with you at the moment.  You can still make local edits, however changes you make may not sync until the note is shared with you again.">⟳ Not syncing</span><span *ngIf="list._sync !== false && list._edit === false" title="This note is syncing but isn't shared with you at the moment.  You can still make local edits, however changes you make may not sync until the note is shared with you again.">⟳ Not shared</span>{{ (list._sync === false || list._edit === false) && !useAsNavigation && numberHidden(list) > 0 ? ', ' : '' }}{{ !useAsNavigation && numberHidden(list) > 0 ? numberHidden(list) + ' hidden' : '' }}

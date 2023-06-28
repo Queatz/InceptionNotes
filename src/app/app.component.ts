@@ -105,6 +105,10 @@ export class AppComponent {
     }
   }
 
+  toggleSideBar(event: MouseEvent) {
+    this.ui.getEnv().sidepane = !this.ui.getEnv().sidepane
+  }
+
   changeView(event: MouseEvent) {
     this.ui.menu([
       {

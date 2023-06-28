@@ -2,7 +2,7 @@
 
 import {Injectable} from '@angular/core'
 import {Router} from '@angular/router'
-import {UiService} from './ui.service'
+import {recentsLength, UiService} from './ui.service'
 import {Subject} from 'rxjs'
 import {Config} from 'app/config.service'
 import Util from './util'
@@ -588,8 +588,8 @@ export class ApiService {
     return this.notes.get(id)
   }
 
-  private parents(note: Note) {
-    const list = []
+  parents(note: Note) {
+    const list = [] as Array<Note>
 
     if (!note) {
       return list
@@ -601,6 +601,16 @@ export class ApiService {
     }
 
     return list
+  }
+
+  hasInvitation(note: Note, invitation: Invitation) {
+    for (const n of this.parents(note)) {
+      if (n.invitations?.find(i => i.id === invitation.id)) {
+        return true
+      }
+    }
+
+    return false
   }
 
   contains(id: string, note: Note, exclude: Note[] = null) {
@@ -1194,8 +1204,8 @@ export class ApiService {
   addRecent(which: string, noteId: string) {
     const recents = (localStorage.getItem('recent::' + which) || '').split(',').filter(n => n && n !== noteId)
     recents.unshift(noteId)
-    if (recents.length > 3) {
-      recents.length = 3
+    if (recents.length > recentsLength) {
+      recents.length = recentsLength
     }
     localStorage.setItem('recent::' + which, recents.join(','))
   }
@@ -1214,8 +1224,8 @@ export class ApiService {
     const recents = (localStorage.getItem('recent-invitations') || '').split(',')
       .filter(x => x && x !== invitation.id)
     recents.unshift(invitation.id)
-    if (recents.length > 3) {
-      recents.length = 3
+    if (recents.length > recentsLength) {
+      recents.length = recentsLength
     }
     localStorage.setItem('recent-invitations', recents.join(','))
   }

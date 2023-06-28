@@ -1,11 +1,19 @@
 <div class="form">
   <b>Date</b>
-  <input #date (change)="setDateString(date.value)" [placeholder]="dateNow()" class="input" />
+  <div class="input-container">
+    <input #date (change)="setDateString(date.value)" [placeholder]="dateNow()" class="input" />
+    <button (click)="adjust(-1, 'd')">-</button>
+    <button (click)="adjust(1, 'd')">+</button>
+  </div>
   <div>
     <button *ngFor="let suggestion of dateSuggestions" (click)="setDate(suggestion[0])">{{suggestion[1]}}</button>
   </div>
   <b>Time</b>
-  <input #time (change)="setTimeString(time.value)" [placeholder]="timeNow()" class="input" />
+  <div class="input-container">
+    <input #time (change)="setTimeString(time.value)" [placeholder]="timeNow()" class="input" />
+    <button (click)="adjust(-1, 'h')">-</button>
+    <button (click)="adjust(1, 'h')">+</button>
+  </div>
   <div>
     <button *ngFor="let suggestion of timeSuggestions" (click)="setTime(suggestion[0])">{{suggestion[1]}}</button>
   </div>

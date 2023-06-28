@@ -12,6 +12,7 @@ export class CollaborationService {
 
   private invitation?: Invitation
   private invitationsObservable = new BehaviorSubject<Invitation[]>([])
+  private _hasInvitations = false
 
   constructor(
     private http: HttpClient,
@@ -67,7 +68,7 @@ export class CollaborationService {
     localStorage.removeItem('me')
   }
 
-  me() {
+  me(): Invitation | null {
     return this.invitation
   }
 
@@ -82,6 +83,10 @@ export class CollaborationService {
       filter(it => !!it.length),
       map(r => r.filter(p => !k || p.name.toLowerCase().indexOf(k) !== -1))
     )
+  }
+
+  hasInvitations() {
+    return this._hasInvitations
   }
 
   connectInvitation(token: string): Observable<Invitation> {
@@ -110,7 +115,9 @@ export class CollaborationService {
   reloadInvitations() {
     this.get('invitations').subscribe(
       (invitations: Invitation[]) => {
-        this.invitationsObservable.next(this.api.refreshInvitations(invitations))
+        const i = this.api.refreshInvitations(invitations)
+        this._hasInvitations = i.filter(x => x.id !== this.me()?.id).length > 0
+        this.invitationsObservable.next(i)
       }
     )
   }
