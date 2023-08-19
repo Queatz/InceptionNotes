@@ -249,6 +249,11 @@ export class SyncService {
             return init
           }
         }
+      } else if (['options'].indexOf(prop) !== -1) {
+        // Props with low risk of data loss
+        this.setProp(note, prop, serverProp)
+        this.setSynced(note, prop, serverRev)
+        return init
       } else if (['updated', 'created'].indexOf(prop) !== -1) {
         // Server-only props
         this.setProp(note, prop, serverProp)

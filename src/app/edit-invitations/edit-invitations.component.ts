@@ -77,4 +77,8 @@ export class EditInvitationsComponent implements OnInit {
       message: invitation.token ? `Share this link\n\n<u>${this.config.invitationLink(invitation.token)}</u>` : 'No link available'
     })
   }
+
+  isMe(invitation: Invitation) {
+    return invitation.id === this.collaboration.me()?.id
+  }
 }

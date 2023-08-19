@@ -5,6 +5,7 @@
     <div>
       <app-invitation-photo [invitation]="invitation"></app-invitation-photo>
       <span>{{invitation.name}}</span>
+      <span *ngIf="isMe(invitation)"> (it's you!)</span>
     </div>
     <div *ngIf="invitation.isSteward" title="Steward">👩‍💻</div>
   </div>

@@ -34,6 +34,8 @@ export class DisplayOptions {
   omitListMenuItems?: string[]
 }
 
+interface NoteTree { name: string, depth: number, items: Array<NoteTree> }
+
 @Component({
   selector: 'sub-list',
   templateUrl: './sub-list.component.html',
@@ -520,7 +522,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         callback: () => this.toggleCollapse(item),
       },
       ...(item.name.indexOf('<br>') !== -1 ? [{
-        title: 'Split by line', callback: () => {
+        title: 'Split by line',
+        callback: () => {
           const position = this.list.items.indexOf(item)
           item.name.split('<br>').reverse().forEach(line => {
             const newItem = this.api.newBlankList(this.list, position)
@@ -535,7 +538,109 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
           }
 
           this.api.removeListFromParent(item)
-        }
+        },
+        menu: (!!item.name.split('<br>').find(line => line.startsWith('&nbsp;') || line.startsWith('\t') || line.startsWith(' ')) ? [
+          {
+            title: 'With depth',
+            callback: () => {
+              const discard = ' *-'
+              const calcDepth = (line: string): number => {
+                for (let i = 0; i < line.length; i++) {
+                  if (line[i] !== ' ') {
+                    return  i - 1
+                  }
+                }
+
+                return - 1
+              }
+
+              const root: NoteTree = { name: '', depth: -1, items: [] }
+              const path = [root] as Array<NoteTree>
+              let lastCreatedNote: NoteTree
+
+              const lastNoteOf = (note: NoteTree, ): NoteTree => {
+                if (note.items.length) {
+                  return lastNoteOf(note.items[note.items.length - 1])
+                } else {
+                  return note
+                }
+              }
+
+              const trimLine = (line: string): string => {
+                for (let i = 0; i < line.length; i++) {
+                  if (discard.indexOf(line.charAt(i)) === -1) {
+                    return line.substring(i).trim()
+                  }
+                }
+
+                return line
+              }
+
+              item.name
+                  .replaceAll('&nbsp;', ' ')
+                  .replaceAll('\t', ' ')
+                  .split('<br>')
+                .filter(line => line.trim().length)
+                  .forEach(line => {
+                    const depth = calcDepth(line)
+                    const note: NoteTree = { name: trimLine(line), depth, items: [] }
+                    if (!lastCreatedNote || depth === lastCreatedNote.depth) {
+                      // Add to note at top of path
+                      path[path.length - 1].items.push(note)
+                    } else if (depth > lastCreatedNote.depth) {
+                      // Going deeper, push to items of lastCreatedNote
+                      lastCreatedNote.items.push(note)
+                      // Add to note at top of path
+                      path.push(lastCreatedNote)
+                    } else if (depth < lastCreatedNote.depth) {
+                      // Going up, pop path down to correct depth
+                      const depthPathIndex = path.findIndex(n => n.depth >= note.depth)
+                      // Set new path
+                      path.length = Math.max(1, depthPathIndex)
+                      // Add to note at top of path
+                      path[path.length - 1].items.push(note)
+                    } else {
+                      console.error('Illegal state')
+                    }
+                    lastCreatedNote = note
+                  })
+
+              if (!root.items.length) {
+                this.ui.dialog({
+                  message: 'Nothing was changed.'
+                })
+              } else {
+                const print = (note: NoteTree, depth = 0): string => {
+                  const items = note.items.map(n => print(n, depth + 1)).join('\n')
+                  return depth !== -1 ? '‣ '.repeat(depth) + note.name + (items.length ? '\n' : '') + items : items
+                }
+                this.ui.dialog({
+                  message: print(root, -1),
+                  ok: () => {
+                    const addItems = (list: Note, pos: number, items: Array<NoteTree>) => {
+                      items.reverse().forEach(note => {
+                        const newItem = this.api.newBlankList(list, pos)
+                        newItem.name = note.name
+                        this.api.modified(newItem, 'name')
+                        addItems(newItem, 0, note.items)
+                      })
+                    }
+
+                    addItems(this.list, this.list.items.indexOf(item), root.items)
+
+                    if (this.ui.getEnv().unlinkOnDelete) {
+                      while (item.ref?.length) {
+                        this.api.removeRef(item, item.ref[0])
+                      }
+                    }
+
+                    this.api.removeListFromParent(item)
+                  }
+                })
+              }
+            }
+          }
+        ] : undefined)
       }] : []),
       {
         title: 'Remove', callback: () => {
@@ -1331,7 +1436,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         {
           title: 'Remove', callback: () => {
             this.ui.dialog({
-              message: `Remove this invitation?\n\n${invitation.name} will no longer be a collaborator on this note.`,
+              message: `Remove this invitation?\n\n${invitation.name} will no longer be a collaborator on this note, but may still have access from other parent notes.`,
               ok: () => {
                 const i = item.invitations.indexOf(invitation)
 

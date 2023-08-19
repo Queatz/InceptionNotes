@@ -3,9 +3,9 @@
   "compilerOptions": {
     "outDir": "../out-tsc/app",
     "downlevelIteration": true,
-    "module": "es2020",
+    "module": "es2022",
     "lib": [
-      "es2020",
+      "es2022",
       "dom"
     ],
     "baseUrl": "",

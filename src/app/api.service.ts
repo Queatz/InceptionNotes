@@ -111,7 +111,9 @@ export class ApiService {
   /* Persistence */
 
   save() {
-    localStorage.setItem('top', this.top.id)
+    if (this.top) {
+      localStorage.setItem('top', this.top.id)
+    }
   }
 
   load() {
@@ -581,7 +583,7 @@ export class ApiService {
   }
 
   getLists() {
-    return this.top.items
+    return this.top?.items || []
   }
 
   search(id: string): Note {
