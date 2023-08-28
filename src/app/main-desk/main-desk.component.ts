@@ -281,7 +281,7 @@ export class MainDeskComponent implements OnInit, OnChanges, OnDestroy {
 
     const l = this.api.newBlankList(this.list)
     l.color = this.getShow().color
-    l.options = this.getShow().options
+    l.options = { ...this.getShow().options }
     this.api.modified(l)
   }
 

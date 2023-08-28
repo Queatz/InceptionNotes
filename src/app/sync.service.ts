@@ -235,19 +235,19 @@ export class SyncService {
     } else {
       // Auto merge auto-generated last item
       if (prop === 'items') {
+        let identical = true
         for (let i = 0; i < note.items.length; i++) {
-          let identical = true
-          if (note.items[i] !== value[i]) {
+          if (note.items[i] !== serverProp[i]) {
             if (!this.api.isEmptyNote(note.items[i])) {
               identical = false
               break
             }
           }
-          if (identical) {
-            this.setProp(note, prop, serverProp)
-            this.setSynced(note, prop, serverRev)
-            return init
-          }
+        }
+        if (identical) {
+          this.setProp(note, prop, serverProp)
+          this.setSynced(note, prop, serverRev)
+          return init
         }
       } else if (['options'].indexOf(prop) !== -1) {
         // Props with low risk of data loss

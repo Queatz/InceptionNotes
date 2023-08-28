@@ -23,8 +23,10 @@ export class SearchComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.api.getRecent(this.recentWhich).forEach(n => this.results.push(n))
-    this.resultsChanged.next(this.results)
+    this.api.getRecent(this.recentWhich).then(results => {
+      results.forEach(n => this.results.push(n))
+      this.resultsChanged.next(this.results)
+    })
   }
 
   @HostListener('window:keydown.arrowDown')

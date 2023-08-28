@@ -6,6 +6,7 @@ import {recentsLength, UiService} from './ui.service'
 import {Subject} from 'rxjs'
 import {Config} from 'app/config.service'
 import Util from './util'
+import {db} from './db'
 
 export class Invitation {
   id: string
@@ -21,6 +22,9 @@ export class NoteOptions {
 
 export class Note {
   id: string
+  /**
+   * Note rev from server
+   */
   rev: string
   parent?: Note
   name: string
@@ -37,8 +41,24 @@ export class Note {
   estimate: number
   created: string
   updated?: string
+
+  /**
+   * List of locally modified props that haven't synced
+   *
+   * null = Entire note is not synced
+   * [] = Entire note is synced
+   * [prop, prop, ...] = Specific props are not synced
+   */
   _local?: string[]
+
+  /**
+   * false if this note is not shared
+   */
   _sync?: boolean
+
+  /**
+   * false if this note is not editable (view only)
+   */
   _edit?: boolean
 }
 
@@ -85,10 +105,10 @@ export class ViewConfig {
 export class ApiService {
 
   private top: Note
-  private notes: Map<string, Note>
-  private invitations: Map<string, Invitation>
+  private readonly notes: Map<string, Note> = new Map<string, Note>()
+  private readonly invitations: Map<string, Invitation> = new Map<string, Invitation>
 
-  private view: ViewConfig = {
+  private readonly view: ViewConfig = {
     eye: null,
     show: null,
     parents: []
@@ -104,7 +124,6 @@ export class ApiService {
   public onViewChangedObservable: Subject<ViewConfig> = new Subject<ViewConfig>()
 
   constructor(private ui: UiService, private config: Config, private router: Router) {
-    this.invitations = new Map<string, Invitation>()
     this.load()
   }
 
@@ -112,43 +131,25 @@ export class ApiService {
 
   save() {
     if (this.top) {
-      localStorage.setItem('top', this.top.id)
+      db.set('top', this.top.id)
     }
   }
 
-  load() {
-    const version = +localStorage.getItem('version')
-    let root = null
+  async load() {
+    const version = +(await db.get('version') || 0)
 
-    if (version < 1) {
-      root = JSON.parse(localStorage.getItem('root'))
-    }
-
-    if (root) {
-      this.backupToFile(localStorage.getItem('root'))
-      this.migrateRoot(root)
-
-      setTimeout(() => {
-        this.ui.dialog({
-          message: 'Inception Notes has received an update.\n\nA backup copy of notes have been downloaded. If all else fails, check Right Click -> Inspect -> Application (tab) -> Local Storage -> \'root\''
-        })
-      }, 1000)
-    }
-
-    if (version < 2) {
-      localStorage.setItem('version', '2')
-      this.notes = this.unfreeze(localStorage.getItem('notes'))
-      this.saveAll()
+    if (version < 3) {
+      db.set('version', '3')
     }
 
     const localNotes = new Map<string, FrozenNote | Note>()
 
-    for (const n in localStorage) {
+    for (const n of await db.list()) {
       if (n.substring(0, 5) === 'note:') {
-        const n2 = JSON.parse(localStorage.getItem(n))
+        const n2 = JSON.parse(await db.get(n))
         localNotes.set(n2.id, n2)
       } else if (n.substring(0, 11) === 'invitation:') {
-        this.updateInvitation(JSON.parse(localStorage.getItem(n)))
+        this.updateInvitation(JSON.parse(await db.get(n)))
       }
     }
 
@@ -157,7 +158,10 @@ export class ApiService {
         this.unfreezeNote(n as FrozenNote, localNotes)
       }
 
-      this.notes = localNotes as Map<string, Note>
+      localNotes.forEach(n => {
+        this.notes.set(n.id, n as Note)
+      })
+
       this.resetView()
     } else {
       this.intro()
@@ -167,6 +171,7 @@ export class ApiService {
   }
 
   private observeStorage() {
+    // TODO BROKEN! SWITCHED TO INDEXDB - Use BroadcastChannel
     window.addEventListener('storage', (event: StorageEvent) => {
       if (event.key.startsWith('note:')) {
         this.loadNote(event.newValue)
@@ -236,7 +241,7 @@ export class ApiService {
    * Save a single note
    */
   saveNote(note: Note) {
-    localStorage.setItem('note:' + note.id, JSON.stringify(this.freezeNote(note)))
+    db.set('note:' + note.id, JSON.stringify(this.freezeNote(note)))
   }
 
   private freeze(animal: Map<string, Note>): string {
@@ -450,7 +455,7 @@ export class ApiService {
     p.name = invitation.name
     p.isSteward = invitation.isSteward
     p.token = invitation.token
-    localStorage.setItem('invitation:' + invitation.id, JSON.stringify(p))
+    db.set('invitation:' + invitation.id, JSON.stringify(p))
     return p
   }
 
@@ -475,7 +480,7 @@ export class ApiService {
     for (const id of existing) {
       if (all.indexOf(id) === -1) {
         this.invitations.delete(id)
-        localStorage.removeItem('invitation:' + id)
+        db.delete('invitation:' + id)
         this.removeRecentInvitation(id)
       }
     }
@@ -513,8 +518,8 @@ export class ApiService {
     this.saveView()
   }
 
-  resetView() {
-    const top = localStorage.getItem('top')
+  async resetView() {
+    const top = await db.get('top')
 
     if (top) {
       this.top = this.notes.get(top)
@@ -525,8 +530,8 @@ export class ApiService {
       }
     }
 
-    const viewId = localStorage.getItem('view')
-    const showId = localStorage.getItem('view-show') || viewId
+    const viewId = await db.get('view')
+    const showId = await db.get('view-show') || viewId
 
     const view = this.search(viewId)
     const show = this.search(showId)
@@ -562,8 +567,8 @@ export class ApiService {
     if (this.router.url === '/' || this.router.url.startsWith('/n/')) {
       this.router.navigate(['n', this.view.show.id])
     }
-    localStorage.setItem('view', this.view.eye.id)
-    localStorage.setItem('view-show', this.view.show.id)
+    db.set('view', this.view.eye.id)
+    db.set('view-show', this.view.show.id)
 
     this.onViewChangedObservable.next(this.view)
   }
@@ -762,8 +767,9 @@ export class ApiService {
     note.updated = new Date().toISOString()
 
     this.saveNote(note)
-    this.onNoteChangedObservable.next(new NoteChanges(note, prop))
-    this.onNoteUpdatedObservable.next(new NoteChanges(note, prop))
+    const changes = new NoteChanges(note, prop)
+    this.onNoteChangedObservable.next(changes)
+    this.onNoteUpdatedObservable.next(changes)
   }
 
   /**
@@ -1049,8 +1055,6 @@ export class ApiService {
     if (fromServer) {
       // Set all props synced
       note._local = []
-      // mark note as not yet synced
-      note._sync = false
     }
 
     this.saveNote(note)
@@ -1193,8 +1197,8 @@ export class ApiService {
 
   /* Recents */
 
-  getRecent(which: string): Note[] {
-    const recent = localStorage.getItem('recent::' + which)
+  async getRecent(which: string): Promise<Note[]> {
+    const recent = await db.get('recent::' + which)
 
     if (!recent) {
       return []
@@ -1203,17 +1207,17 @@ export class ApiService {
     return recent.split(',').map(noteId => this.search(noteId)).filter(note => !!note)
   }
 
-  addRecent(which: string, noteId: string) {
-    const recents = (localStorage.getItem('recent::' + which) || '').split(',').filter(n => n && n !== noteId)
+  async addRecent(which: string, noteId: string) {
+    const recents = (await db.get('recent::' + which) || '').split(',').filter(n => n && n !== noteId)
     recents.unshift(noteId)
     if (recents.length > recentsLength) {
       recents.length = recentsLength
     }
-    localStorage.setItem('recent::' + which, recents.join(','))
+    db.set('recent::' + which, recents.join(','))
   }
 
-  getRecentInvitations(): Invitation[] {
-    const recent = localStorage.getItem('recent-invitations')
+  async getRecentInvitations(): Promise<Invitation[]> {
+    const recent = await db.get('recent-invitations')
 
     if (!recent) {
       return []
@@ -1222,27 +1226,27 @@ export class ApiService {
     return recent.split(',').map(x => this.invitation(x)).filter(x => !!x)
   }
 
-  addRecentInvitation(invitation: Invitation) {
-    const recents = (localStorage.getItem('recent-invitations') || '').split(',')
+  async addRecentInvitation(invitation: Invitation) {
+    const recents = (await db.get('recent-invitations') || '').split(',')
       .filter(x => x && x !== invitation.id)
     recents.unshift(invitation.id)
     if (recents.length > recentsLength) {
       recents.length = recentsLength
     }
-    localStorage.setItem('recent-invitations', recents.join(','))
+    db.set('recent-invitations', recents.join(','))
   }
 
-  removeRecentInvitation(id: string) {
-    const recents = (localStorage.getItem('recent-invitations') || '').split(',')
+  async removeRecentInvitation(id: string) {
+    const recents = (await db.get('recent-invitations') || '').split(',')
       .filter(x => x && x !== id)
-    localStorage.setItem('recent-invitations', recents.join(','))
+    db.set('recent-invitations', recents.join(','))
   }
 
   /* Util */
 
   isEmptyNote(note: Note) {
     return Util.isEmptyStr(note.name)
-      && !note.items?.length
+      && (!note.items?.length || note.items.map(n => this.isEmptyNote(n)).indexOf(false) === -1)
       && Util.isEmptyStr(note.description)
       && note.checked !== true
       && !note.ref?.length
@@ -1269,31 +1273,11 @@ export class ApiService {
   }
 
   private intro() {
-    this.notes = new Map<string, Note>()
     const top = this.newBlankNote()
     top.name = 'New note'
     this.saveNote(top)
     this.saveAll()
     this.save()
     this.view.eye = this.view.show = this.top = top
-  }
-
-  private migrateRoot(root: Note) {
-    this.notes = new Map<string, Note>()
-
-    this.top = root
-    this.migrateRootAdd(root)
-
-    this.saveAll()
-    localStorage.setItem('version', '1')
-  }
-
-  private migrateRootAdd(note: Note) {
-    this.notes.set(note.id, note)
-
-    for (const subItem of note.items) {
-      subItem.parent = note
-      this.migrateRootAdd(subItem)
-    }
   }
 }

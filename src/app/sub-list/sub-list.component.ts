@@ -139,7 +139,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   @HostListener('contextmenu', ['$event'])
-  showOptions(event: MouseEvent) {
+  async showOptions(event: MouseEvent) {
     event.preventDefault()
     event.stopPropagation()
 
@@ -187,7 +187,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       {
         title: 'Link...',
         callback: () => this.addToNote(this.list),
-        menu: this.getRecentsSubmenu(recent => {
+        menu: await this.getRecentsSubmenu(recent => {
           this.api.addRecent('search', recent.id)
           this.api.addRef(this.list, recent)
           this.focusName()
@@ -197,7 +197,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         title: 'Move...',
         callback: () => this.moveToNote(this.list),
         menu: [
-          ...this.getRecentsSubmenu(recent => {
+          ...await this.getRecentsSubmenu(recent => {
             this.api.addRecent('search', recent.id)
             this.api.moveList(this.list.id, recent.id)
           }, this.list),
@@ -231,7 +231,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         title: 'Invite...',
         callback: () => this.addInvitation(this.list),
         menu: [
-          ...this.getRecentInvitationsSubmenu(recent => {
+          ...await this.getRecentInvitationsSubmenu(recent => {
             this.api.addRecentInvitation(recent)
             this.api.addInvitationToNote(this.list, recent)
           }, this.list.invitations || [])
@@ -459,13 +459,13 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     return this.collaboration.me()
   }
 
-  showSubitemOptions(event: MouseEvent, item: Note) {
+  async showSubitemOptions(event: MouseEvent, item: Note) {
     event.preventDefault()
     event.stopPropagation()
 
     this.ui.menu([
       {
-        title: 'Link...', callback: () => this.addToNote(item), menu: this.getRecentsSubmenu(recent => {
+        title: 'Link...', callback: () => this.addToNote(item), menu: await this.getRecentsSubmenu(recent => {
           this.api.addRecent('search', recent.id)
           this.api.addRef(item, recent)
           this.focusItem(this.visualIndex(item))
@@ -473,7 +473,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
       },
       {
         title: 'Move...', callback: () => this.moveToNote(item), menu: [
-          ...this.getRecentsSubmenu(recent => {
+          ...await this.getRecentsSubmenu(recent => {
             this.api.addRecent('search', recent.id)
             this.api.moveList(item.id, recent.id)
           }, item),
@@ -507,7 +507,7 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
         title: 'Invite...',
         callback: () => this.addInvitation(item),
         menu: [
-          ...this.getRecentInvitationsSubmenu(recent => {
+          ...await this.getRecentInvitationsSubmenu(recent => {
             this.api.addRecentInvitation(recent)
             this.api.addInvitationToNote(this.list, recent)
           }, this.list.invitations || [])
@@ -621,6 +621,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
                       items.reverse().forEach(note => {
                         const newItem = this.api.newBlankList(list, pos)
                         newItem.name = note.name
+                        newItem.color = item.color
+                        newItem.options = { ...item.options }
                         this.api.modified(newItem, 'name')
                         addItems(newItem, 0, note.items)
                       })
@@ -1347,8 +1349,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     return true
   }
 
-  private getRecentsSubmenu(callback: (recent: Note) => void, exclude: Note): Array<MenuOption> {
-    const recents = this.api.getRecent('search')
+  private async getRecentsSubmenu(callback: (recent: Note) => void, exclude: Note): Promise<Array<MenuOption>> {
+    const recents = await this.api.getRecent('search')
 
     return recents.length ? recents.filter(x => x !== exclude).map(recent => {
       return {
@@ -1361,8 +1363,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
     }) : []
   }
 
-  private getRecentInvitationsSubmenu(callback: (recent: Invitation) => void, exclude: Invitation[] = []): Array<MenuOption> {
-    const recents = this.api.getRecentInvitations().filter(x => exclude.indexOf(x) === -1)
+  private async getRecentInvitationsSubmenu(callback: (recent: Invitation) => void, exclude: Invitation[] = []): Promise<Array<MenuOption>> {
+    const recents = (await this.api.getRecentInvitations()).filter(x => exclude.indexOf(x) === -1)
 
     return recents.map(recent => {
       return {

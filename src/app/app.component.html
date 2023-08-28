@@ -4,8 +4,8 @@
     <app-schedule #schedule [granularity]="nav.value"></app-schedule>
   </ng-container>
   <ng-container *ngSwitchDefault>
-    <main-list [show]="ui.getEnv().sidepane"></main-list>
-    <main-desk [list]="api.getShow()"></main-desk>
+    <main-list *ngIf="api.getEye()" [list]="api.getEye()" [show]="ui.getEnv().sidepane"></main-list>
+    <main-desk *ngIf="api.getShow()" [list]="api.getShow()"></main-desk>
   </ng-container>
 </ng-container>
 <div class="butt">

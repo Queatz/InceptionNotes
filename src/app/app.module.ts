@@ -16,7 +16,6 @@ import {SubSubListItemComponent} from './sub-sub-list-item/sub-sub-list-item.com
 import {OpComponent} from './op/op.component'
 import {MenuComponent} from './menu/menu.component'
 import {ColorPickerComponent} from './color-picker/color-picker.component'
-import {DiffComponent} from './diff/diff.component'
 import {SearchComponent} from './search/search.component'
 import {SyncService} from 'app/sync.service'
 import {WsService} from 'app/ws.service'
@@ -49,7 +48,6 @@ enableProdMode()
     OpComponent,
     MenuComponent,
     ColorPickerComponent,
-    DiffComponent,
     SearchComponent,
     AddInvitationComponent,
     WindowComponent,
