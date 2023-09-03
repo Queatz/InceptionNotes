@@ -59,6 +59,8 @@
   <label><input type="checkbox" name="unlinkOnDelete" [(ngModel)]="env.unlinkOnDelete" (ngModelChange)="update()"/>
     Unlink links on delete</label>
 </form>
+<br/><b>Stats</b><br/>
+{{totalNotes()}} notes<br />
 <br/>
 <div class="button-wrap">
   <button (click)="backup()">Download notes</button>

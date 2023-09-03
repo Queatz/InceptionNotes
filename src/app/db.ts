@@ -23,7 +23,7 @@ const delay = ms => new Promise(res => setTimeout(res, ms))
 
 const ready = async () => {
   while (!_db) {
-    await delay(50)
+    await delay(10)
   }
 }
 
@@ -67,9 +67,9 @@ export const db = {
       }
     })
   },
-  getAll: async (): Promise<Array<any>> => {
+  getAll: async (): Promise<Array<{ k: string, v: string }>> => {
     await ready()
-    return new Promise<Array<string>>((resolve, reject) => {
+    return new Promise<Array<{ k: string, v: string }>>((resolve, reject) => {
       _db.transaction('s').objectStore('s').getAll().onsuccess = (event) => {
         const result = ((event.target as IDBRequest).result) || null
         resolve(result)

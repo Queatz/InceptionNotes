@@ -1,40 +1,44 @@
 import {Injectable} from '@angular/core'
-import {WsService} from 'app/ws.service'
+import {WsService} from 'app/sync/ws.service'
 import {Event} from 'app/sync/event'
 import {ApiService, FrozenNote, Note} from 'app/api.service'
 import util from 'app/util'
 import {Conflict, ConflictService} from './conflict.service'
 import {Subject} from 'rxjs'
 
+/**
+ * Identifies the device on the server.
+ *
+ * Must be the very first event.
+ */
 export class IdentifyOutgoingEvent {
-  device: string
-
-  constructor(device: string) {
-    this.device = device
+  constructor(public device: string) {
   }
 }
 
+/**
+ * Tells the server about local state.
+ *
+ * Expects to receive state updates in turn.
+ */
 export class StateOutgoingEvent {
-  notes: Array<[string, string]>
-
-  constructor(notes: Array<[string, string]>) {
-    this.notes = notes
+  constructor(public notes: Array<[string, string]>) {
   }
 }
 
+/**
+ * Tells the server to send a full note.
+ */
 export class GetOutgoingEvent {
-  notes: Array<string>
-
-  constructor(notes: Array<string>) {
-    this.notes = notes
+  constructor(public notes: Array<string>) {
   }
 }
 
+/**
+ * Tells the server to update a note prop.
+ */
 export class SyncOutgoingEvent {
-  notes: Partial<FrozenNote>[]
-
-  constructor(notes: Partial<FrozenNote>[]) {
-    this.notes = notes
+  constructor(public notes: Partial<FrozenNote>[]) {
   }
 }
 
@@ -46,7 +50,11 @@ export class SyncService {
 
   readonly invitationsChanged = new Subject<void>()
 
-  constructor(private ws: WsService, private api: ApiService, private conflict: ConflictService) {
+  constructor(
+    private ws: WsService,
+    private api: ApiService,
+    private conflict: ConflictService
+  ) {
     this.ws.syncService = this
 
     this.ws.onBeforeOpen.subscribe(() => {
@@ -104,16 +112,16 @@ export class SyncService {
           return
         }
 
-        this.send(new SyncOutgoingEvent([
-          this.api.freezeNote(
-            {
-              id: change.note.id,
-              rev: change.note.rev,
-              [change.property]: change.note[change.property]
-            },
-            true
-          )
-        ]))
+        const n = this.api.freezeNote(
+          {
+            id: change.note.id,
+            rev: change.note.rev,
+            [change.property]: change.note[change.property]
+          },
+          true
+        )
+
+        this.send(new SyncOutgoingEvent([n]))
       }
     })
   }
@@ -203,7 +211,7 @@ export class SyncService {
     }
 
     Object.keys(n).forEach(prop => {
-      if (prop === 'id' || prop === 'rev') {
+      if (prop === 'id' || prop === 'rev' || prop === 'revSrc') {
         return
       }
       sync.push(...this.handleUpdateFromServer(note, prop, n[prop], n.rev))
@@ -225,7 +233,10 @@ export class SyncService {
    */
   handleUpdateFromServer(note: Note, prop: string, value: any, serverRev: string): string[] {
     const { value: serverProp, init } = this.api.unfreezeProp(note, prop, value)
-    if (this.api.isSynced(note, prop) || note[prop] === undefined) {
+    if (note.revSrc === this.deviceToken()) {
+      // Never use revisions from server created by this device
+      this.setSynced(note, prop, serverRev)
+    } else if (this.api.isSynced(note, prop) || note[prop] === undefined) {
       // Local prop was provided by server, overwrite
       this.setProp(note, prop, serverProp)
       this.setSynced(note, prop, serverRev)
@@ -279,8 +290,10 @@ export class SyncService {
       note[prop].push(...value)
     } else {
       if (prop === 'name' && !value) {
+        // Name cannot be null
         note[prop] = ''
       } else if (prop === 'items' && !value) {
+        // Items cannot be null
         note[prop] = []
       } else {
         note[prop] = value
@@ -346,6 +359,8 @@ export class SyncService {
     const notes: Array<[string, string]> = []
 
     for (const note of this.api.getAllNotes().values()) {
+      // Send all notes that have server revisions
+      // Don't send notes that are marked as not syncing, since they will just come back as 'gone'
       if (note.rev && note._sync !== false) {
         notes.push([note.id, note.rev])
       }

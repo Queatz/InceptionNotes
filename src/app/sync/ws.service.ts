@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core'
 import {HttpClient} from '@angular/common/http'
 import {Config} from 'app/config.service'
-import {SyncOutgoingEvent, SyncService} from 'app/sync.service'
+import {SyncOutgoingEvent, SyncService} from 'app/sync/sync.service'
 import {debounce, interval, Subject} from 'rxjs'
-import {FrozenNote} from './api.service'
-import {UiService} from './ui.service';
+import {FrozenNote} from '../api.service'
+import {UiService} from '../ui.service'
 
 @Injectable()
 export class WsService {
@@ -58,6 +58,13 @@ export class WsService {
     this.websocket?.close()
   }
 
+  /**
+   * Send events.
+   *
+   * @param events See *OutgoingEvent classes in {@file sync.service.ts}
+   * @param forceHttp Use HTTP to send the events instead of WS
+   * @param useBuffer If false, don't batch these events, send them immediately
+   */
   send(events: any[], forceHttp = false, useBuffer = true): boolean {
     if (!this.websocket || this.websocket.readyState === WebSocket.CLOSED) {
       this.reconnect()

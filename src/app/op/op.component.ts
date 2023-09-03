@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core'
 import {Env, UiService} from '../ui.service'
 import {ApiService} from '../api.service'
-import {CollaborationService} from '../collaboration.service'
-import {SyncService} from '../sync.service'
+import {CollaborationService} from '../sync/collaboration.service'
+import {SyncService} from '../sync/sync.service'
 
 @Component({
   selector: 'app-options',
@@ -56,6 +56,10 @@ export class OpComponent implements OnInit {
 
   syncAll() {
     this.sync.sendState()
+  }
+
+  totalNotes() {
+    return this.api.getAllNotes().size
   }
 
   changeName() {

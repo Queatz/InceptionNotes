@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core'
 import {Subject} from 'rxjs'
-import {CollaborationService} from 'app/collaboration.service'
+import {CollaborationService} from 'app/sync/collaboration.service'
 import {Invitation} from '../api.service'
 
 @Component({

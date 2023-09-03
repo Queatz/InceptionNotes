@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
-import {ApiService, Note} from './api.service'
-import {UiService} from './ui.service'
+import {ApiService, Note} from '../api.service'
+import {UiService} from '../ui.service'
 import {Subject} from 'rxjs'
 
 export class Conflict {
@@ -28,6 +28,10 @@ export class ConflictService {
 
   readonly conflicts = new Array<Conflict>()
   readonly resolutions = new Subject<ConflictResolution>()
+
+  /**
+   * Emits when there are no remaining conflicts to resolve
+   */
   readonly conflictsResolved = new Subject<void>()
 
   private previousEye?: Note = null

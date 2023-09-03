@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core'
-import {CollaborationService} from '../collaboration.service'
+import {CollaborationService} from '../sync/collaboration.service'
 import {ActivatedRoute, Router} from '@angular/router'
 import {Invitation} from '../api.service'
 

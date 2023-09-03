@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core'
 import {UiService} from '../ui.service'
 import {ApiService, Invitation} from '../api.service'
-import {CollaborationService} from '../collaboration.service'
+import {CollaborationService} from '../sync/collaboration.service'
 import {Config} from '../config.service';
 
 @Component({

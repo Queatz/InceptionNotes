@@ -18,7 +18,7 @@ import {ApiService, Note, Invitation} from '../api.service'
 import {MenuOption, recentsLength, UiService} from '../ui.service'
 import {ColorPickerComponent} from '../color-picker/color-picker.component'
 import {SearchComponent} from '../search/search.component'
-import {CollaborationService} from 'app/collaboration.service'
+import {CollaborationService} from 'app/sync/collaboration.service'
 import {AddInvitationComponent} from 'app/add-invitation/add-invitation.component'
 import {FilterService} from 'app/filter.service'
 import {filter as filterOp, Observable, Subject} from 'rxjs'
@@ -624,6 +624,8 @@ export class SubListComponent implements OnInit, OnChanges, OnDestroy {
                         newItem.color = item.color
                         newItem.options = { ...item.options }
                         this.api.modified(newItem, 'name')
+                        this.api.modified(newItem, 'color')
+                        this.api.modified(newItem, 'options')
                         addItems(newItem, 0, note.items)
                       })
                     }

@@ -2,10 +2,10 @@ import {Injectable} from '@angular/core'
 import {HttpClient, HttpHeaders} from '@angular/common/http'
 import {BehaviorSubject, filter, map, Observable, tap} from 'rxjs'
 
-import {ApiService, Invitation} from './api.service'
-import {UiService} from './ui.service'
+import {ApiService, Invitation} from '../api.service'
+import {UiService} from '../ui.service'
 import {Config} from 'app/config.service'
-import {SyncService} from 'app/sync.service'
+import {SyncService} from 'app/sync/sync.service'
 
 @Injectable()
 export class CollaborationService {

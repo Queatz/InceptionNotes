@@ -1,4 +1,4 @@
-import {GetOutgoingEvent, IdentifyOutgoingEvent, StateOutgoingEvent, SyncOutgoingEvent, SyncService} from 'app/sync.service'
+import {GetOutgoingEvent, IdentifyOutgoingEvent, StateOutgoingEvent, SyncOutgoingEvent, SyncService} from 'app/sync/sync.service'
 import {FrozenNote, Invitation} from '../api.service'
 
 export interface ServerEvent {
@@ -27,9 +27,24 @@ export class Event {
 }
 
 export class SyncEvent implements ServerEvent {
+  /**
+   * List of partial or full note updates, depending on {@param full}.
+   */
   notes: FrozenNote[]
+
+  /**
+   * List of notes the client no longer has access to
+   */
   gone?: string[]
+
+  /**
+   * List of notes that are read-only.
+   */
   view?: string[]
+
+  /**
+   * True if {@param notes} is non-partial and contains the full notes
+   */
   full?: boolean
 
   constructor(notes?: FrozenNote[]) {
@@ -44,10 +59,11 @@ export class SyncEvent implements ServerEvent {
     })
 
     if (this.gone) {
-      this.gone.forEach(id => sync.setGone(id))
+      this.gone?.forEach(id => sync.setGone(id))
     }
 
     // todo need to check if it's not in this list and mark it as editable
+    // todo is this still a todo?
     if (this.view) {
       this.view.forEach(id => sync.setCanEdit(id, false))
 

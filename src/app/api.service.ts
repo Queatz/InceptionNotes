@@ -26,6 +26,10 @@ export class Note {
    * Note rev from server
    */
   rev: string
+  /**
+   * The device that made this revision
+   */
+  revSrc: string
   parent?: Note
   name: string
   date?: string
@@ -65,6 +69,7 @@ export class Note {
 export class FrozenNote {
   id: string
   rev: string
+  revSrc: string
   parent?: FrozenNote
   name: string
   date?: string
@@ -87,6 +92,10 @@ export class FrozenNote {
 
 export class NoteChanges {
   public note: Note
+
+  /**
+   * The changed property, or null if the entire note is to be considered changed.
+   */
   public property: string | null
 
   constructor(note: any, property: string) {
@@ -117,7 +126,7 @@ export class ApiService {
   // Observer local changes
   public onNoteChangedObservable: Subject<NoteChanges> = new Subject<NoteChanges>()
 
-  // Observe all note updates
+  // Observe all note updates, including changes from the remote
   public onNoteUpdatedObservable: Subject<NoteChanges> = new Subject<NoteChanges>()
 
   // Observe current view changes
@@ -144,12 +153,12 @@ export class ApiService {
 
     const localNotes = new Map<string, FrozenNote | Note>()
 
-    for (const n of await db.list()) {
-      if (n.substring(0, 5) === 'note:') {
-        const n2 = JSON.parse(await db.get(n))
+    for (const n of await db.getAll()) {
+      if (n.k.substring(0, 5) === 'note:') {
+        const n2 = JSON.parse(n.v)
         localNotes.set(n2.id, n2)
-      } else if (n.substring(0, 11) === 'invitation:') {
-        this.updateInvitation(JSON.parse(await db.get(n)))
+      } else if (n.k.substring(0, 11) === 'invitation:') {
+        this.updateInvitation(JSON.parse(n.v))
       }
     }
 
@@ -283,7 +292,7 @@ export class ApiService {
   /**
    * Semi-freeze a single note
    */
-  freezeNote(a: Partial<Note>, forServer = false): FrozenNote {
+  freezeNote(a: Partial<Note>, forServer = false): Partial<FrozenNote> {
     let items: string[]
     if (a.items) {
       items = []
@@ -308,7 +317,7 @@ export class ApiService {
       }
     }
 
-    return {
+    return this.strip({
       id: a.id,
       rev: a.rev,
       name: a.name,
@@ -326,7 +335,7 @@ export class ApiService {
       created: a.created,
       updated: a.updated,
       ...(!forServer ? { _local: a._local, _sync: a._sync, _edit: a._edit } : {})
-    }
+    } as Partial<FrozenNote>)
   }
 
   /**
@@ -1261,6 +1270,19 @@ export class ApiService {
     } while (this.notes?.has(id))
 
     return id
+  }
+
+  /**
+   * Useful to prevent undefined values from overwriting existing values when using Object.assign
+   */
+  strip(note: Partial<FrozenNote>): Partial<FrozenNote> {
+    const n = {} as Partial<FrozenNote>
+    Object.entries(note).forEach(v => {
+      if (v[1] !== undefined) {
+        n[v[0]] = v[1]
+      }
+    })
+    return n
   }
 
   rawNewId() {

@@ -57,7 +57,7 @@ import {ScrollableAreaComponent} from '../scrollable-area/scrollable-area.compon
 import {OpComponent} from '../op/op.component'
 import {SearchComponent} from '../search/search.component'
 import {FilterService} from '../filter.service'
-import {CollaborationService} from '../collaboration.service'
+import {CollaborationService} from '../sync/collaboration.service'
 import {GranularityValue} from '../schedule-nav/schedule-nav.component'
 import {debounceTime, filter as filterOp, Subject} from 'rxjs'
 import {takeUntil} from 'rxjs/operators'
