@@ -16,3 +16,7 @@
   background: rgba(0, 0, 0, .1);
   cursor: pointer;
 }
+
+app-invitation-photo {
+  margin-right: 1rem;
+}

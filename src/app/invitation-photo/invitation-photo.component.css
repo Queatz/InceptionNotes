@@ -21,6 +21,10 @@
   align-items: center;
 }
 
+.invitation-img.no-margin {
+  margin: 0;
+}
+
 .invitation-img.small {
   width: 1.25rem;
   height: 1.25rem;

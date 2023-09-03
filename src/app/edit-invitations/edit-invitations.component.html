@@ -3,7 +3,7 @@
        *ngFor="let invitation of invitations"
        (click)="select($event, invitation)">
     <div>
-      <app-invitation-photo [invitation]="invitation"></app-invitation-photo>
+      <app-invitation-photo [invitation]="invitation" [noMargin]="true"></app-invitation-photo>
       <span>{{invitation.name}}</span>
       <span *ngIf="isMe(invitation)"> (it's you!)</span>
     </div>

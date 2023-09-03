@@ -11,6 +11,7 @@ export class InvitationPhotoComponent implements OnChanges {
   @Input() invitation!: Invitation
   @Input() small = false
   @Input() inverted = false
+  @Input() noMargin = false
 
   color: string
 
