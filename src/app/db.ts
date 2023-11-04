@@ -50,6 +50,22 @@ export const db = {
       txn.commit()
     })
   },
+  setAll: async (items: Array<[string, string]>): Promise<void> => {
+    await ready()
+    return new Promise<void>((resolve, reject) => {
+      const txn = _db.transaction('s', 'readwrite')
+      txn.oncomplete = () => {
+        resolve()
+      }
+      items.forEach(item => {
+        txn.objectStore('s').put({
+          'k': item[0],
+          'v': item[1],
+        })
+      })
+      txn.commit()
+    })
+  },
   delete: async (key: string): Promise<void> => {
     await ready()
     return new Promise<void>((resolve, reject) => {

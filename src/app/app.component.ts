@@ -7,10 +7,11 @@ import {CollaborationService} from 'app/sync/collaboration.service'
 import {SyncService} from 'app/sync/sync.service'
 import {Title} from '@angular/platform-browser'
 import Util from 'app/util'
-import {OpComponent} from './op/op.component';
-import {SearchComponent} from './search/search.component';
-import {FilterService} from './filter.service';
-import {EditInvitationsComponent} from './edit-invitations/edit-invitations.component';
+import {OpComponent} from './op/op.component'
+import {SearchComponent} from './search/search.component'
+import {FilterService} from './filter.service'
+import {EditInvitationsComponent} from './edit-invitations/edit-invitations.component'
+import {filter as filterOp, take} from 'rxjs'
 
 @Component({
   selector: 'app-root',
@@ -67,17 +68,23 @@ export class AppComponent {
         return
       }
 
-      let note = this.api.search(params['id'])
+      // Wait for storage to be ready
+      this.api.ready.pipe(
+        filterOp(x => x),
+        take(1)
+      ).subscribe(() => {
+        let note = this.api.search(params['id'])
 
-      if (!note) {
-        note = this.api.newBlankNote(true, params['id'])
-      }
+        if (!note) {
+          note = this.api.newBlankNote(true, params['id'])
+        }
 
-      this.setTitle(note)
+        this.setTitle(note)
 
-      if (!this.api.getShow() || note.id !== this.api.getShow().id) {
-        this.api.setEye(note)
-      }
+        if (!this.api.getShow() || note.id !== this.api.getShow().id) {
+          this.api.setEye(note)
+        }
+      })
     })
 
     this.api.onNoteUpdatedObservable.subscribe(noteChange => {
@@ -209,15 +216,15 @@ export class AppComponent {
     })
   }
 
-  @HostListener('window:keydown.shift', ['$event'])
-  shiftShiftToSearch(event: Event) {
-    if (this.shiftShift && (new Date().getTime() - this.shiftShift.getTime()) < 500) {
-      this.showSearch()
-      this.shiftShift = null
-    } else {
-      this.shiftShift = new Date()
-    }
-  }
+  // @HostListener('window:keydown.shift', ['$event'])
+  // shiftShiftToSearch(event: Event) {
+  //   if (this.shiftShift && (new Date().getTime() - this.shiftShift.getTime()) < 500) {
+  //     this.showSearch()
+  //     this.shiftShift = null
+  //   } else {
+  //     this.shiftShift = new Date()
+  //   }
+  // }
 
   @HostListener('window:keydown.alt.f', ['$event'])
   showFilter(event: Event) {

@@ -1,4 +1,4 @@
-import {getTimeZones, TimeZone} from '@vvo/tzdb';
+import {getTimeZones, TimeZone} from '@vvo/tzdb'
 
 export default class Util {
 

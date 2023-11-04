@@ -3,7 +3,7 @@
 import {Injectable} from '@angular/core'
 import {Router} from '@angular/router'
 import {recentsLength, UiService} from './ui.service'
-import {Subject} from 'rxjs'
+import {BehaviorSubject, debounce, interval, Subject} from 'rxjs'
 import {Config} from 'app/config.service'
 import Util from './util'
 import {db} from './db'
@@ -116,6 +116,10 @@ export class ApiService {
   private top: Note
   private readonly notes: Map<string, Note> = new Map<string, Note>()
   private readonly invitations: Map<string, Invitation> = new Map<string, Invitation>
+  private buffered: Set<Note> = new Set<Note>()
+  private _buffered = new Subject<void>()
+
+  readonly ready = new BehaviorSubject<boolean>(false)
 
   private readonly view: ViewConfig = {
     eye: null,
@@ -134,6 +138,15 @@ export class ApiService {
 
   constructor(private ui: UiService, private config: Config, private router: Router) {
     this.load()
+
+    this._buffered.pipe(
+      debounce(() => interval(ui.getEnv().syncInterval || 100))
+    ).subscribe(() => {
+      if (this.buffered.size) {
+        this.saveNotes(this.buffered)
+        this.buffered.clear()
+      }
+    })
   }
 
   /* Persistence */
@@ -177,6 +190,8 @@ export class ApiService {
     }
 
     this.observeStorage()
+
+    this.ready.next(true)
   }
 
   private observeStorage() {
@@ -249,8 +264,26 @@ export class ApiService {
   /**
    * Save a single note
    */
-  saveNote(note: Note) {
-    db.set('note:' + note.id, JSON.stringify(this.freezeNote(note)))
+  saveNote(note: Note, useBuffer = true) {
+    if (useBuffer) {
+      if (!this.buffered.has(note)) {
+        this.buffered.add(note)
+      }
+      this._buffered.next(null)
+    } else {
+      db.set('note:' + note.id, JSON.stringify(this.freezeNote(note)))
+    }
+  }
+
+  /**
+   * Save notes
+   */
+  private saveNotes(notes: Set<Note>) {
+    if (!notes.size) {
+      return
+    }
+
+    db.setAll([ ...notes ].map(note => ['note:' + note.id, JSON.stringify(this.freezeNote(note))]))
   }
 
   private freeze(animal: Map<string, Note>): string {
